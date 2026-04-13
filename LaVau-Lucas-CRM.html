@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>LaVau & Lucas Pipeline</title>
+<style>
+  :root {
+    --navy:       #0f2850;
+    --navy-mid:   #1e3f6e;
+    --blue:       #1d4ed8;
+    --blue-light: #dbeafe;
+    --blue-pale:  #eff6ff;
+    --sky:        #3b82f6;
+    --sage:       #5a8a6a;
+    --sage-light: #d5e8d4;
+    --gold:       #c9a84c;
+    --gold-light: #fef3cd;
+    --red:        #c0392b;
+    --red-light:  #fde8e6;
+    --orange:     #ea580c;
+    --orange-light:#fff0e0;
+    --purple-light:#efe8ff;
+    --purple:     #6037a0;
+    --green:      #1a6b2a;
+    --green-light:#e0f5e0;
+    --gray:       #6b7280;
+    --gray-light: #f3f4f6;
+    --dark:       #111827;
+    --white:      #ffffff;
+    --shadow:     0 2px 12px rgba(0,0,0,0.10);
+    --shadow-lg:  0 8px 32px rgba(0,0,0,0.16);
+    --radius:     14px;
+    --radius-sm:  8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--blue-pale);
+    color: var(--dark);
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+    color: white;
+    padding: 20px 20px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand-icon {
+    width: 38px;
+    height: 38px;
+    background: var(--blue);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .header-title {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    line-height: 1.2;
+  }
+  .header-sub {
+    font-size: 11px;
+    opacity: 0.6;
+    margin-top: 2px;
+    font-weight: 400;
+  }
+  .header-right { display: flex; gap: 8px; align-items: center; }
+  .admin-toggle {
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .admin-toggle:hover { background: rgba(255,255,255,0.24); }
+  .admin-toggle.active { background: white; color: var(--navy); }
+  .intake-link-btn {
+    background: var(--blue);
+    border: none;
+    color: white;
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* ── STATS ── */
+  .stats-bar {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .stats-bar::-webkit-scrollbar { display: none; }
+  .stat-pill {
+    background: rgba(255,255,255,0.13);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 5px 12px;
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .stat-pill span { opacity: 0.65; font-weight: 400; margin-left: 4px; }
+
+  /* ── MAIN ── */
+  main { padding: 18px 16px; max-width: 900px; margin: 0 auto; }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--navy-mid);
+    margin-bottom: 10px;
+    margin-top: 22px;
+  }
+
+  /* ── FILTER BAR ── */
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    margin-bottom: 14px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-btn {
+    background: white;
+    border: 1.5px solid #d1d5db;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    color: var(--gray);
+    transition: all 0.15s;
+  }
+  .filter-btn.active { background: var(--navy); border-color: var(--navy); color: white; }
+
+  /* ── CARDS ── */
+  .deals-grid { display: flex; flex-direction: column; gap: 12px; }
+
+  .deal-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
+    border-left: 4px solid transparent;
+  }
+  .deal-card.priority-high { border-left-color: var(--red); }
+  .deal-card.priority-mid  { border-left-color: var(--gold); }
+  .deal-card.priority-low  { border-left-color: var(--blue); }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .card-name { font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 3px; }
+  .card-address { font-size: 12px; color: var(--gray); margin-bottom: 6px; }
+  .card-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+  .card-type-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--blue-light);
+    color: var(--blue);
+  }
+  .card-type-badge.land     { background: var(--sage-light); color: var(--sage); }
+  .card-type-badge.business { background: #f3e8ff; color: #7c3aed; }
+
+  .status-badge {
+    padding: 5px 11px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 10px;
+  }
+  .status-prospect   { background: var(--blue-light);   color: var(--blue); }
+  .status-active     { background: var(--gold-light);    color: #7d6000; }
+  .status-offer      { background: var(--orange-light);  color: var(--orange); }
+  .status-contract   { background: var(--red-light);     color: var(--red); }
+  .status-diligence  { background: var(--purple-light);  color: var(--purple); }
+  .status-closing    { background: var(--green-light);   color: var(--green); }
+  .status-closed     { background: var(--sage-light);    color: var(--sage); }
+  .status-dead       { background: var(--gray-light);    color: var(--gray); }
+
+  .card-body {
+    padding: 12px 16px 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 14px;
+  }
+  .card-field label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--gray);
+    display: block;
+    margin-bottom: 2px;
+  }
+  .card-field .val { font-size: 13px; font-weight: 500; color: var(--dark); }
+  .card-field .val a { color: var(--blue); text-decoration: none; font-weight: 600; }
+  .card-field.full { grid-column: 1 / -1; }
+
+  .next-action-box {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 1px solid #bfdbfe;
+    border-radius: var(--radius-sm);
+    padding: 10px 13px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .next-action-box .icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .action-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--blue); margin-bottom: 2px; }
+  .action-text  { font-size: 13px; font-weight: 500; color: var(--dark); }
+  .action-due   { font-size: 11px; color: var(--gray); margin-top: 2px; }
+  .action-due.overdue { color: var(--red); font-weight: 700; }
+
+  .prop-details-box {
+    grid-column: 1 / -1;
+    background: #f8faff;
+    border: 1px solid #d1ddf5;
+    border-radius: var(--radius-sm);
+    padding: 10px 13px;
+  }
+  .prop-details-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--navy-mid);
+    margin-bottom: 7px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .prop-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .spec-chip {
+    background: white;
+    border: 1px solid #d1ddf5;
+    border-radius: 6px;
+    padding: 3px 9px;
+    font-size: 12px;
+    color: var(--dark);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .spec-chip strong { color: var(--navy-mid); font-weight: 700; margin-right: 3px; }
+
+  .prop-link-btn {
+    display: inline-flex;
+    align-items: center;
+    background: var(--blue-pale);
+    border: 1.5px solid var(--blue-light);
+    color: var(--blue) !important;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: background 0.15s;
+  }
+  .prop-link-btn:hover { background: var(--blue-light); }
+
+  .notes-text { font-size: 12.5px; color: #4b5563; line-height: 1.55; }
+
+  .card-footer {
+    background: #f9fafb;
+    border-top: 1px solid #f0f0f0;
+    padding: 9px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .last-contact { font-size: 11px; color: var(--gray); }
+  .last-contact strong { color: var(--dark); }
+  .card-actions { display: flex; gap: 8px; }
+  .btn-edit    { background: var(--blue); color: white; border: none; border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .btn-archive { background: var(--gray-light); color: var(--gray); border: none; border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state { text-align: center; padding: 50px 20px; color: var(--gray); }
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 15px; margin-bottom: 6px; color: var(--dark); font-weight: 600; }
+
+  /* ── FAB ── */
+  .fab {
+    position: fixed; bottom: 88px; right: 20px;
+    background: var(--blue); color: white; border: none;
+    border-radius: 28px; padding: 14px 22px; font-size: 15px; font-weight: 700;
+    box-shadow: var(--shadow-lg); cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    transition: transform 0.15s; z-index: 200;
+  }
+  .fab.hidden { display: none; }
+  .fab:active { transform: scale(0.96); }
+
+  /* ── SAVE BAR ── */
+  .save-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--navy); padding: 12px 16px;
+    display: flex; gap: 10px; z-index: 300; align-items: center;
+  }
+  .save-bar.hidden { display: none; }
+  .btn-save {
+    background: var(--blue); color: white; border: none;
+    border-radius: 22px; padding: 10px 22px; font-size: 14px; font-weight: 700;
+    cursor: pointer; flex: 1;
+  }
+  .save-bar-hint { font-size: 11px; color: rgba(255,255,255,0.5); flex: 2; line-height: 1.4; }
+
+  /* ── SHOW ARCHIVED ── */
+  .show-archived-btn {
+    display: block; width: 100%;
+    background: none; border: 1.5px dashed #cbd5e1;
+    border-radius: var(--radius-sm); padding: 12px;
+    font-size: 13px; color: var(--gray); cursor: pointer; margin-top: 16px; font-weight: 600;
+  }
+  .last-updated { text-align: center; font-size: 11px; color: var(--gray); margin-top: 20px; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+    z-index: 400; display: flex; align-items: flex-end; justify-content: center;
+  }
+  .modal-overlay.hidden { display: none; }
+  .modal {
+    background: white; border-radius: var(--radius) var(--radius) 0 0;
+    width: 100%; max-width: 640px; max-height: 92vh;
+    overflow-y: auto; padding: 20px 20px 40px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .modal-handle { width: 36px; height: 4px; background: #e5e7eb; border-radius: 2px; margin: 0 auto 18px; }
+  .modal h2 { font-size: 18px; font-weight: 800; margin-bottom: 18px; color: var(--navy); }
+
+  .form-group { margin-bottom: 14px; }
+  .form-group label {
+    display: block; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.6px; text-transform: uppercase; color: var(--gray); margin-bottom: 5px;
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: 11px 14px;
+    border: 1.5px solid #d1d5db; border-radius: var(--radius-sm);
+    font-size: 15px; font-family: inherit; color: var(--dark);
+    background: white; -webkit-appearance: none; transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none; border-color: var(--blue);
+  }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .modal-btns { display: flex; gap: 10px; margin-top: 22px; }
+  .btn-cancel  { flex: 1; background: var(--gray-light); color: var(--dark); border: none; border-radius: 22px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .btn-primary { flex: 2; background: var(--blue); color: white; border: none; border-radius: 22px; padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .btn-delete  { flex: 1; background: var(--red-light); color: var(--red); border: none; border-radius: 22px; padding: 13px; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+  @media (max-width: 420px) {
+    .form-row { grid-template-columns: 1fr; }
+    .card-body { grid-template-columns: 1fr; }
+    .next-action-box { grid-column: 1; }
+  }
+  @media (min-width: 600px) {
+    .deals-grid { gap: 16px; }
+    .card-body { grid-template-columns: 1fr 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="header-brand">
+      <div class="brand-icon">🏢</div>
+      <div>
+        <div class="header-title">LaVau &amp; Lucas Pipeline</div>
+        <div class="header-sub" id="headerSub">Hawaii, California &amp; Arizona · Commercial, Land &amp; Business</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <a class="intake-link-btn" href="https://docs.google.com/forms/d/1FXUhUC5Wg8GeIT6EeJY0qxdjSdA8R3nYRRCoEUoRM1k/viewform" target="_blank">＋ New Client</a>
+      <button class="admin-toggle" id="adminToggle" onclick="toggleAdmin()">⚙ Manage</button>
+    </div>
+  </div>
+  <div class="stats-bar" id="statsBar"></div>
+</header>
+
+<button class="fab hidden" id="fab" onclick="openModal(null)">＋ Add Deal</button>
+
+<div class="save-bar hidden" id="saveBar">
+  <button class="btn-save" onclick="saveAndDownload()">💾 Save &amp; Download</button>
+  <div class="save-bar-hint">Replace the old file in iCloud Drive after downloading to sync with Sean.</div>
+</div>
+
+<main id="main">
+  <div class="filter-bar" id="filterBar"></div>
+  <div id="dealsContainer"></div>
+  <div class="last-updated" id="lastUpdated"></div>
+</main>
+
+<div class="modal-overlay hidden" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 id="modalTitle">New Deal</h2>
+    <form id="dealForm" onsubmit="saveDeal(event)">
+      <input type="hidden" id="dealId">
+
+      <div class="form-group">
+        <label>Deal / Project Name *</label>
+        <input type="text" id="fName" placeholder="e.g. Buckeye Industrial Site" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Deal Type *</label>
+          <select id="fType" required>
+            <option value="">Select…</option>
+            <option value="Commercial">Commercial</option>
+            <option value="Land">Land / Lot</option>
+            <option value="Business">Business</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status *</label>
+          <select id="fStatus" required>
+            <option value="Prospect">🔵 Prospect</option>
+            <option value="Active">🟡 Active Pursuit</option>
+            <option value="Offer">🟠 Offer / LOI Submitted</option>
+            <option value="Contract">🔴 Under Contract</option>
+            <option value="Diligence">🟣 Due Diligence</option>
+            <option value="Closing">🟢 Closing</option>
+            <option value="Closed">✅ Closed</option>
+            <option value="Dead">⚫ Dead / Inactive</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Property Address</label>
+        <input type="text" id="fAddress" placeholder="123 Main St, Phoenix, AZ 85001">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Asking Price</label>
+          <input type="text" id="fAskPrice" placeholder="$0,000,000">
+        </div>
+        <div class="form-group">
+          <label>Offer / Contract Price</label>
+          <input type="text" id="fOfferPrice" placeholder="$0,000,000">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Client / Seller Name</label>
+          <input type="text" id="fClient" placeholder="Full name">
+        </div>
+        <div class="form-group">
+          <label>Client Phone</label>
+          <input type="tel" id="fPhone" placeholder="(602) 555-0100">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Client Email</label>
+          <input type="email" id="fEmail" placeholder="client@email.com">
+        </div>
+        <div class="form-group">
+          <label>Last Contacted</label>
+          <input type="date" id="fLastContact">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Property Details</label>
+        <textarea id="fPropDetails" placeholder="SF: 28,000 | Land: 1.5 AC | Zoning: LAMR2 | Built: 1986 | Ceiling: 20ft | Docks: 2 | Power: 800a/480v&#10;(Use | to separate specs — each becomes its own tag on the card)"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Property Profile Link</label>
+        <input type="url" id="fPropertyLink" placeholder="https://www.loopnet.com/listing/... or CoStar, Crexi, PDF, etc.">
+      </div>
+
+      <div class="form-group">
+        <label>Next Action</label>
+        <input type="text" id="fNextAction" placeholder="e.g. Send LOI, Schedule site walk…">
+      </div>
+      <div class="form-group">
+        <label>Next Action Due Date</label>
+        <input type="date" id="fNextDue">
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="fNotes" placeholder="Key context, deal structure, contingencies…"></textarea>
+      </div>
+      <div class="modal-btns" id="modalBtns">
+        <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="btn-primary">Save Deal</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  CRM DATA — Frank edits deals here in admin mode,
+//  then Save & Download bakes this into the file.
+// ═══════════════════════════════════════════════
+const CRM_DATA = {
+  lastUpdated: "April 12, 2026",
+  deals: [
+    {
+      id: "rick-delarosa-fitchow",
+      name: "Fit Chow Restaurant — Rick Delarosa",
+      type: "Business",
+      status: "Active",
+      address: "604 W Ave L Ste 101, Lancaster, CA 93534",
+      askPrice: "",
+      offerPrice: "",
+      client: "Rick Delarosa",
+      phone: "",
+      email: "",
+      lastContact: "",
+      nextAction: "Clarify deal objective — buy, sell, or lease? Gather full property details.",
+      nextDue: "2026-04-16",
+      notes: "Restaurant business: Fit Chow. Property at 604 W Ave L Ste 101, Lancaster, CA 93534.",
+      archived: false,
+      created: "2026-04-12"
+    },
+    {
+      id: "john-barrett-winery",
+      name: "Barrett Winery — John Barrett",
+      type: "Business",
+      status: "Active",
+      address: "114 Newgrove St, Lancaster, CA 93534",
+      askPrice: "",
+      offerPrice: "",
+      client: "John Barrett",
+      phone: "",
+      email: "",
+      lastContact: "2026-02-16",
+      nextAction: "Follow up with John — still waiting on copies of his paperwork",
+      nextDue: "2026-04-16",
+      notes: "Objective: Sell the property for John. Deferred maintenance issues noted (repairs postponed that need addressing). City of Lancaster Zoning: 661-723-6100. Email sent 02/16. Barrett Winery Checklist in progress. Steve Lombardo (title) involved.",
+      archived: false,
+      created: "2026-04-12"
+    },
+    {
+      id: "emil-ovrid-motorcycle",
+      name: "Motorcycle Business SBA Purchase — Emil Ovrid",
+      type: "Commercial",
+      status: "Active",
+      address: "Palmdale / Santa Clarita, CA (searching)",
+      askPrice: "",
+      offerPrice: "",
+      client: "Emil Ovrid",
+      phone: "",
+      email: "emilovrid122@gmail.com",
+      lastContact: "2026-02-25",
+      propertyDetails: "",
+      nextAction: "Find mixed-use properties in Palmdale/SCV matching buyer criteria — send options to Emil",
+      nextDue: "2026-04-16",
+      notes: "Buyer seeking owner-user relocation + expansion (motorcycle business). Submitted intake 2/25/2026.\n\nClient Requirements: Mixed-use | ~5,000 SF | 16ft min clear height | Roll-up doors | Single-phase power | Yard needed | Low office build-out | Markets: Palmdale / Santa Clarita | Budget: ~$1/SF | Payment comfort: $5K/mo | Reno budget: $15K | Financing: SBA",
+      archived: false,
+      created: "2026-04-12"
+    },
+    {
+      id: "jennifer-harless-church",
+      name: "Church Title Issue — Jennifer Harless",
+      type: "Commercial",
+      status: "Active",
+      address: "2646 East Ave Q-4, Palmdale, CA",
+      askPrice: "",
+      offerPrice: "",
+      client: "Jennifer Harless",
+      phone: "(661) 810-1676",
+      email: "Mckymose@gmail.com",
+      lastContact: "",
+      propertyDetails: "Address: 2646 East Ave Q-4, Palmdale CA | Type: Church / Commercial | Title Status: Terminated 3/24/2020 | Corp: Palmdale Landmark Missionary Baptist Church",
+      nextAction: "Client must provide all purchase documentation for title resolution — follow up",
+      nextDue: "2026-04-16",
+      notes: "Complex title issue. Per Steve Lombardo (Title): Need corporate paperwork proving signing authority + governing authority approval. Options: (1) Reinstate corporation, (2) Quiet title action via courts. Senior underwriting approval likely required. Pastor may not be authorized signer.",
+      archived: false,
+      created: "2026-04-12"
+    },
+    {
+      id: "jennifer-kelsey-land",
+      name: "Cal Water Vacant Land — Jennifer Kelsey",
+      type: "Land",
+      status: "Active",
+      address: "Vac Avenue M, Littlerock, CA 93543",
+      askPrice: "",
+      offerPrice: "",
+      client: "Jennifer Kelsey",
+      phone: "(408) 367-8200",
+      email: "Propertiesinquiries@calwater.com",
+      lastContact: "2026-02-11",
+      propertyDetails: "APN: 3109-022-039 | Acres: 2.36 | Zoning: LRA22 | Use: Church school",
+      nextAction: "Sean to send warm & professional email re: APN inquiry — confirm email address first",
+      nextDue: "2026-03-05",
+      notes: "Purchasing vacant land for church school. Must verify email (Propertiesinquiries@calwater.com) is correct before sending. Keep tone very warm and professional.",
+      archived: false,
+      created: "2026-04-12"
+    },
+    {
+      id: "ricky-stamps-repo",
+      name: "Bank Repo Research — Ricky Stamps",
+      type: "Commercial",
+      status: "Prospect",
+      address: "6578 Elder (city TBD)",
+      askPrice: "",
+      offerPrice: "",
+      client: "Ricky Stamps",
+      phone: "",
+      email: "",
+      lastContact: "2026-02-16",
+      nextAction: "Research Freddie Mac REO Department for property status",
+      nextDue: "2026-04-16",
+      notes: "Bank repo property. Asked Rick on status 02/16. Email sent to Steve Lombardo 02/16. Need to look into Freddie Mac REO Department.",
+      archived: false,
+      created: "2026-04-12"
+    },
+    {
+      id: "kris-vaca-industrial",
+      name: "Industrial Lease — Kris Vaca",
+      type: "Commercial",
+      status: "Prospect",
+      address: "TBD",
+      askPrice: "",
+      offerPrice: "",
+      client: "Kris Vaca",
+      phone: "",
+      email: "",
+      lastContact: "",
+      nextAction: "Qualify Kris — get property size, budget, location requirements",
+      nextDue: "2026-04-16",
+      notes: "Contractor seeking industrial lease. Location and details TBD.",
+      archived: false,
+      created: "2026-04-12"
+    },
+    {
+      id: "steven-medina-lease",
+      name: "Commercial Lease — Steven Medina",
+      type: "Commercial",
+      status: "Prospect",
+      address: "TBD",
+      askPrice: "",
+      offerPrice: "",
+      client: "Steven Medina",
+      phone: "",
+      email: "",
+      lastContact: "",
+      nextAction: "Qualify Steven — get property size, budget, location requirements",
+      nextDue: "2026-04-16",
+      notes: "Fitness coach seeking commercial space for lease. Location and details TBD.",
+      archived: false,
+      created: "2026-04-12"
+    },
+    {
+      id: "lf-illumination-dearing",
+      name: "LF Illumination — 9200 Dearing Ave",
+      type: "Commercial",
+      status: "Active",
+      address: "9200 Dearing Ave, Chatsworth, CA",
+      askPrice: "",
+      offerPrice: "",
+      client: "Anthony",
+      phone: "(818) 885-1335",
+      email: "",
+      lastContact: "",
+      propertyDetails: "SF: 34,424 | Land: 1.50 AC | Zoning: LAMR2 | Built: 1980 | Ceiling: 15ft | Docks: 1 ext (10w×12h) | Parking: 0.87/1000",
+      nextAction: "Follow up with Anthony — lease expires April, confirm relocation interest",
+      nextDue: "2026-04-16",
+      notes: "Leasing opportunity. Lease coming up April 2026. Company is a subset of Delta Light Group (HQ: Belgium). Anthony said they are considering moving.",
+      archived: false,
+      created: "2026-04-12"
+    },
+    {
+      id: "lurline-9144-deering",
+      name: "Lurline Investment — 9144 Deering Ave",
+      type: "Commercial",
+      status: "Active",
+      address: "9144 Deering Ave, Chatsworth, CA",
+      askPrice: "",
+      offerPrice: "",
+      client: "Murray Siegal",
+      phone: "",
+      email: "",
+      lastContact: "",
+      propertyDetails: "SF: 27,960 | Land: 0.92 AC | Zoning: LAMR2 | Built: 1986 | Ceiling: 20ft | Docks: 2 (12w×12h) | Power: 800a/277-480v 3ph 4w Heavy | Parking: 1.70/1000",
+      nextAction: "Contact Scott Cadswell (Leasing Agent) — property vacant until April",
+      nextDue: "2026-04-16",
+      notes: "Lease opportunity. Vacant until April. Leasing Agent: Scott Cadswell (owns 80% of Chatsworth Market). ⚠️ Murray Siegal does not like being told what to do — handle carefully.",
+      archived: false,
+      created: "2026-04-12"
+    },
+    {
+      id: "whitecap-sunburst",
+      name: "WhiteCap Expansion — 20131 Sunburst St",
+      type: "Commercial",
+      status: "Active",
+      address: "20131 Sunburst St, Chatsworth, CA",
+      askPrice: "",
+      offerPrice: "",
+      client: "Eduardo (Eddy) Preciado",
+      phone: "(818) 727-1600",
+      email: "",
+      lastContact: "",
+      propertyDetails: "SF: 28,125 | Land: 1.50 AC | Zoning: LAMR2 | Built: 1966 | Ceiling: 20ft | Docks: 2 (12w×14h) | Parking: 1.78/1000",
+      nextAction: "Confirm expansion timeline and space requirements with Eddy",
+      nextDue: "2026-04-16",
+      notes: "WhiteCap looking to expand. Current loc: 8966 Comanche Ave (50K SF, 22yr lease). HQ: Norcross, GA. Company has deep roots — strong tenant.",
+      archived: false,
+      created: "2026-04-12"
+    },
+    {
+      id: "vatche-aida-eton",
+      name: "Lease / Buyout Opportunity — 9757 Eton Ave",
+      type: "Commercial",
+      status: "Prospect",
+      address: "9757 Eton Ave, Chatsworth, CA",
+      askPrice: "",
+      offerPrice: "",
+      client: "Vatche & Aida",
+      phone: "",
+      email: "",
+      lastContact: "",
+      propertyDetails: "SF: 6,480 | Land: 0.30 AC | Zoning: MR2 | Built: 1980 | Docks: 1 (10w×12h) | Parking: 1.08/1000",
+      nextAction: "Call again — no response yet on lease/buyout opportunity",
+      nextDue: "2026-04-16",
+      notes: "Small vacant unit. Potential lease or buyout. No response on initial call attempt.",
+      archived: false,
+      created: "2026-04-12"
+    },
+    {
+      id: "roe-visual-oso",
+      name: "ROE Visual Expansion — 9311 Oso Ave",
+      type: "Commercial",
+      status: "Active",
+      address: "9311-9315 Oso Ave, Chatsworth, CA",
+      askPrice: "",
+      offerPrice: "",
+      client: "Angel (Branch Manager)",
+      phone: "",
+      email: "",
+      lastContact: "",
+      propertyDetails: "SF: 35,785 | Land: 1.71 AC | Zoning: MR2-1 | Built: 1977 | Ceiling: 21ft | Docks: 4 ext + 1 drive-by (12w×14h, 2 levelers) | Power: 2,000a/277-480v 3ph 4w Heavy | Parking: 2.18/1000",
+      nextAction: "Follow up with Angel — confirm expansion plans, they are over capacity",
+      nextDue: "2026-04-16",
+      notes: "Company over capacity, considering expansion. Also owns 9232 Eton Ave (purchased 2024 for $6.3M) — serious buyer with capital.",
+      archived: false,
+      created: "2026-04-12"
+    }
+  ]
+};
+
+// ── STATE ──
+let isAdmin = false;
+let activeFilter = "All";
+let showArchived = false;
+let editingId = null;
+
+const STATUS_ORDER = ["Prospect","Active","Offer","Contract","Diligence","Closing","Closed","Dead"];
+const STATUS_LABELS = {
+  Prospect:"Prospect", Active:"Active Pursuit", Offer:"Offer/LOI",
+  Contract:"Under Contract", Diligence:"Due Diligence", Closing:"Closing",
+  Closed:"Closed", Dead:"Inactive"
+};
+
+document.addEventListener('DOMContentLoaded', render);
+
+function render() { renderStats(); renderFilters(); renderDeals(); renderLastUpdated(); }
+
+// ── STATS ──
+function renderStats() {
+  const active  = CRM_DATA.deals.filter(d => !d.archived && d.status !== 'Closed' && d.status !== 'Dead');
+  const closing = CRM_DATA.deals.filter(d => !d.archived && ['Closing','Contract','Diligence'].includes(d.status));
+  const closed  = CRM_DATA.deals.filter(d => d.status === 'Closed');
+  const overdue = active.filter(d => d.nextDue && new Date(d.nextDue+'T23:59:59') < new Date());
+  document.getElementById('statsBar').innerHTML = [
+    `<div class="stat-pill">${active.length} <span>Active</span></div>`,
+    `<div class="stat-pill">${closing.length} <span>In Pipeline</span></div>`,
+    `<div class="stat-pill">${overdue.length} <span>Overdue</span></div>`,
+    `<div class="stat-pill">${closed.length} <span>Closed</span></div>`
+  ].join('');
+  document.getElementById('headerSub').textContent =
+    `Arizona Commercial & Land · ${CRM_DATA.deals.length} total deals`;
+}
+
+// ── FILTERS ──
+function renderFilters() {
+  const filters = ['All','Commercial','Land','Business','Overdue','Prospect','Active','Offer','Contract','Closing'];
+  const labels  = {Offer:'Offer/LOI', Contract:'Under Contract'};
+  document.getElementById('filterBar').innerHTML = filters.map(f =>
+    `<button class="filter-btn ${activeFilter===f?'active':''}" onclick="setFilter('${f}')">${labels[f]||f}</button>`
+  ).join('');
+}
+function setFilter(f) { activeFilter = f; renderFilters(); renderDeals(); }
+
+// ── DEALS ──
+function getFilteredDeals() {
+  let deals = CRM_DATA.deals.filter(d => !d.archived);
+  if (activeFilter === 'All') {
+    deals = deals.filter(d => d.status !== 'Closed' && d.status !== 'Dead');
+  } else if (['Commercial','Land','Business'].includes(activeFilter)) {
+    deals = deals.filter(d => d.type === activeFilter && d.status !== 'Closed' && d.status !== 'Dead');
+  } else if (activeFilter === 'Overdue') {
+    deals = deals.filter(d => d.nextDue && new Date(d.nextDue+'T23:59:59') < new Date() && d.status !== 'Closed' && d.status !== 'Dead');
+  } else {
+    deals = deals.filter(d => d.status === activeFilter);
+  }
+  const now = new Date();
+  const isOverdue = d => d.nextDue && new Date(d.nextDue+'T23:59:59') < now && d.status !== 'Closed' && d.status !== 'Dead';
+  return deals.sort((a,b) => {
+    // Overdue always first
+    const ao = isOverdue(a) ? 0 : 1;
+    const bo = isOverdue(b) ? 0 : 1;
+    if (ao !== bo) return ao - bo;
+    // Then by pipeline stage
+    const si = STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status);
+    if (si !== 0) return si;
+    // Then by earliest due date
+    if (a.nextDue && b.nextDue) return a.nextDue.localeCompare(b.nextDue);
+    return 0;
+  });
+}
+
+function renderDeals() {
+  const container = document.getElementById('dealsContainer');
+  const deals = getFilteredDeals();
+  if (deals.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="icon">🏙️</div><p>No deals here yet</p><small>${isAdmin?'Tap "+ Add Deal" below to get started.':'Check back — Frank will add deals soon.'}</small></div>`;
+    renderArchivedToggle(container); return;
+  }
+  const sections = {};
+  deals.forEach(d => { (sections[d.type||'Other'] = sections[d.type||'Other']||[]).push(d); });
+  let html = '';
+  for (const [type, td] of Object.entries(sections)) {
+    if (Object.keys(sections).length > 1)
+      html += `<div class="section-label">${type==='Land'?'🌵 Land / Lots':'🏢 Commercial'}</div>`;
+    html += `<div class="deals-grid">${td.map(buildCard).join('')}</div>`;
+  }
+  container.innerHTML = html;
+  renderArchivedToggle(container);
+}
+
+function renderArchivedToggle(container) {
+  const closed = CRM_DATA.deals.filter(d => d.status==='Closed'||d.status==='Dead'||d.archived);
+  if (!closed.length) return;
+  const btn = document.createElement('button');
+  btn.className = 'show-archived-btn';
+  btn.textContent = showArchived ? `▲ Hide Closed / Inactive (${closed.length})` : `▼ Show Closed / Inactive (${closed.length})`;
+  btn.onclick = () => { showArchived = !showArchived; renderDeals(); };
+  container.appendChild(btn);
+  if (showArchived) {
+    const div = document.createElement('div');
+    div.innerHTML = `<div class="section-label" style="margin-top:20px">Closed / Inactive</div><div class="deals-grid">${closed.map(buildCard).join('')}</div>`;
+    container.appendChild(div);
+  }
+}
+
+function buildCard(d) {
+  const overdue = d.nextDue && new Date(d.nextDue+'T23:59:59') < new Date() && d.status!=='Closed' && d.status!=='Dead';
+  const daysAgo = d.lastContact ? daysSince(d.lastContact) : null;
+  const priority = ['Contract','Closing','Diligence'].includes(d.status) ? 'high' : ['Offer','Active'].includes(d.status) ? 'mid' : 'low';
+  return `
+  <div class="deal-card priority-${priority}">
+    <div class="card-top">
+      <div>
+        <div class="card-name">${esc(d.name)}</div>
+        ${d.address?`<div class="card-address">📍 ${esc(d.address)}</div>`:''}
+        <div class="card-badges">
+          <span class="card-type-badge ${d.type==='Land'?'land':d.type==='Business'?'business':''}">${d.type||'Deal'}</span>
+        </div>
+      </div>
+      <span class="status-badge status-${(d.status||'prospect').toLowerCase()}">${STATUS_LABELS[d.status]||d.status}</span>
+    </div>
+    <div class="card-body">
+      ${d.client?`<div class="card-field"><label>Client / Seller</label><div class="val">${esc(d.client)}</div></div>`:''}
+      ${d.phone?`<div class="card-field"><label>Phone</label><div class="val"><a href="tel:${esc(d.phone)}">${esc(d.phone)}</a> <a href="sms:${esc(d.phone)}" style="font-size:11px;color:var(--sage)">💬 Text</a></div></div>`:''}
+      ${d.askPrice?`<div class="card-field"><label>Asking Price</label><div class="val">${esc(d.askPrice)}</div></div>`:''}
+      ${d.offerPrice?`<div class="card-field"><label>Offer / Contract</label><div class="val" style="color:var(--blue);font-weight:700">${esc(d.offerPrice)}</div></div>`:''}
+      ${d.email?`<div class="card-field"><label>Email</label><div class="val"><a href="mailto:${esc(d.email)}">${esc(d.email)}</a></div></div>`:''}
+      ${d.nextAction?`<div class="next-action-box"><div class="icon">⚡</div><div><div class="action-label">Next Action</div><div class="action-text">${esc(d.nextAction)}</div>${d.nextDue?`<div class="action-due ${overdue?'overdue':''}">${overdue?'⚠️ Overdue · ':''}Due ${formatDate(d.nextDue)}</div>`:''}</div></div>`:''}
+      ${d.propertyDetails ? buildPropDetails(d.propertyDetails) : ''}
+      ${d.propertyLink ? `<div class="card-field full"><label>Property Profile</label><div class="val"><a href="${esc(d.propertyLink)}" target="_blank" class="prop-link-btn">🔗 View Listing / Profile →</a></div></div>` : ''}
+      ${d.notes?`<div class="card-field full"><label>Notes</label><div class="val notes-text">${esc(d.notes)}</div></div>`:''}
+    </div>
+    <div class="card-footer">
+      <div class="last-contact">${daysAgo!==null?`Last contact: <strong>${daysAgo===0?'Today':daysAgo===1?'Yesterday':daysAgo+' days ago'}</strong> · ${formatDate(d.lastContact)}`:'<span style="color:#bbb">No contact logged</span>'}</div>
+      ${isAdmin?`<div class="card-actions"><button class="btn-edit" onclick="openModal('${d.id}')">Edit</button><button class="btn-archive" onclick="toggleArchive('${d.id}')">${d.archived?'Restore':'Archive'}</button></div>`:''}
+    </div>
+  </div>`;
+}
+
+// Parses "SF: 34,424 | Zoning: LAMR2 | Ceiling: 20ft" into styled chips
+function buildPropDetails(raw) {
+  if (!raw || !raw.trim()) return '';
+  // Split on | or newline
+  const parts = raw.split(/\s*[\|\n]\s*/).map(s => s.trim()).filter(Boolean);
+  const chips = parts.map(p => {
+    // If it has a colon, bold the label
+    const colonIdx = p.indexOf(':');
+    if (colonIdx > 0) {
+      const label = p.slice(0, colonIdx).trim();
+      const val   = p.slice(colonIdx + 1).trim();
+      return `<span class="spec-chip"><strong>${esc(label)}:</strong>${esc(val)}</span>`;
+    }
+    return `<span class="spec-chip">${esc(p)}</span>`;
+  }).join('');
+  return `<div class="prop-details-box">
+    <div class="prop-details-label">🏗 Property Details</div>
+    <div class="prop-specs">${chips}</div>
+  </div>`;
+}
+
+function renderLastUpdated() {
+  document.getElementById('lastUpdated').textContent = CRM_DATA.lastUpdated ? `Last updated by Frank: ${CRM_DATA.lastUpdated}` : '';
+}
+
+// ── ADMIN ──
+function toggleAdmin() {
+  isAdmin = !isAdmin;
+  const btn = document.getElementById('adminToggle');
+  btn.textContent = isAdmin ? '✕ Exit Manage' : '⚙ Manage';
+  btn.classList.toggle('active', isAdmin);
+  document.getElementById('fab').classList.toggle('hidden', !isAdmin);
+  document.getElementById('saveBar').classList.toggle('hidden', !isAdmin);
+  renderDeals();
+}
+
+// ── MODAL ──
+function openModal(id) {
+  editingId = id;
+  document.getElementById('dealForm').reset();
+  const title = document.getElementById('modalTitle');
+  const btns  = document.getElementById('modalBtns');
+  if (id) {
+    const d = CRM_DATA.deals.find(x => x.id === id);
+    title.textContent = 'Edit Deal';
+    document.getElementById('dealId').value       = d.id;
+    document.getElementById('fName').value        = d.name||'';
+    document.getElementById('fType').value        = d.type||'';
+    document.getElementById('fStatus').value      = d.status||'Prospect';
+    document.getElementById('fAddress').value     = d.address||'';
+    document.getElementById('fAskPrice').value    = d.askPrice||'';
+    document.getElementById('fOfferPrice').value  = d.offerPrice||'';
+    document.getElementById('fClient').value      = d.client||'';
+    document.getElementById('fPhone').value       = d.phone||'';
+    document.getElementById('fEmail').value       = d.email||'';
+    document.getElementById('fLastContact').value = d.lastContact||'';
+    document.getElementById('fPropDetails').value    = d.propertyDetails||'';
+    document.getElementById('fPropertyLink').value   = d.propertyLink||'';
+    document.getElementById('fNextAction').value  = d.nextAction||'';
+    document.getElementById('fNextDue').value     = d.nextDue||'';
+    document.getElementById('fNotes').value       = d.notes||'';
+    btns.innerHTML = `<button type="button" class="btn-delete" onclick="deleteDeal('${id}')">Delete</button><button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button><button type="submit" class="btn-primary">Save</button>`;
+  } else {
+    title.textContent = 'New Deal';
+    document.getElementById('dealId').value = '';
+    btns.innerHTML = `<button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button><button type="submit" class="btn-primary">Add Deal</button>`;
+  }
+  document.getElementById('modalOverlay').classList.remove('hidden');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.add('hidden'); editingId = null; }
+function handleOverlayClick(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+
+function saveDeal(e) {
+  e.preventDefault();
+  const id = document.getElementById('dealId').value || ('deal-' + Date.now());
+  const existing = CRM_DATA.deals.find(d => d.id === id);
+  const dealData = {
+    id, archived: false,
+    created: existing?.created || todayISO(),
+    name:        document.getElementById('fName').value.trim(),
+    type:        document.getElementById('fType').value,
+    status:      document.getElementById('fStatus').value,
+    address:     document.getElementById('fAddress').value.trim(),
+    askPrice:    document.getElementById('fAskPrice').value.trim(),
+    offerPrice:  document.getElementById('fOfferPrice').value.trim(),
+    client:      document.getElementById('fClient').value.trim(),
+    phone:       document.getElementById('fPhone').value.trim(),
+    email:       document.getElementById('fEmail').value.trim(),
+    lastContact: document.getElementById('fLastContact').value,
+    propertyDetails: document.getElementById('fPropDetails').value.trim(),
+    propertyLink:    document.getElementById('fPropertyLink').value.trim(),
+    nextAction:  document.getElementById('fNextAction').value.trim(),
+    nextDue:     document.getElementById('fNextDue').value,
+    notes:       document.getElementById('fNotes').value.trim(),
+  };
+  const idx = CRM_DATA.deals.findIndex(d => d.id === id);
+  if (idx >= 0) CRM_DATA.deals[idx] = dealData; else CRM_DATA.deals.push(dealData);
+  closeModal(); render();
+}
+function deleteDeal(id) {
+  if (!confirm('Delete this deal permanently?')) return;
+  CRM_DATA.deals = CRM_DATA.deals.filter(d => d.id !== id);
+  closeModal(); render();
+}
+function toggleArchive(id) {
+  const d = CRM_DATA.deals.find(x => x.id === id);
+  if (d) d.archived = !d.archived;
+  render();
+}
+
+// ── SAVE & DOWNLOAD ──
+function saveAndDownload() {
+  CRM_DATA.lastUpdated = new Date().toLocaleDateString('en-US',
+    {year:'numeric',month:'long',day:'numeric',hour:'numeric',minute:'2-digit'});
+  const src = document.documentElement.outerHTML;
+  const newData = 'const CRM_DATA = ' + JSON.stringify(CRM_DATA, null, 2) + ';';
+  const updated = src.replace(/const CRM_DATA = \{[\s\S]*?\};(?=\n)/, newData);
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(new Blob([updated], {type:'text/html'})),
+    download: 'LaVau-Lucas-CRM.html'
+  });
+  a.click(); URL.revokeObjectURL(a.href);
+  renderLastUpdated();
+  alert('✅ Downloaded!\n\nReplace the file in your iCloud Drive with this new version. Sean will see all updates next time he opens it.');
+}
+
+// ── HELPERS ──
+function esc(s) { return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : ''; }
+function formatDate(iso) {
+  if (!iso) return '';
+  const [y,m,d] = iso.split('-');
+  return `${'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ')[+m-1]} ${+d}, ${y}`;
+}
+function daysSince(iso) {
+  if (!iso) return null;
+  return Math.floor((new Date() - new Date(iso+'T12:00:00')) / 86400000);
+}
+function todayISO() { return new Date().toISOString().split('T')[0]; }
+</script>
+</body>
+</html>

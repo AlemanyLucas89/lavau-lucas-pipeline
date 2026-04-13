@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LaVau & Lucas · New Client</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --navy: #0f2850;
+    --navy-mid: #1e3f6e;
+    --blue: #1d4ed8;
+    --blue-light: #dbeafe;
+    --blue-pale: #eff6ff;
+    --gray: #6b7280;
+    --dark: #111827;
+    --white: #ffffff;
+    --radius: 16px;
+    --shadow: 0 4px 20px rgba(0,0,0,0.10);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.16);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--blue-pale);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+    color: white;
+    padding: 28px 24px 24px;
+    text-align: center;
+  }
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .logo-icon {
+    width: 48px; height: 48px;
+    background: var(--blue);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+  }
+  .logo-name { font-size: 22px; font-weight: 800; letter-spacing: 0.3px; }
+  .logo-tag  { font-size: 12px; opacity: 0.6; letter-spacing: 1px; text-transform: uppercase; margin-top: 1px; }
+  header p   { font-size: 15px; opacity: 0.75; margin-top: 8px; max-width: 400px; margin-left: auto; margin-right: auto; line-height: 1.5; }
+
+  /* ── MAIN CARD ── */
+  .page-wrap { flex: 1; padding: 28px 16px 60px; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+
+  .card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 520px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    background: var(--blue-pale);
+    border-bottom: 1px solid var(--blue-light);
+    padding: 16px 22px;
+  }
+  .card-header h2 { font-size: 15px; font-weight: 700; color: var(--navy); }
+  .card-header p  { font-size: 12px; color: var(--gray); margin-top: 3px; }
+
+  /* ── LINK SHARE CARD ── */
+  .link-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 22px;
+  }
+  .form-link-input {
+    flex: 1;
+    background: var(--blue-pale);
+    border: 1.5px solid var(--blue-light);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--navy);
+    font-family: inherit;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: text;
+    word-break: break-all;
+  }
+  .copy-btn {
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .copy-btn:hover { background: #1a43c0; }
+  .copy-btn.copied { background: #15803d; }
+
+  .open-btn {
+    display: block;
+    text-align: center;
+    background: var(--navy);
+    color: white;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 15px 22px;
+    margin: 0 22px 22px;
+    border-radius: 12px;
+    transition: opacity 0.2s;
+  }
+  .open-btn:hover { opacity: 0.9; }
+
+  /* ── QR CARD ── */
+  .qr-wrap {
+    padding: 24px 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  #qrcode canvas, #qrcode img { border-radius: 8px; }
+  .qr-label {
+    font-size: 13px;
+    color: var(--gray);
+    text-align: center;
+    line-height: 1.5;
+  }
+  .qr-label strong { color: var(--dark); display: block; font-size: 14px; margin-bottom: 2px; }
+
+  .download-qr-btn {
+    background: var(--blue-pale);
+    border: 1.5px solid var(--blue-light);
+    color: var(--blue);
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .download-qr-btn:hover { background: var(--blue-light); }
+
+  /* ── HOW IT WORKS ── */
+  .steps { padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
+  .step { display: flex; gap: 14px; align-items: flex-start; }
+  .step-num {
+    width: 32px; height: 32px; flex-shrink: 0;
+    background: var(--blue); color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800;
+  }
+  .step-text h3 { font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 2px; }
+  .step-text p  { font-size: 12px; color: var(--gray); line-height: 1.4; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 11px;
+    color: var(--gray);
+    letter-spacing: 0.3px;
+  }
+
+  @media (max-width: 420px) {
+    .link-row { flex-direction: column; }
+    .form-link-input { width: 100%; }
+    .copy-btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🏢</div>
+    <div>
+      <div class="logo-name">LaVau &amp; Lucas</div>
+      <div class="logo-tag">Arizona Real Estate</div>
+    </div>
+  </div>
+  <p>Thank you for your interest. Fill out the form below and we'll be in touch shortly.</p>
+</header>
+
+<div class="page-wrap">
+
+  <!-- SHARE LINK CARD -->
+  <div class="card">
+    <div class="card-header">
+      <h2>🔗 Client Intake Form Link</h2>
+      <p>Send this link to potential clients via text, email, or social media.</p>
+    </div>
+    <div class="link-row">
+      <div class="form-link-input" id="formLink">https://docs.google.com/forms/d/1FXUhUC5Wg8GeIT6EeJY0qxdjSdA8R3nYRRCoEUoRM1k/viewform</div>
+      <button class="copy-btn" id="copyBtn" onclick="copyLink()">Copy</button>
+    </div>
+    <a class="open-btn" href="https://docs.google.com/forms/d/1FXUhUC5Wg8GeIT6EeJY0qxdjSdA8R3nYRRCoEUoRM1k/viewform" target="_blank">
+      📋 Open Client Form →
+    </a>
+  </div>
+
+  <!-- QR CODE CARD -->
+  <div class="card">
+    <div class="card-header">
+      <h2>📱 QR Code for In-Person Use</h2>
+      <p>Print this or show it on your phone — clients scan to go straight to the form.</p>
+    </div>
+    <div class="qr-wrap">
+      <div id="qrcode"></div>
+      <div class="qr-label">
+        <strong>LaVau &amp; Lucas — Client Intake</strong>
+        Scan with any iPhone or Android camera app
+      </div>
+      <button class="download-qr-btn" onclick="downloadQR()">⬇️ Download QR Code</button>
+    </div>
+  </div>
+
+  <!-- HOW TO USE CARD -->
+  <div class="card">
+    <div class="card-header">
+      <h2>💡 How to Use This</h2>
+      <p>Three ways to get new clients into your system.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <h3>Text the Link</h3>
+          <p>Copy the link above and paste it into an iMessage or email to a potential client. They fill it out, you get their info.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <h3>Show the QR Code</h3>
+          <p>At a property, meeting, or networking event — pull up this page and let them scan the QR code with their camera.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <h3>Print &amp; Post It</h3>
+          <p>Download the QR code and print it on flyers, signs, or business cards. Works anywhere you'd put your contact info.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>LaVau &amp; Lucas · Arizona Commercial &amp; Land Real Estate</footer>
+
+<script>
+const FORM_URL = 'https://docs.google.com/forms/d/1FXUhUC5Wg8GeIT6EeJY0qxdjSdA8R3nYRRCoEUoRM1k/viewform';
+
+// Generate QR code
+new QRCode(document.getElementById('qrcode'), {
+  text: FORM_URL,
+  width: 220,
+  height: 220,
+  colorDark: '#0f2850',
+  colorLight: '#ffffff',
+  correctLevel: QRCode.CorrectLevel.H
+});
+
+function copyLink() {
+  navigator.clipboard.writeText(FORM_URL).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => {
+    // Fallback for older iOS
+    const el = document.createElement('textarea');
+    el.value = FORM_URL;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+  });
+}
+
+function downloadQR() {
+  setTimeout(() => {
+    const canvas = document.querySelector('#qrcode canvas');
+    if (!canvas) { alert('QR code still loading — try again in a second.'); return; }
+    const link = document.createElement('a');
+    link.download = 'LaVau-Lucas-QR-Code.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }, 100);
+}
+</script>
+
+</body>
+</html>
