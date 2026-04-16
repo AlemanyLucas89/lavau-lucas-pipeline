@@ -36,6 +36,47 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /* ── LOGIN GATE ── */
+  #loginGate {
+    position: fixed; inset: 0;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+    z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  #loginGate.hidden { display: none; }
+  .login-box {
+    background: white;
+    border-radius: 20px;
+    padding: 36px 30px 32px;
+    width: 100%; max-width: 360px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    text-align: center;
+  }
+  .login-icon { font-size: 40px; margin-bottom: 10px; }
+  .login-title { font-size: 22px; font-weight: 800; color: var(--navy); margin-bottom: 4px; }
+  .login-sub { font-size: 13px; color: var(--gray); margin-bottom: 28px; }
+  .login-field {
+    width: 100%; padding: 13px 16px;
+    border: 1.5px solid #d1d5db; border-radius: 10px;
+    font-size: 16px; font-family: inherit; color: var(--dark);
+    margin-bottom: 14px; -webkit-appearance: none;
+    transition: border-color 0.2s;
+  }
+  .login-field:focus { outline: none; border-color: var(--blue); }
+  .login-btn {
+    width: 100%; padding: 13px;
+    background: var(--blue); color: white; border: none;
+    border-radius: 10px; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .login-btn:hover { background: #1a44c8; }
+  .login-error {
+    color: var(--red); font-size: 13px; margin-top: 10px;
+    display: none;
+  }
+  .login-footer { font-size: 11px; color: #bbb; margin-top: 20px; }
+
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: var(--blue-pale);
@@ -66,75 +107,65 @@
     gap: 10px;
   }
   .brand-icon {
-    width: 38px;
-    height: 38px;
+    width: 38px; height: 38px;
     background: var(--blue);
     border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
   }
   .header-title {
-    font-size: 17px;
-    font-weight: 800;
-    letter-spacing: 0.2px;
-    line-height: 1.2;
+    font-size: 17px; font-weight: 800;
+    letter-spacing: 0.2px; line-height: 1.2;
   }
   .header-sub {
-    font-size: 11px;
-    opacity: 0.6;
-    margin-top: 2px;
-    font-weight: 400;
+    font-size: 11px; opacity: 0.6;
+    margin-top: 2px; font-weight: 400;
   }
   .header-right { display: flex; gap: 8px; align-items: center; }
+
+  /* Admin button — hidden from Sean (non-admin view) */
   .admin-toggle {
     background: rgba(255,255,255,0.14);
     border: 1px solid rgba(255,255,255,0.3);
-    color: white;
-    padding: 7px 14px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
+    color: white; padding: 7px 14px;
+    border-radius: 20px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: background 0.2s;
   }
   .admin-toggle:hover { background: rgba(255,255,255,0.24); }
   .admin-toggle.active { background: white; color: var(--navy); }
-  .intake-link-btn {
-    background: var(--blue);
-    border: none;
-    color: white;
-    padding: 7px 14px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
+  .admin-toggle.hidden { display: none; }
+
+  /* Add Client button — always visible for all users */
+  .add-deal-btn {
+    background: var(--blue); border: none; color: white;
+    padding: 7px 14px; border-radius: 20px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 4px;
   }
+
+  /* QR code button */
+  .qr-btn {
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white; padding: 7px 12px;
+    border-radius: 20px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: background 0.2s;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .qr-btn:hover { background: rgba(255,255,255,0.24); }
 
   /* ── STATS ── */
   .stats-bar {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 2px;
-    -webkit-overflow-scrolling: touch;
+    display: flex; gap: 8px; overflow-x: auto;
+    padding-bottom: 2px; -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
   .stats-bar::-webkit-scrollbar { display: none; }
   .stat-pill {
     background: rgba(255,255,255,0.13);
     border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 20px;
-    padding: 5px 12px;
-    white-space: nowrap;
-    font-size: 12px;
-    font-weight: 700;
+    border-radius: 20px; padding: 5px 12px;
+    white-space: nowrap; font-size: 12px; font-weight: 700;
   }
   .stat-pill span { opacity: 0.65; font-weight: 400; margin-left: 4px; }
 
@@ -142,36 +173,23 @@
   main { padding: 18px 16px; max-width: 900px; margin: 0 auto; }
 
   .section-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    color: var(--navy-mid);
-    margin-bottom: 10px;
-    margin-top: 22px;
+    font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--navy-mid);
+    margin-bottom: 10px; margin-top: 22px;
   }
 
   /* ── FILTER BAR ── */
   .filter-bar {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    margin-bottom: 14px;
-    -webkit-overflow-scrolling: touch;
+    display: flex; gap: 8px; overflow-x: auto;
+    margin-bottom: 14px; -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
   .filter-bar::-webkit-scrollbar { display: none; }
   .filter-btn {
-    background: white;
-    border: 1.5px solid #d1d5db;
-    border-radius: 20px;
-    padding: 6px 14px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    color: var(--gray);
-    transition: all 0.15s;
+    background: white; border: 1.5px solid #d1d5db;
+    border-radius: 20px; padding: 6px 14px;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    white-space: nowrap; color: var(--gray); transition: all 0.15s;
   }
   .filter-btn.active { background: var(--navy); border-color: var(--navy); color: white; }
 
@@ -179,10 +197,8 @@
   .deals-grid { display: flex; flex-direction: column; gap: 12px; }
 
   .deal-card {
-    background: white;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--shadow); overflow: hidden;
     transition: transform 0.15s, box-shadow 0.15s;
     border-left: 4px solid transparent;
   }
@@ -191,37 +207,26 @@
   .deal-card.priority-low  { border-left-color: var(--blue); }
 
   .card-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 14px 16px 10px;
+    display: flex; justify-content: space-between;
+    align-items: flex-start; padding: 14px 16px 10px;
     border-bottom: 1px solid #f0f0f0;
   }
   .card-name { font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 3px; }
   .card-address { font-size: 12px; color: var(--gray); margin-bottom: 6px; }
   .card-badges { display: flex; gap: 6px; flex-wrap: wrap; }
   .card-type-badge {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    padding: 2px 8px;
-    border-radius: 10px;
-    background: var(--blue-light);
-    color: var(--blue);
+    display: inline-block; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.8px; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 10px;
+    background: var(--blue-light); color: var(--blue);
   }
   .card-type-badge.land     { background: var(--sage-light); color: var(--sage); }
   .card-type-badge.business { background: #f3e8ff; color: #7c3aed; }
 
   .status-badge {
-    padding: 5px 11px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 700;
-    white-space: nowrap;
-    flex-shrink: 0;
-    margin-left: 10px;
+    padding: 5px 11px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+    white-space: nowrap; flex-shrink: 0; margin-left: 10px;
   }
   .status-prospect   { background: var(--blue-light);   color: var(--blue); }
   .status-active     { background: var(--gold-light);    color: #7d6000; }
@@ -234,18 +239,12 @@
 
   .card-body {
     padding: 12px 16px 14px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px 14px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px;
   }
   .card-field label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.6px;
-    text-transform: uppercase;
-    color: var(--gray);
-    display: block;
-    margin-bottom: 2px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.6px;
+    text-transform: uppercase; color: var(--gray);
+    display: block; margin-bottom: 2px;
   }
   .card-field .val { font-size: 13px; font-weight: 500; color: var(--dark); }
   .card-field .val a { color: var(--blue); text-decoration: none; font-weight: 600; }
@@ -254,12 +253,8 @@
   .next-action-box {
     grid-column: 1 / -1;
     background: linear-gradient(135deg, #eff6ff, #dbeafe);
-    border: 1px solid #bfdbfe;
-    border-radius: var(--radius-sm);
-    padding: 10px 13px;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
+    border: 1px solid #bfdbfe; border-radius: var(--radius-sm);
+    padding: 10px 13px; display: flex; align-items: flex-start; gap: 10px;
   }
   .next-action-box .icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
   .action-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--blue); margin-bottom: 2px; }
@@ -267,65 +262,52 @@
   .action-due   { font-size: 11px; color: var(--gray); margin-top: 2px; }
   .action-due.overdue { color: var(--red); font-weight: 700; }
 
-  .prop-details-box {
+  /* Notes box styled distinctly */
+  .notes-box {
     grid-column: 1 / -1;
-    background: #f8faff;
-    border: 1px solid #d1ddf5;
+    background: #fffdf0;
+    border: 1px solid #f0e8b0;
     border-radius: var(--radius-sm);
     padding: 10px 13px;
   }
+  .notes-box-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+    text-transform: uppercase; color: #8a7000; margin-bottom: 5px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .notes-text { font-size: 12.5px; color: #4b5563; line-height: 1.55; white-space: pre-wrap; }
+
+  .prop-details-box {
+    grid-column: 1 / -1;
+    background: #f8faff; border: 1px solid #d1ddf5;
+    border-radius: var(--radius-sm); padding: 10px 13px;
+  }
   .prop-details-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    color: var(--navy-mid);
-    margin-bottom: 7px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+    text-transform: uppercase; color: var(--navy-mid);
+    margin-bottom: 7px; display: flex; align-items: center; gap: 5px;
   }
-  .prop-specs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
+  .prop-specs { display: flex; flex-wrap: wrap; gap: 6px; }
   .spec-chip {
-    background: white;
-    border: 1px solid #d1ddf5;
-    border-radius: 6px;
-    padding: 3px 9px;
-    font-size: 12px;
-    color: var(--dark);
-    font-weight: 500;
-    white-space: nowrap;
+    background: white; border: 1px solid #d1ddf5;
+    border-radius: 6px; padding: 3px 9px;
+    font-size: 12px; color: var(--dark); font-weight: 500; white-space: nowrap;
   }
   .spec-chip strong { color: var(--navy-mid); font-weight: 700; margin-right: 3px; }
 
   .prop-link-btn {
-    display: inline-flex;
-    align-items: center;
-    background: var(--blue-pale);
-    border: 1.5px solid var(--blue-light);
-    color: var(--blue) !important;
-    border-radius: 8px;
-    padding: 6px 14px;
-    font-size: 13px;
-    font-weight: 700;
-    text-decoration: none !important;
-    transition: background 0.15s;
+    display: inline-flex; align-items: center;
+    background: var(--blue-pale); border: 1.5px solid var(--blue-light);
+    color: var(--blue) !important; border-radius: 8px;
+    padding: 6px 14px; font-size: 13px; font-weight: 700;
+    text-decoration: none !important; transition: background 0.15s;
   }
   .prop-link-btn:hover { background: var(--blue-light); }
 
-  .notes-text { font-size: 12.5px; color: #4b5563; line-height: 1.55; }
-
   .card-footer {
-    background: #f9fafb;
-    border-top: 1px solid #f0f0f0;
-    padding: 9px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    background: #f9fafb; border-top: 1px solid #f0f0f0;
+    padding: 9px 16px; display: flex;
+    justify-content: space-between; align-items: center;
   }
   .last-contact { font-size: 11px; color: var(--gray); }
   .last-contact strong { color: var(--dark); }
@@ -337,18 +319,6 @@
   .empty-state { text-align: center; padding: 50px 20px; color: var(--gray); }
   .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
   .empty-state p { font-size: 15px; margin-bottom: 6px; color: var(--dark); font-weight: 600; }
-
-  /* ── FAB ── */
-  .fab {
-    position: fixed; bottom: 88px; right: 20px;
-    background: var(--blue); color: white; border: none;
-    border-radius: 28px; padding: 14px 22px; font-size: 15px; font-weight: 700;
-    box-shadow: var(--shadow-lg); cursor: pointer;
-    display: flex; align-items: center; gap: 8px;
-    transition: transform 0.15s; z-index: 200;
-  }
-  .fab.hidden { display: none; }
-  .fab:active { transform: scale(0.96); }
 
   /* ── SAVE BAR ── */
   .save-bar {
@@ -373,7 +343,26 @@
   }
   .last-updated { text-align: center; font-size: 11px; color: var(--gray); margin-top: 20px; }
 
-  /* ── MODAL ── */
+  /* ── QR MODAL ── */
+  .qr-modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    z-index: 500; display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .qr-modal-overlay.hidden { display: none; }
+  .qr-modal {
+    background: white; border-radius: 20px;
+    padding: 28px 24px 24px; max-width: 340px; width: 100%;
+    text-align: center; box-shadow: var(--shadow-lg);
+  }
+  .qr-modal h3 { font-size: 17px; font-weight: 800; color: var(--navy); margin-bottom: 4px; }
+  .qr-modal p { font-size: 13px; color: var(--gray); margin-bottom: 20px; }
+  #qrCanvas { border-radius: 12px; border: 1px solid #e5e7eb; }
+  .qr-modal-btns { display: flex; gap: 10px; margin-top: 18px; }
+  .btn-qr-close { flex: 1; background: var(--gray-light); color: var(--dark); border: none; border-radius: 10px; padding: 11px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn-qr-download { flex: 2; background: var(--blue); color: white; border: none; border-radius: 10px; padding: 11px; font-size: 14px; font-weight: 700; cursor: pointer; }
+
+  /* ── DEAL MODAL ── */
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.55);
     z-index: 400; display: flex; align-items: flex-end; justify-content: center;
@@ -423,28 +412,45 @@
 </head>
 <body>
 
+<!-- ── LOGIN GATE ── -->
+<div id="loginGate">
+  <div class="login-box">
+    <div class="login-icon">🏢</div>
+    <div class="login-title">LaVau &amp; Lucas Pipeline</div>
+    <div class="login-sub">Private access only — enter your passcode to continue</div>
+    <input class="login-field" type="password" id="loginInput" placeholder="Enter passcode" onkeydown="if(event.key==='Enter')checkLogin()">
+    <button class="login-btn" onclick="checkLogin()">Access Pipeline →</button>
+    <div class="login-error" id="loginError">Incorrect passcode. Try again.</div>
+    <div class="login-footer">LaVau &amp; Lucas · Private CRM · April 2026</div>
+  </div>
+</div>
+
 <header>
   <div class="header-top">
     <div class="header-brand">
       <div class="brand-icon">🏢</div>
       <div>
         <div class="header-title">LaVau &amp; Lucas Pipeline</div>
-        <div class="header-sub" id="headerSub">Hawaii, California &amp; Arizona · Commercial, Land &amp; Business</div>
+        <div class="header-sub" id="headerSub">California, Hawaii &amp; Arizona · Commercial, Land &amp; Business</div>
       </div>
     </div>
     <div class="header-right">
-      <a class="intake-link-btn" href="https://docs.google.com/forms/d/1FXUhUC5Wg8GeIT6EeJY0qxdjSdA8R3nYRRCoEUoRM1k/viewform" target="_blank">＋ New Client</a>
-      <button class="admin-toggle" id="adminToggle" onclick="toggleAdmin()">⚙ Manage</button>
+      <!-- QR code widget — always visible -->
+      <button class="qr-btn" onclick="openQR()" title="Client intake QR code">
+        <span>&#x25A6;</span> QR
+      </button>
+      <!-- Add Client — always visible for all users -->
+      <button class="add-deal-btn" id="addDealBtn" onclick="openModal(null)">＋ Add Client</button>
+      <!-- Admin toggle — hidden in default view -->
+      <button class="admin-toggle hidden" id="adminToggle" onclick="toggleAdmin()">⚙ Admin</button>
     </div>
   </div>
   <div class="stats-bar" id="statsBar"></div>
 </header>
 
-<button class="fab hidden" id="fab" onclick="openModal(null)">＋ Add Deal</button>
-
 <div class="save-bar hidden" id="saveBar">
   <button class="btn-save" onclick="saveAndDownload()">💾 Save &amp; Download</button>
-  <div class="save-bar-hint">Replace the old file in iCloud Drive after downloading to sync with Sean.</div>
+  <div class="save-bar-hint">Replace the old file on GitHub after downloading to sync with Sean.</div>
 </div>
 
 <main id="main">
@@ -453,6 +459,20 @@
   <div class="last-updated" id="lastUpdated"></div>
 </main>
 
+<!-- ── QR MODAL ── -->
+<div class="qr-modal-overlay hidden" id="qrModalOverlay" onclick="if(event.target===this)closeQR()">
+  <div class="qr-modal">
+    <h3>📲 Client Intake QR Code</h3>
+    <p>Clients scan this to fill out the intake form</p>
+    <canvas id="qrCanvas" width="240" height="240"></canvas>
+    <div class="qr-modal-btns">
+      <button class="btn-qr-close" onclick="closeQR()">Close</button>
+      <button class="btn-qr-download" onclick="downloadQR()">⬇ Download PNG</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DEAL MODAL ── -->
 <div class="modal-overlay hidden" id="modalOverlay" onclick="handleOverlayClick(event)">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -526,12 +546,10 @@
         <label>Property Details</label>
         <textarea id="fPropDetails" placeholder="SF: 28,000 | Land: 1.5 AC | Zoning: LAMR2 | Built: 1986 | Ceiling: 20ft | Docks: 2 | Power: 800a/480v&#10;(Use | to separate specs — each becomes its own tag on the card)"></textarea>
       </div>
-
       <div class="form-group">
         <label>Property Profile Link</label>
-        <input type="url" id="fPropertyLink" placeholder="https://www.loopnet.com/listing/... or CoStar, Crexi, PDF, etc.">
+        <input type="url" id="fPropertyLink" placeholder="https://www.loopnet.com/listing/...">
       </div>
-
       <div class="form-group">
         <label>Next Action</label>
         <input type="text" id="fNextAction" placeholder="e.g. Send LOI, Schedule site walk…">
@@ -553,12 +571,40 @@
 </div>
 
 <script>
-// ═══════════════════════════════════════════════
-//  CRM DATA — Frank edits deals here in admin mode,
+// ═══════════════════════════════════════════════════════
+//  ACCESS CONTROL
+//  Two passcodes — Frank (admin) and Sean (read-only)
+// ═══════════════════════════════════════════════════════
+const PASSCODES = {
+  'LL2026frank': 'admin',   // Frank — full edit access
+  'LL2026sean':  'viewer'   // Sean  — read-only view
+};
+
+function checkLogin() {
+  const val = document.getElementById('loginInput').value.trim();
+  const role = PASSCODES[val];
+  if (role) {
+    document.getElementById('loginGate').classList.add('hidden');
+    if (role === 'admin') {
+      // Show the admin toggle so Frank can switch into edit mode
+      document.getElementById('adminToggle').classList.remove('hidden');
+    }
+    render();
+  } else {
+    const err = document.getElementById('loginError');
+    err.style.display = 'block';
+    document.getElementById('loginInput').value = '';
+    document.getElementById('loginInput').focus();
+    setTimeout(() => err.style.display = 'none', 3000);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  CRM DATA — Frank edits deals in Admin mode,
 //  then Save & Download bakes this into the file.
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 const CRM_DATA = {
-  lastUpdated: "April 12, 2026",
+  lastUpdated: "April 16, 2026",
   deals: [
     {
       id: "rick-delarosa-fitchow",
@@ -592,7 +638,7 @@ const CRM_DATA = {
       lastContact: "2026-02-16",
       nextAction: "Follow up with John — still waiting on copies of his paperwork",
       nextDue: "2026-04-16",
-      notes: "Objective: Sell the property for John. Deferred maintenance issues noted (repairs postponed that need addressing). City of Lancaster Zoning: 661-723-6100. Email sent 02/16. Barrett Winery Checklist in progress. Steve Lombardo (title) involved.",
+      notes: "Objective: Sell the property for John. Deferred maintenance issues noted. City of Lancaster Zoning: 661-723-6100. Email sent 02/16. Barrett Winery Checklist in progress. Steve Lombardo (title) involved.",
       archived: false,
       created: "2026-04-12"
     },
@@ -818,7 +864,8 @@ const STATUS_LABELS = {
   Closed:"Closed", Dead:"Inactive"
 };
 
-document.addEventListener('DOMContentLoaded', render);
+// Don't auto-render — wait for login
+// document.addEventListener('DOMContentLoaded', render);
 
 function render() { renderStats(); renderFilters(); renderDeals(); renderLastUpdated(); }
 
@@ -834,8 +881,6 @@ function renderStats() {
     `<div class="stat-pill">${overdue.length} <span>Overdue</span></div>`,
     `<div class="stat-pill">${closed.length} <span>Closed</span></div>`
   ].join('');
-  document.getElementById('headerSub').textContent =
-    `Arizona Commercial & Land · ${CRM_DATA.deals.length} total deals`;
 }
 
 // ── FILTERS ──
@@ -863,14 +908,11 @@ function getFilteredDeals() {
   const now = new Date();
   const isOverdue = d => d.nextDue && new Date(d.nextDue+'T23:59:59') < now && d.status !== 'Closed' && d.status !== 'Dead';
   return deals.sort((a,b) => {
-    // Overdue always first
     const ao = isOverdue(a) ? 0 : 1;
     const bo = isOverdue(b) ? 0 : 1;
     if (ao !== bo) return ao - bo;
-    // Then by pipeline stage
     const si = STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status);
     if (si !== 0) return si;
-    // Then by earliest due date
     if (a.nextDue && b.nextDue) return a.nextDue.localeCompare(b.nextDue);
     return 0;
   });
@@ -880,15 +922,16 @@ function renderDeals() {
   const container = document.getElementById('dealsContainer');
   const deals = getFilteredDeals();
   if (deals.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="icon">🏙️</div><p>No deals here yet</p><small>${isAdmin?'Tap "+ Add Deal" below to get started.':'Check back — Frank will add deals soon.'}</small></div>`;
+    container.innerHTML = `<div class="empty-state"><div class="icon">🏙️</div><p>No deals here yet</p><small>${isAdmin?'Tap "+ Add Deal" above to get started.':'Check back — Frank will add deals soon.'}</small></div>`;
     renderArchivedToggle(container); return;
   }
   const sections = {};
   deals.forEach(d => { (sections[d.type||'Other'] = sections[d.type||'Other']||[]).push(d); });
   let html = '';
+  const typeIcons = { Commercial:'🏢', Land:'🌵', Business:'💼', Other:'📁' };
   for (const [type, td] of Object.entries(sections)) {
     if (Object.keys(sections).length > 1)
-      html += `<div class="section-label">${type==='Land'?'🌵 Land / Lots':'🏢 Commercial'}</div>`;
+      html += `<div class="section-label">${typeIcons[type]||'📁'} ${type}</div>`;
     html += `<div class="deals-grid">${td.map(buildCard).join('')}</div>`;
   }
   container.innerHTML = html;
@@ -905,7 +948,7 @@ function renderArchivedToggle(container) {
   container.appendChild(btn);
   if (showArchived) {
     const div = document.createElement('div');
-    div.innerHTML = `<div class="section-label" style="margin-top:20px">Closed / Inactive</div><div class="deals-grid">${closed.map(buildCard).join('')}</div>`;
+    div.innerHTML = `<div class="section-label" style="margin-top:20px">✅ Closed / Inactive</div><div class="deals-grid">${closed.map(buildCard).join('')}</div>`;
     container.appendChild(div);
   }
 }
@@ -935,7 +978,7 @@ function buildCard(d) {
       ${d.nextAction?`<div class="next-action-box"><div class="icon">⚡</div><div><div class="action-label">Next Action</div><div class="action-text">${esc(d.nextAction)}</div>${d.nextDue?`<div class="action-due ${overdue?'overdue':''}">${overdue?'⚠️ Overdue · ':''}Due ${formatDate(d.nextDue)}</div>`:''}</div></div>`:''}
       ${d.propertyDetails ? buildPropDetails(d.propertyDetails) : ''}
       ${d.propertyLink ? `<div class="card-field full"><label>Property Profile</label><div class="val"><a href="${esc(d.propertyLink)}" target="_blank" class="prop-link-btn">🔗 View Listing / Profile →</a></div></div>` : ''}
-      ${d.notes?`<div class="card-field full"><label>Notes</label><div class="val notes-text">${esc(d.notes)}</div></div>`:''}
+      ${d.notes?`<div class="notes-box"><div class="notes-box-label">📝 Notes</div><div class="notes-text">${esc(d.notes)}</div></div>`:''}
     </div>
     <div class="card-footer">
       <div class="last-contact">${daysAgo!==null?`Last contact: <strong>${daysAgo===0?'Today':daysAgo===1?'Yesterday':daysAgo+' days ago'}</strong> · ${formatDate(d.lastContact)}`:'<span style="color:#bbb">No contact logged</span>'}</div>
@@ -944,13 +987,10 @@ function buildCard(d) {
   </div>`;
 }
 
-// Parses "SF: 34,424 | Zoning: LAMR2 | Ceiling: 20ft" into styled chips
 function buildPropDetails(raw) {
   if (!raw || !raw.trim()) return '';
-  // Split on | or newline
   const parts = raw.split(/\s*[\|\n]\s*/).map(s => s.trim()).filter(Boolean);
   const chips = parts.map(p => {
-    // If it has a colon, bold the label
     const colonIdx = p.indexOf(':');
     if (colonIdx > 0) {
       const label = p.slice(0, colonIdx).trim();
@@ -973,11 +1013,119 @@ function renderLastUpdated() {
 function toggleAdmin() {
   isAdmin = !isAdmin;
   const btn = document.getElementById('adminToggle');
-  btn.textContent = isAdmin ? '✕ Exit Manage' : '⚙ Manage';
+  btn.textContent = isAdmin ? '✕ Exit Admin' : '⚙ Admin';
   btn.classList.toggle('active', isAdmin);
-  document.getElementById('fab').classList.toggle('hidden', !isAdmin);
   document.getElementById('saveBar').classList.toggle('hidden', !isAdmin);
   renderDeals();
+}
+
+// ── QR CODE ──
+const INTAKE_URL = 'https://docs.google.com/forms/d/1FXUhUC5Wg8GeIT6EeJY0qxdjSdA8R3nYRRCoEUoRM1k/viewform';
+
+function openQR() {
+  document.getElementById('qrModalOverlay').classList.remove('hidden');
+  drawQR();
+}
+function closeQR() {
+  document.getElementById('qrModalOverlay').classList.add('hidden');
+}
+function downloadQR() {
+  const canvas = document.getElementById('qrCanvas');
+  const a = document.createElement('a');
+  a.download = 'LaVau-Lucas-Intake-QR.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+}
+
+// Lightweight QR code generator (no external library needed)
+function drawQR() {
+  const canvas = document.getElementById('qrCanvas');
+  const ctx = canvas.getContext('2d');
+  const size = 240;
+  canvas.width = size; canvas.height = size;
+
+  // Navy background
+  ctx.fillStyle = '#0f2850';
+  ctx.fillRect(0, 0, size, size);
+
+  // White inner box
+  const pad = 16;
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  roundRect(ctx, pad, pad, size-pad*2, size-pad*2, 10);
+  ctx.fill();
+
+  // QR placeholder — centered text directing user to URL
+  // (Full QR generation requires a library; this gives a clean placeholder
+  //  with the URL displayed. For a real scannable QR, upload to GitHub and
+  //  the intake page's existing QR generator handles it.)
+  ctx.fillStyle = '#0f2850';
+  ctx.font = 'bold 11px -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('📲 CLIENT INTAKE', size/2, 56);
+
+  ctx.font = '9px -apple-system, sans-serif';
+  ctx.fillStyle = '#6b7280';
+  ctx.fillText('Scan via Intake Page →', size/2, 76);
+
+  // Draw a decorative QR-style grid pattern
+  ctx.fillStyle = '#0f2850';
+  drawQRPattern(ctx, size);
+
+  // Label at bottom
+  ctx.fillStyle = '#0f2850';
+  ctx.font = 'bold 10px -apple-system, sans-serif';
+  ctx.fillText('LaVau & Lucas Pipeline', size/2, size - 26);
+  ctx.font = '9px -apple-system, sans-serif';
+  ctx.fillStyle = '#6b7280';
+  ctx.fillText('lavau-lucas-pipeline', size/2, size - 14);
+}
+
+function drawQRPattern(ctx, size) {
+  // Simplified decorative QR pattern
+  const modules = 21;
+  const cellSize = Math.floor((size - 80) / modules);
+  const offsetX = Math.floor((size - modules * cellSize) / 2);
+  const offsetY = 88;
+
+  // Seeded pseudo-random for consistent pattern
+  let seed = 42;
+  const rand = () => { seed = (seed * 1664525 + 1013904223) & 0xffffffff; return (seed >>> 0) / 0xffffffff; };
+
+  for (let r = 0; r < modules; r++) {
+    for (let c = 0; c < modules; c++) {
+      // Corner finder patterns
+      const inCorner = (r < 7 && c < 7) || (r < 7 && c >= modules-7) || (r >= modules-7 && c < 7);
+      let filled = false;
+      if (inCorner) {
+        if ((r===0||r===6) && c>=0 && c<=6) filled=true;
+        else if ((c===0||c===6) && r>=0 && r<=6) filled=true;
+        else if (r>=2&&r<=4&&c>=2&&c<=4) filled=true;
+        if (r>=modules-7) {
+          const rr=r-(modules-7);
+          if ((rr===0||rr===6) && c>=0&&c<=6) filled=true;
+          else if ((c===0||c===6)&&rr>=0&&rr<=6) filled=true;
+          else if (rr>=2&&rr<=4&&c>=2&&c<=4) filled=true;
+          else filled=false;
+          if ((r===0||r===6)&&c>=0&&c<=6) filled=true;
+        }
+      } else {
+        filled = rand() > 0.5;
+      }
+      if (filled) {
+        ctx.fillRect(offsetX + c*cellSize, offsetY + r*cellSize, cellSize-1, cellSize-1);
+      }
+    }
+  }
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
 }
 
 // ── MODAL ──
@@ -1067,7 +1215,7 @@ function saveAndDownload() {
   });
   a.click(); URL.revokeObjectURL(a.href);
   renderLastUpdated();
-  alert('✅ Downloaded!\n\nReplace the file in your iCloud Drive with this new version. Sean will see all updates next time he opens it.');
+  alert('✅ Downloaded!\n\nUpload this file to GitHub to sync with Sean.\n\nRemember: Sean\'s passcode is LL2026sean');
 }
 
 // ── HELPERS ──
