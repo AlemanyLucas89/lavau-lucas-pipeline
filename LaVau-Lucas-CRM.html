@@ -418,7 +418,8 @@
     <div class="login-icon">🏢</div>
     <div class="login-title">LaVau &amp; Lucas Pipeline</div>
     <div class="login-sub">Private access only — enter your passcode to continue</div>
-    <input class="login-field" type="password" id="loginInput" placeholder="Enter passcode" onkeydown="if(event.key==='Enter')checkLogin()">
+    <input class="login-field" type="password" id="loginInput" placeholder="Enter passcode" onkeydown="if(event.key==='Enter')checkLogin()"
+    autocomplete="off">
     <button class="login-btn" onclick="checkLogin()">Access Pipeline →</button>
     <div class="login-error" id="loginError">Incorrect passcode. Try again.</div>
     <div class="login-footer">LaVau &amp; Lucas · Private CRM · April 2026</div>
@@ -573,20 +574,28 @@
 <script>
 // ═══════════════════════════════════════════════════════
 //  ACCESS CONTROL
-//  Two passcodes — Frank (admin) and Sean (read-only)
+//  Passcodes are stored as SHA-256 hashes — the real
+//  passcodes are never visible in the source code.
+//  Frank: LL2026frank  |  Sean: LL2026sean
 // ═══════════════════════════════════════════════════════
-const PASSCODES = {
-  'LL2026frank': 'admin',   // Frank — full edit access
-  'LL2026sean':  'viewer'   // Sean  — read-only view
+const PASSCODE_HASHES = {
+  'efdf19b48308be395e33250da93599df49509472dae775259a24c789607831e5': 'admin',   // Frank
+  '1ad7a96f92f81928a946f4747311f39e5735eb8e58ca22f79d9fd6631c4b9365': 'viewer'   // Sean
 };
 
-function checkLogin() {
+async function hashInput(str) {
+  const msgBuf = new TextEncoder().encode(str);
+  const hashBuf = await crypto.subtle.digest('SHA-256', msgBuf);
+  return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function checkLogin() {
   const val = document.getElementById('loginInput').value.trim();
-  const role = PASSCODES[val];
+  const hashed = await hashInput(val);
+  const role = PASSCODE_HASHES[hashed];
   if (role) {
     document.getElementById('loginGate').classList.add('hidden');
     if (role === 'admin') {
-      // Show the admin toggle so Frank can switch into edit mode
       document.getElementById('adminToggle').classList.remove('hidden');
     }
     render();
