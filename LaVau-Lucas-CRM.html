@@ -237,7 +237,7 @@
   .status-closing  {background:var(--green-light);  color:var(--green);}
   .status-closed   {background:var(--sage-light);   color:var(--sage);}
   .status-parked   {background:#fef3cd;              color:#7d6000;}
-  .status-dead     {background:var(--gray-light);   color:var(--gray);}
+  .status-backburner{background:var(--gray-light);   color:var(--gray);}
 
   .card-body{
     padding:12px 16px 14px;
@@ -622,7 +622,7 @@
             <option value="Closing">🟢 Closing</option>
             <option value="Closed">✅ Closed</option>
             <option value="Parked">🅿️ Parked</option>
-            <option value="Dead">⚫ Dead / Inactive</option>
+            <option value="Backburner">🔥 Backburner</option>
           </select>
         </div>
       </div>
@@ -952,12 +952,12 @@ function showSheetsError(msg) {
 // ════════════════════════════════════════════════════════════════
 //  FOLLOW-UP LOGIC
 //  Triggers when last contact is 7+ days ago (or never contacted)
-//  on active deals that are not Closed, Dead, or Parked
+//  on active deals that are not Closed, Backburner, or Parked
 // ════════════════════════════════════════════════════════════════
 const FOLLOWUP_DAYS = 7; // change this number to adjust the threshold
 
 function needsFollowUp(d) {
-  if (['Closed','Dead','Parked'].includes(d.status)) return false;
+  if (['Closed','Backburner','Parked'].includes(d.status)) return false;
   if (d.archived) return false;
   if (!d.lastContact) return true; // never contacted = always needs follow up
   return daysSince(d.lastContact) >= FOLLOWUP_DAYS;
@@ -1012,18 +1012,18 @@ function goToOverdue() {
 // ════════════════════════════════════════════════════════════════
 let isAdmin = false, activeFilter = 'All', showArchived = false, editingId = null;
 
-const STATUS_ORDER  = ['Prospect','Active','Offer','Contract','Diligence','Closing','Closed','Parked','Dead'];
+const STATUS_ORDER  = ['Prospect','Active','Offer','Contract','Diligence','Closing','Closed','Parked','Backburner'];
 const STATUS_LABELS = {
   Prospect:'Prospect', Active:'Active Pursuit', Offer:'Offer/LOI',
   Contract:'Under Contract', Diligence:'Due Diligence',
-  Closing:'Closing', Closed:'Closed', Parked:'Parked', Dead:'Inactive'
+  Closing:'Closing', Closed:'Closed', Parked:'Parked', Backburner:'Backburner'
 };
 
 // ── RENDER ──
 function render() { renderStats(); renderFilters(); renderDeals(); }
 
 function renderStats() {
-  const active  = DEALS.filter(d => !d.archived && d.status !== 'Closed' && d.status !== 'Dead');
+  const active  = DEALS.filter(d => !d.archived && d.status !== 'Closed' && d.status !== 'Backburner');
   const closing = DEALS.filter(d => !d.archived && ['Closing','Contract','Diligence'].includes(d.status));
   const closed  = DEALS.filter(d => d.status === 'Closed');
   const overdue = active.filter(d => d.nextDue && new Date(d.nextDue+'T23:59:59') < new Date());
@@ -1047,15 +1047,15 @@ function setFilter(f) { activeFilter = f; renderFilters(); renderDeals(); }
 
 function getFilteredDeals() {
   let deals = DEALS.filter(d => !d.archived);
-  if (activeFilter === 'All') deals = deals.filter(d => d.status!=='Closed'&&d.status!=='Dead');
+  if (activeFilter === 'All') deals = deals.filter(d => d.status!=='Closed'&&d.status!=='Backburner');
   else if (['Commercial','Land','Business'].includes(activeFilter))
-    deals = deals.filter(d => d.type===activeFilter&&d.status!=='Closed'&&d.status!=='Dead');
+    deals = deals.filter(d => d.type===activeFilter&&d.status!=='Closed'&&d.status!=='Backburner');
   else if (activeFilter==='Overdue')
-    deals = deals.filter(d => d.nextDue&&new Date(d.nextDue+'T23:59:59')<new Date()&&d.status!=='Closed'&&d.status!=='Dead');
+    deals = deals.filter(d => d.nextDue&&new Date(d.nextDue+'T23:59:59')<new Date()&&d.status!=='Closed'&&d.status!=='Backburner');
   else deals = deals.filter(d => d.status===activeFilter);
 
   const now = new Date();
-  const isOD = d => d.nextDue&&new Date(d.nextDue+'T23:59:59')<now&&d.status!=='Closed'&&d.status!=='Dead';
+  const isOD = d => d.nextDue&&new Date(d.nextDue+'T23:59:59')<now&&d.status!=='Closed'&&d.status!=='Backburner';
   return deals.sort((a,b)=>{
     const ao=isOD(a)?0:1, bo=isOD(b)?0:1;
     if(ao!==bo) return ao-bo;
@@ -1087,7 +1087,7 @@ function renderDeals() {
 }
 
 function renderArchivedToggle(container) {
-  const closed = DEALS.filter(d => d.status==='Closed'||d.status==='Dead'||d.archived);
+  const closed = DEALS.filter(d => d.status==='Closed'||d.status==='Backburner'||d.archived);
   if (!closed.length) return;
   const btn = document.createElement('button');
   btn.className = 'show-archived-btn';
@@ -1102,7 +1102,7 @@ function renderArchivedToggle(container) {
 }
 
 function buildCard(d) {
-  const overdue = d.nextDue&&new Date(d.nextDue+'T23:59:59')<new Date()&&d.status!=='Closed'&&d.status!=='Dead';
+  const overdue = d.nextDue&&new Date(d.nextDue+'T23:59:59')<new Date()&&d.status!=='Closed'&&d.status!=='Backburner';
   const daysAgo = d.lastContact ? daysSince(d.lastContact) : null;
   const priority = ['Contract','Closing','Diligence'].includes(d.status)?'high':['Offer','Active'].includes(d.status)?'mid':'low';
   return `
