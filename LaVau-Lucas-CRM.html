@@ -398,6 +398,42 @@
   .btn-install{background:var(--blue);color:white;border:none;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;}
   .btn-install-dismiss{background:none;border:none;color:rgba(255,255,255,0.5);font-size:20px;cursor:pointer;padding:0 4px;}
 
+
+  /* ── FOLLOW-UP BRIEFING MODAL ── */
+  #followUpModal {
+    position:fixed;inset:0;background:rgba(0,0,0,0.6);
+    z-index:600;display:flex;align-items:center;justify-content:center;padding:20px;
+  }
+  #followUpModal.hidden{display:none;}
+  .followup-box {
+    background:white;border-radius:20px;padding:24px 22px 22px;
+    max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);
+    max-height:85vh;overflow-y:auto;
+  }
+  .followup-header{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+  .followup-title{font-size:18px;font-weight:800;color:var(--navy);}
+  .followup-sub{font-size:13px;color:var(--gray);margin-bottom:18px;}
+  .followup-item{
+    background:var(--blue-pale);border:1px solid var(--blue-light);
+    border-radius:10px;padding:12px 14px;margin-bottom:10px;
+  }
+  .followup-item-name{font-size:14px;font-weight:700;color:var(--dark);margin-bottom:2px;}
+  .followup-item-days{font-size:12px;color:var(--red);font-weight:600;}
+  .followup-item-contact{font-size:12px;color:var(--gray);margin-top:2px;}
+  .followup-item.no-contact{background:#fff8f0;border-color:#fcd9a0;}
+  .followup-item.no-contact .followup-item-days{color:var(--orange);}
+  .followup-btns{display:flex;gap:10px;margin-top:18px;}
+  .btn-followup-dismiss{flex:1;background:var(--gray-light);color:var(--dark);border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;}
+  .btn-followup-go{flex:2;background:var(--blue);color:white;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;}
+
+  /* Follow-up required badge on card */
+  .followup-badge{
+    display:inline-flex;align-items:center;gap:4px;
+    background:#fff0e0;border:1px solid #fcd9a0;
+    color:var(--orange);border-radius:6px;
+    padding:3px 8px;font-size:11px;font-weight:700;
+  }
+
   @media(max-width:420px){
     .form-row{grid-template-columns:1fr;}
     .card-body{grid-template-columns:1fr;}
@@ -530,6 +566,23 @@
     <div class="qr-modal-btns">
       <button class="btn-qr-close" onclick="closeQR()">Close</button>
       <button class="btn-qr-download" onclick="downloadQR()">⬇ Download PNG</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── FOLLOW-UP BRIEFING MODAL ── -->
+<div id="followUpModal" class="hidden">
+  <div class="followup-box">
+    <div class="followup-header">
+      <span style="font-size:28px">📋</span>
+      <div class="followup-title">Follow-Up Briefing</div>
+    </div>
+    <div class="followup-sub" id="followUpSub"></div>
+    <div id="followUpList"></div>
+    <div class="followup-btns">
+      <button class="btn-followup-dismiss" onclick="dismissFollowUp()">Dismiss</button>
+      <button class="btn-followup-go" onclick="goToOverdue()">View Overdue Deals →</button>
     </div>
   </div>
 </div>
@@ -861,6 +914,8 @@ async function loadFromSheets() {
     document.getElementById('loadingScreen').classList.add('hidden');
     document.getElementById('refreshBtn').classList.remove('spinning');
     render();
+    // Show follow-up briefing after first load
+    setTimeout(showFollowUpBriefing, 600);
   }
 }
 
@@ -893,6 +948,65 @@ function showSheetsError(msg) {
   el.style.display = 'block';
 }
 
+
+// ════════════════════════════════════════════════════════════════
+//  FOLLOW-UP LOGIC
+//  Triggers when last contact is 7+ days ago (or never contacted)
+//  on active deals that are not Closed, Dead, or Parked
+// ════════════════════════════════════════════════════════════════
+const FOLLOWUP_DAYS = 7; // change this number to adjust the threshold
+
+function needsFollowUp(d) {
+  if (['Closed','Dead','Parked'].includes(d.status)) return false;
+  if (d.archived) return false;
+  if (!d.lastContact) return true; // never contacted = always needs follow up
+  return daysSince(d.lastContact) >= FOLLOWUP_DAYS;
+}
+
+function followUpDaysLabel(d) {
+  if (!d.lastContact) return 'No contact logged';
+  const days = daysSince(d.lastContact);
+  return days === 1 ? '1 day ago' : days + ' days ago';
+}
+
+function followUpNeeded() {
+  return DEALS.filter(d => needsFollowUp(d));
+}
+
+function showFollowUpBriefing() {
+  const deals = followUpNeeded();
+  if (!deals.length) return; // nothing to show — all good
+
+  const sub = document.getElementById('followUpSub');
+  const list = document.getElementById('followUpList');
+
+  sub.textContent = deals.length === 1
+    ? '1 deal needs your attention today.'
+    : deals.length + ' deals need your attention today.';
+
+  list.innerHTML = deals.map(d => {
+    const noContact = !d.lastContact;
+    return `<div class="followup-item ${noContact?'no-contact':''}">
+      <div class="followup-item-name">${esc(d.name)}</div>
+      <div class="followup-item-days">${noContact ? '⚠️ Never contacted' : '🕐 Last contact: ' + followUpDaysLabel(d)}</div>
+      ${d.client ? `<div class="followup-item-contact">👤 ${esc(d.client)}${d.contactRole?' · '+esc(d.contactRole):''}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  document.getElementById('followUpModal').classList.remove('hidden');
+}
+
+function dismissFollowUp() {
+  document.getElementById('followUpModal').classList.add('hidden');
+}
+
+function goToOverdue() {
+  dismissFollowUp();
+  setFilter('Overdue');
+  // scroll to top of deals
+  document.getElementById('dealsContainer').scrollIntoView({behavior:'smooth'});
+}
+
 // ════════════════════════════════════════════════════════════════
 //  STATE & CONSTANTS
 // ════════════════════════════════════════════════════════════════
@@ -917,7 +1031,8 @@ function renderStats() {
     `<div class="stat-pill">${active.length} <span>Active</span></div>`,
     `<div class="stat-pill">${closing.length} <span>In Pipeline</span></div>`,
     `<div class="stat-pill">${overdue.length} <span>Overdue</span></div>`,
-    `<div class="stat-pill">${closed.length} <span>Closed</span></div>`
+    `<div class="stat-pill">${closed.length} <span>Closed</span></div>`,
+    `<div class="stat-pill">${followUpNeeded().length} <span>Follow Up</span></div>`
   ].join('');
 }
 
@@ -1010,6 +1125,7 @@ function buildCard(d) {
       ${d.askPrice?`<div class="card-field"><label>Asking Price</label><div class="val">${esc(d.askPrice)}</div></div>`:''}
       ${d.offerPrice?`<div class="card-field"><label>Offer / Contract</label><div class="val" style="color:var(--blue);font-weight:700">${esc(d.offerPrice)}</div></div>`:''}
       ${d.bizWebsite?`<div class="card-field full"><label>Business Website</label><div class="val"><a href="${esc(d.bizWebsite)}" target="_blank" class="website-link-btn">🌐 ${esc(d.bizWebsite.replace(/^https?:\/\//,''))} →</a></div></div>`:''}
+      ${needsFollowUp(d)?`<div class="card-field full"><div class="followup-badge">🔔 Follow-Up Required · ${followUpDaysLabel(d)}</div></div>`:''}
       ${d.nextAction?`<div class="next-action-box"><div class="icon">⚡</div><div><div class="action-label">Next Action</div><div class="action-text">${esc(d.nextAction)}</div>${d.nextDue?`<div class="action-due ${overdue?'overdue':''}">${overdue?'⚠️ Overdue · ':''}Due ${formatDate(d.nextDue)}</div>`:''}</div></div>`:''}
       ${d.propertyDetails?buildPropDetails(d.propertyDetails):''}
       ${d.propertyLink?`<div class="card-field full"><label>Property Profile</label><div class="val"><a href="${esc(d.propertyLink)}" target="_blank" class="prop-link-btn">🔗 View Listing →</a></div></div>`:''}
