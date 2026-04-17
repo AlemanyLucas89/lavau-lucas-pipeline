@@ -236,6 +236,7 @@
   .status-diligence{background:var(--purple-light); color:var(--purple);}
   .status-closing  {background:var(--green-light);  color:var(--green);}
   .status-closed   {background:var(--sage-light);   color:var(--sage);}
+  .status-parked   {background:#fef3cd;              color:#7d6000;}
   .status-dead     {background:var(--gray-light);   color:var(--gray);}
 
   .card-body{
@@ -567,12 +568,28 @@
             <option value="Diligence">🟣 Due Diligence</option>
             <option value="Closing">🟢 Closing</option>
             <option value="Closed">✅ Closed</option>
+            <option value="Parked">🅿️ Parked</option>
             <option value="Dead">⚫ Dead / Inactive</option>
           </select>
         </div>
       </div>
 
       <!-- BUSINESS INFO -->
+      <!-- LEAD SOURCE -->
+      <div class="form-group">
+        <label>Lead Source</label>
+        <select id="fLeadSource">
+          <option value="">Select how this lead came in…</option>
+          <option value="Network">🤝 Network</option>
+          <option value="Referral">📣 Referral</option>
+          <option value="Site Visit">🏢 Site Visit</option>
+          <option value="Drive By">🚗 Drive By</option>
+          <option value="Cold Outreach">📞 Cold Outreach</option>
+          <option value="Inbound">📥 Inbound</option>
+          <option value="Repeat Client">⭐ Repeat Client</option>
+        </select>
+      </div>
+
       <div class="form-section-label">🏢 Business / Property</div>
       <div class="form-row">
         <div class="form-group">
@@ -668,10 +685,20 @@
 // ════════════════════════════════════════════════════════════════
 
 // Paste your Google Apps Script URL here after completing setup guide
-const SHEETS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzD3yvIO6dfpFTulOi_01qyDBnEgRxHz6bqbJyapEfyw4leqzG_d3ZYq3kcjg3r21Ot/exec';  // ← PASTE YOUR URL HERE
+const SHEETS_SCRIPT_URL = '';  // ← PASTE YOUR URL HERE
 
 // ════════════════════════════════════════════════════════════════
-
+//  TWO-STEP ACCESS CONTROL
+//
+//  Step 1 — Passcode check
+//  Passcodes are stored as SHA-256 hashes only.
+//  The actual passcode text never appears anywhere in this file.
+//  To update: hash your new passcode at emn178.github.io/online-tools/sha256.html
+//  then replace the hash string below.
+//
+//  Step 2 — Google account check
+//  Only Google email addresses in the AUTHORIZED_EMAILS list can enter.
+//  Add or remove emails as needed.
 // ════════════════════════════════════════════════════════════════
 
 const PASSCODE_HASHES = {
@@ -681,14 +708,14 @@ const PASSCODE_HASHES = {
 
 // Add your Gmail addresses here — only these can access the pipeline
 const AUTHORIZED_EMAILS = [
-  // 'frankalemanylucas@gmail.com',   ← replace with your actual Gmail
-  // 'sean@lavau.com',    ← replace with Sean's actual Gmail
+  // 'frank@gmail.com',   ← replace with your actual Gmail
+  // 'sean@gmail.com',    ← replace with Sean's actual Gmail
 ];
 
 // Role assigned per email (must match an email in AUTHORIZED_EMAILS)
 const EMAIL_ROLES = {
-  // 'frankalemanylucas@gmail.com': 'admin',
-  // 'sean@lavau.com':  'viewer',
+  // 'frank@gmail.com': 'admin',
+  // 'sean@gmail.com':  'viewer',
 };
 
 let currentRole = null;
@@ -871,11 +898,11 @@ function showSheetsError(msg) {
 // ════════════════════════════════════════════════════════════════
 let isAdmin = false, activeFilter = 'All', showArchived = false, editingId = null;
 
-const STATUS_ORDER  = ['Prospect','Active','Offer','Contract','Diligence','Closing','Closed','Dead'];
+const STATUS_ORDER  = ['Prospect','Active','Offer','Contract','Diligence','Closing','Closed','Parked','Dead'];
 const STATUS_LABELS = {
   Prospect:'Prospect', Active:'Active Pursuit', Offer:'Offer/LOI',
   Contract:'Under Contract', Diligence:'Due Diligence',
-  Closing:'Closing', Closed:'Closed', Dead:'Inactive'
+  Closing:'Closing', Closed:'Closed', Parked:'Parked', Dead:'Inactive'
 };
 
 // ── RENDER ──
@@ -1034,6 +1061,7 @@ function openModal(id) {
     document.getElementById('fOfferPrice').value   = d.offerPrice||'';
     document.getElementById('fClient').value       = d.client||'';
     document.getElementById('fContactRole').value  = d.contactRole||'';
+    document.getElementById('fLeadSource').value   = d.leadSource||'';
     document.getElementById('fPhone').value        = d.phone||'';
     document.getElementById('fEmail').value        = d.email||'';
     document.getElementById('fLastContact').value  = d.lastContact||'';
@@ -1069,6 +1097,7 @@ function saveDeal(e) {
     offerPrice:     document.getElementById('fOfferPrice').value.trim(),
     client:         document.getElementById('fClient').value.trim(),
     contactRole:    document.getElementById('fContactRole').value.trim(),
+    leadSource:     document.getElementById('fLeadSource').value,
     phone:          document.getElementById('fPhone').value.trim(),
     email:          document.getElementById('fEmail').value.trim(),
     lastContact:    document.getElementById('fLastContact').value,
