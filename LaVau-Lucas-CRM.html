@@ -4,453 +4,480 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>LaVau & Lucas Pipeline</title>
-<style>
-  :root {
-    --navy:       #0f2850;
-    --navy-mid:   #1e3f6e;
-    --blue:       #1d4ed8;
-    --blue-light: #dbeafe;
-    --blue-pale:  #eff6ff;
-    --sage:       #5a8a6a;
-    --sage-light: #d5e8d4;
-    --gold:       #c9a84c;
-    --gold-light: #fef3cd;
-    --red:        #c0392b;
-    --red-light:  #fde8e6;
-    --orange:     #ea580c;
-    --orange-light:#fff0e0;
-    --purple-light:#efe8ff;
-    --purple:     #6037a0;
-    --green:      #1a6b2a;
-    --green-light:#e0f5e0;
-    --gray:       #6b7280;
-    --gray-light: #f3f4f6;
-    --dark:       #111827;
-    --white:      #ffffff;
-    --shadow:     0 2px 12px rgba(0,0,0,0.10);
-    --shadow-lg:  0 8px 32px rgba(0,0,0,0.16);
-    --radius:     14px;
-    --radius-sm:  8px;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  /* ── LOGIN GATE ── */
-  #loginGate {
-    position: fixed; inset: 0;
-    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
-    z-index: 9999;
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px;
-  }
-  #loginGate.hidden { display: none; }
-  .login-box {
-    background: white; border-radius: 20px;
-    padding: 36px 30px 32px; width: 100%; max-width: 360px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.4); text-align: center;
-  }
-  .login-icon { font-size: 40px; margin-bottom: 10px; }
-  .login-title { font-size: 22px; font-weight: 800; color: var(--navy); margin-bottom: 4px; }
-  .login-sub { font-size: 13px; color: var(--gray); margin-bottom: 28px; }
-  .login-field {
-    width: 100%; padding: 13px 16px;
-    border: 1.5px solid #d1d5db; border-radius: 10px;
-    font-size: 16px; font-family: inherit; color: var(--dark);
-    margin-bottom: 14px; -webkit-appearance: none; transition: border-color 0.2s;
-  }
-  .login-field:focus { outline: none; border-color: var(--blue); }
-  .login-btn {
-    width: 100%; padding: 13px;
-    background: var(--blue); color: white; border: none;
-    border-radius: 10px; font-size: 16px; font-weight: 700;
-    cursor: pointer; transition: background 0.2s;
-  }
-  .login-btn:hover { background: #1a44c8; }
-  .login-error { color: var(--red); font-size: 13px; margin-top: 10px; display: none; }
-  .login-footer { font-size: 11px; color: #bbb; margin-top: 20px; }
-
-  /* ── LOADING SCREEN ── */
-  #loadingScreen {
-    position: fixed; inset: 0;
-    background: var(--blue-pale);
-    z-index: 500; display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: 16px;
-  }
-  #loadingScreen.hidden { display: none; }
-  .loading-spinner {
-    width: 44px; height: 44px;
-    border: 4px solid var(--blue-light);
-    border-top-color: var(--blue);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { font-size: 14px; color: var(--navy); font-weight: 600; }
-  .loading-sub { font-size: 12px; color: var(--gray); }
-
-  /* ── SHEETS ERROR BANNER ── */
-  #sheetsError {
-    background: #fef3cd; border: 1.5px solid #f0c040;
-    border-radius: var(--radius-sm); padding: 12px 16px;
-    margin: 12px 16px 0; display: none;
-    font-size: 13px; color: #7d6000; line-height: 1.5;
-  }
-  #sheetsError strong { display: block; margin-bottom: 4px; }
-
-  /* ── SETUP BANNER (shown when script URL not configured) ── */
-  #setupBanner {
-    background: var(--navy); color: white;
-    padding: 14px 16px; text-align: center;
-    font-size: 13px; line-height: 1.6; display: none;
-  }
-  #setupBanner strong { color: var(--gold); }
-  #setupBanner a { color: #93c5fd; }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--blue-pale); color: var(--dark);
-    min-height: 100vh; padding-bottom: 80px;
-  }
-
-  /* ── HEADER ── */
-  header {
-    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
-    color: white; padding: 20px 20px 16px;
-    position: sticky; top: 0; z-index: 100;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
-  }
-  .header-top {
-    display: flex; justify-content: space-between;
-    align-items: center; margin-bottom: 14px;
-  }
-  .header-brand { display: flex; align-items: center; gap: 10px; }
-  .brand-icon {
-    width: 38px; height: 38px; background: var(--blue);
-    border-radius: 10px; display: flex; align-items: center;
-    justify-content: center; font-size: 18px; flex-shrink: 0;
-  }
-  .header-title { font-size: 17px; font-weight: 800; letter-spacing: 0.2px; line-height: 1.2; }
-  .header-sub { font-size: 11px; opacity: 0.6; margin-top: 2px; font-weight: 400; }
-  .header-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
-
-  .admin-toggle {
-    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.3);
-    color: white; padding: 7px 14px; border-radius: 20px;
-    font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s;
-  }
-  .admin-toggle:hover { background: rgba(255,255,255,0.24); }
-  .admin-toggle.active { background: white; color: var(--navy); }
-  .admin-toggle.hidden { display: none; }
-
-  .add-deal-btn {
-    background: var(--blue); border: none; color: white;
-    padding: 7px 14px; border-radius: 20px;
-    font-size: 13px; font-weight: 600; cursor: pointer;
-    display: inline-flex; align-items: center; gap: 4px;
-  }
-
-  .qr-btn {
-    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.3);
-    color: white; padding: 7px 12px; border-radius: 20px;
-    font-size: 13px; font-weight: 600; cursor: pointer;
-    transition: background 0.2s; display: flex; align-items: center; gap: 4px;
-  }
-  .qr-btn:hover { background: rgba(255,255,255,0.24); }
-
-  .refresh-btn {
-    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.3);
-    color: white; padding: 7px 10px; border-radius: 20px;
-    font-size: 13px; cursor: pointer; transition: background 0.2s;
-  }
-  .refresh-btn:hover { background: rgba(255,255,255,0.24); }
-  .refresh-btn.spinning { animation: spin 0.8s linear infinite; }
-
-  /* ── STATS ── */
-  .stats-bar {
-    display: flex; gap: 8px; overflow-x: auto;
-    padding-bottom: 2px; -webkit-overflow-scrolling: touch; scrollbar-width: none;
-  }
-  .stats-bar::-webkit-scrollbar { display: none; }
-  .stat-pill {
-    background: rgba(255,255,255,0.13); border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 20px; padding: 5px 12px;
-    white-space: nowrap; font-size: 12px; font-weight: 700;
-  }
-  .stat-pill span { opacity: 0.65; font-weight: 400; margin-left: 4px; }
-
-  /* ── MAIN ── */
-  main { padding: 18px 16px; max-width: 900px; margin: 0 auto; }
-  .section-label {
-    font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
-    text-transform: uppercase; color: var(--navy-mid);
-    margin-bottom: 10px; margin-top: 22px;
-  }
-
-  /* ── FILTER BAR ── */
-  .filter-bar {
-    display: flex; gap: 8px; overflow-x: auto;
-    margin-bottom: 14px; -webkit-overflow-scrolling: touch; scrollbar-width: none;
-  }
-  .filter-bar::-webkit-scrollbar { display: none; }
-  .filter-btn {
-    background: white; border: 1.5px solid #d1d5db; border-radius: 20px;
-    padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
-    white-space: nowrap; color: var(--gray); transition: all 0.15s;
-  }
-  .filter-btn.active { background: var(--navy); border-color: var(--navy); color: white; }
-
-  /* ── CARDS ── */
-  .deals-grid { display: flex; flex-direction: column; gap: 12px; }
-  .deal-card {
-    background: white; border-radius: var(--radius); box-shadow: var(--shadow);
-    overflow: hidden; transition: transform 0.15s, box-shadow 0.15s;
-    border-left: 4px solid transparent;
-  }
-  .deal-card.priority-high { border-left-color: var(--red); }
-  .deal-card.priority-mid  { border-left-color: var(--gold); }
-  .deal-card.priority-low  { border-left-color: var(--blue); }
-
-  .card-top {
-    display: flex; justify-content: space-between;
-    align-items: flex-start; padding: 14px 16px 10px;
-    border-bottom: 1px solid #f0f0f0;
-  }
-  .card-name { font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 3px; }
-  .card-address { font-size: 12px; color: var(--gray); margin-bottom: 6px; }
-  .card-badges { display: flex; gap: 6px; flex-wrap: wrap; }
-  .card-type-badge {
-    display: inline-block; font-size: 10px; font-weight: 700;
-    letter-spacing: 0.8px; text-transform: uppercase;
-    padding: 2px 8px; border-radius: 10px;
-    background: var(--blue-light); color: var(--blue);
-  }
-  .card-type-badge.land     { background: var(--sage-light); color: var(--sage); }
-  .card-type-badge.business { background: #f3e8ff; color: #7c3aed; }
-
-  .status-badge {
-    padding: 5px 11px; border-radius: 20px; font-size: 11px; font-weight: 700;
-    white-space: nowrap; flex-shrink: 0; margin-left: 10px;
-  }
-  .status-prospect   { background: var(--blue-light);   color: var(--blue); }
-  .status-active     { background: var(--gold-light);    color: #7d6000; }
-  .status-offer      { background: var(--orange-light);  color: var(--orange); }
-  .status-contract   { background: var(--red-light);     color: var(--red); }
-  .status-diligence  { background: var(--purple-light);  color: var(--purple); }
-  .status-closing    { background: var(--green-light);   color: var(--green); }
-  .status-closed     { background: var(--sage-light);    color: var(--sage); }
-  .status-dead       { background: var(--gray-light);    color: var(--gray); }
-
-  .card-body {
-    padding: 12px 16px 14px;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px;
-  }
-  .card-field label {
-    font-size: 10px; font-weight: 700; letter-spacing: 0.6px;
-    text-transform: uppercase; color: var(--gray); display: block; margin-bottom: 2px;
-  }
-  .card-field .val { font-size: 13px; font-weight: 500; color: var(--dark); }
-  .card-field .val a { color: var(--blue); text-decoration: none; font-weight: 600; }
-  .card-field.full { grid-column: 1 / -1; }
-
-  .next-action-box {
-    grid-column: 1 / -1;
-    background: linear-gradient(135deg, #eff6ff, #dbeafe);
-    border: 1px solid #bfdbfe; border-radius: var(--radius-sm);
-    padding: 10px 13px; display: flex; align-items: flex-start; gap: 10px;
-  }
-  .next-action-box .icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-  .action-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--blue); margin-bottom: 2px; }
-  .action-text  { font-size: 13px; font-weight: 500; color: var(--dark); }
-  .action-due   { font-size: 11px; color: var(--gray); margin-top: 2px; }
-  .action-due.overdue { color: var(--red); font-weight: 700; }
-
-  .notes-box {
-    grid-column: 1 / -1; background: #fffdf0;
-    border: 1px solid #f0e8b0; border-radius: var(--radius-sm); padding: 10px 13px;
-  }
-  .notes-box-label {
-    font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
-    text-transform: uppercase; color: #8a7000; margin-bottom: 5px;
-  }
-  .notes-text { font-size: 12.5px; color: #4b5563; line-height: 1.55; white-space: pre-wrap; }
-
-  .prop-details-box {
-    grid-column: 1 / -1; background: #f8faff;
-    border: 1px solid #d1ddf5; border-radius: var(--radius-sm); padding: 10px 13px;
-  }
-  .prop-details-label {
-    font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
-    text-transform: uppercase; color: var(--navy-mid);
-    margin-bottom: 7px; display: flex; align-items: center; gap: 5px;
-  }
-  .prop-specs { display: flex; flex-wrap: wrap; gap: 6px; }
-  .spec-chip {
-    background: white; border: 1px solid #d1ddf5; border-radius: 6px;
-    padding: 3px 9px; font-size: 12px; color: var(--dark); font-weight: 500; white-space: nowrap;
-  }
-  .spec-chip strong { color: var(--navy-mid); font-weight: 700; margin-right: 3px; }
-
-  .prop-link-btn {
-    display: inline-flex; align-items: center;
-    background: var(--blue-pale); border: 1.5px solid var(--blue-light);
-    color: var(--blue) !important; border-radius: 8px; padding: 6px 14px;
-    font-size: 13px; font-weight: 700; text-decoration: none !important; transition: background 0.15s;
-  }
-  .prop-link-btn:hover { background: var(--blue-light); }
-
-  .card-footer {
-    background: #f9fafb; border-top: 1px solid #f0f0f0;
-    padding: 9px 16px; display: flex; justify-content: space-between; align-items: center;
-  }
-  .last-contact { font-size: 11px; color: var(--gray); }
-  .last-contact strong { color: var(--dark); }
-  .card-actions { display: flex; gap: 8px; }
-  .btn-edit    { background: var(--blue); color: white; border: none; border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
-  .btn-archive { background: var(--gray-light); color: var(--gray); border: none; border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
-
-  /* ── EMPTY / ERROR STATES ── */
-  .empty-state { text-align: center; padding: 50px 20px; color: var(--gray); }
-  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
-  .empty-state p { font-size: 15px; margin-bottom: 6px; color: var(--dark); font-weight: 600; }
-
-  /* ── ADMIN SAVE BAR ── */
-  .save-bar {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: var(--navy); padding: 12px 16px;
-    display: flex; gap: 10px; z-index: 300; align-items: center;
-  }
-  .save-bar.hidden { display: none; }
-  .btn-save {
-    background: var(--blue); color: white; border: none;
-    border-radius: 22px; padding: 10px 22px; font-size: 14px; font-weight: 700; cursor: pointer; flex: 1;
-  }
-  .save-bar-hint { font-size: 11px; color: rgba(255,255,255,0.5); flex: 2; line-height: 1.4; }
-
-  /* ── SHOW ARCHIVED ── */
-  .show-archived-btn {
-    display: block; width: 100%; background: none;
-    border: 1.5px dashed #cbd5e1; border-radius: var(--radius-sm);
-    padding: 12px; font-size: 13px; color: var(--gray);
-    cursor: pointer; margin-top: 16px; font-weight: 600;
-  }
-  .last-updated { text-align: center; font-size: 11px; color: var(--gray); margin-top: 20px; }
-
-  /* ── QR MODAL ── */
-  .qr-modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
-    z-index: 500; display: flex; align-items: center; justify-content: center; padding: 20px;
-  }
-  .qr-modal-overlay.hidden { display: none; }
-  .qr-modal {
-    background: white; border-radius: 20px; padding: 28px 24px 24px;
-    max-width: 340px; width: 100%; text-align: center; box-shadow: var(--shadow-lg);
-  }
-  .qr-modal h3 { font-size: 17px; font-weight: 800; color: var(--navy); margin-bottom: 4px; }
-  .qr-modal p { font-size: 13px; color: var(--gray); margin-bottom: 20px; }
-  #qrCanvas { border-radius: 12px; border: 1px solid #e5e7eb; }
-  .qr-modal-btns { display: flex; gap: 10px; margin-top: 18px; }
-  .btn-qr-close { flex: 1; background: var(--gray-light); color: var(--dark); border: none; border-radius: 10px; padding: 11px; font-size: 14px; font-weight: 600; cursor: pointer; }
-  .btn-qr-download { flex: 2; background: var(--blue); color: white; border: none; border-radius: 10px; padding: 11px; font-size: 14px; font-weight: 700; cursor: pointer; }
-
-  /* ── DEAL MODAL ── */
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.55);
-    z-index: 400; display: flex; align-items: flex-end; justify-content: center;
-  }
-  .modal-overlay.hidden { display: none; }
-  .modal {
-    background: white; border-radius: var(--radius) var(--radius) 0 0;
-    width: 100%; max-width: 640px; max-height: 92vh;
-    overflow-y: auto; padding: 20px 20px 40px; -webkit-overflow-scrolling: touch;
-  }
-  .modal-handle { width: 36px; height: 4px; background: #e5e7eb; border-radius: 2px; margin: 0 auto 18px; }
-  .modal h2 { font-size: 18px; font-weight: 800; margin-bottom: 18px; color: var(--navy); }
-
-  .form-group { margin-bottom: 14px; }
-  .form-group label {
-    display: block; font-size: 11px; font-weight: 700;
-    letter-spacing: 0.6px; text-transform: uppercase; color: var(--gray); margin-bottom: 5px;
-  }
-  .form-group input, .form-group select, .form-group textarea {
-    width: 100%; padding: 11px 14px; border: 1.5px solid #d1d5db;
-    border-radius: var(--radius-sm); font-size: 15px; font-family: inherit;
-    color: var(--dark); background: white; -webkit-appearance: none; transition: border-color 0.2s;
-  }
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-    outline: none; border-color: var(--blue);
-  }
-  .form-group textarea { resize: vertical; min-height: 80px; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-  .modal-btns { display: flex; gap: 10px; margin-top: 22px; }
-  .btn-cancel  { flex: 1; background: var(--gray-light); color: var(--dark); border: none; border-radius: 22px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; }
-  .btn-primary { flex: 2; background: var(--blue); color: white; border: none; border-radius: 22px; padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; }
-  .btn-delete  { flex: 1; background: var(--red-light); color: var(--red); border: none; border-radius: 22px; padding: 13px; font-size: 14px; font-weight: 600; cursor: pointer; }
-
-  /* ── PWA INSTALL BANNER ── */
-  #installBanner {
-    background: var(--navy-mid); color: white; padding: 10px 16px;
-    display: none; align-items: center; justify-content: space-between; gap: 10px;
-  }
-  #installBanner.show { display: flex; }
-  .install-text { font-size: 13px; }
-  .btn-install { background: var(--blue); color: white; border: none; border-radius: 20px; padding: 7px 16px; font-size: 13px; font-weight: 700; cursor: pointer; }
-  .btn-install-dismiss { background: none; border: none; color: rgba(255,255,255,0.5); font-size: 20px; cursor: pointer; padding: 0 4px; }
-
-  @media (max-width: 420px) {
-    .form-row { grid-template-columns: 1fr; }
-    .card-body { grid-template-columns: 1fr; }
-    .next-action-box { grid-column: 1; }
-  }
-  @media (min-width: 600px) {
-    .deals-grid { gap: 16px; }
-    .card-body { grid-template-columns: 1fr 1fr 1fr; }
-  }
-</style>
-
-<!-- PWA Manifest inline -->
-<link rel="manifest" href="data:application/json,{
-  %22name%22:%22LaVau %26 Lucas Pipeline%22,
-  %22short_name%22:%22LL Pipeline%22,
-  %22start_url%22:%22.%22,
-  %22display%22:%22standalone%22,
-  %22background_color%22:%22%230f2850%22,
-  %22theme_color%22:%22%230f2850%22,
-  %22icons%22:[{%22src%22:%22https://placehold.co/192x192/0f2850/ffffff?text=LL%22,%22sizes%22:%22192x192%22,%22type%22:%22image/png%22}]
-}">
 <meta name="theme-color" content="#0f2850">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="LL Pipeline">
+<link rel="manifest" href="data:application/json,%7B%22name%22%3A%22LaVau%20%26%20Lucas%20Pipeline%22%2C%22short_name%22%3A%22LL%20Pipeline%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f2850%22%2C%22theme_color%22%3A%22%230f2850%22%7D">
+<style>
+  :root {
+    --navy:#0f2850; --navy-mid:#1e3f6e; --blue:#1d4ed8;
+    --blue-light:#dbeafe; --blue-pale:#eff6ff;
+    --sage:#5a8a6a; --sage-light:#d5e8d4;
+    --gold:#c9a84c; --gold-light:#fef3cd;
+    --red:#c0392b; --red-light:#fde8e6;
+    --orange:#ea580c; --orange-light:#fff0e0;
+    --purple:#6037a0; --purple-light:#efe8ff;
+    --green:#1a6b2a; --green-light:#e0f5e0;
+    --gray:#6b7280; --gray-light:#f3f4f6;
+    --dark:#111827; --white:#ffffff;
+    --shadow:0 2px 12px rgba(0,0,0,0.10);
+    --shadow-lg:0 8px 32px rgba(0,0,0,0.16);
+    --radius:14px; --radius-sm:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+
+  /* ── LOGIN GATE ── */
+  #loginGate{
+    position:fixed;inset:0;
+    background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 100%);
+    z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;
+  }
+  #loginGate.hidden{display:none;}
+  .login-box{
+    background:white;border-radius:20px;padding:36px 30px 32px;
+    width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.4);text-align:center;
+  }
+  .login-icon{font-size:40px;margin-bottom:10px;}
+  .login-title{font-size:22px;font-weight:800;color:var(--navy);margin-bottom:4px;}
+  .login-sub{font-size:13px;color:var(--gray);margin-bottom:24px;}
+
+  /* Step indicators */
+  .login-steps{display:flex;justify-content:center;gap:8px;margin-bottom:24px;}
+  .login-step{
+    width:28px;height:28px;border-radius:50%;border:2px solid #d1d5db;
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:700;color:var(--gray);transition:all 0.2s;
+  }
+  .login-step.active{background:var(--blue);border-color:var(--blue);color:white;}
+  .login-step.done{background:var(--green);border-color:var(--green);color:white;}
+
+  .login-field{
+    width:100%;padding:13px 16px;border:1.5px solid #d1d5db;border-radius:10px;
+    font-size:16px;font-family:inherit;color:var(--dark);
+    margin-bottom:14px;-webkit-appearance:none;transition:border-color 0.2s;
+  }
+  .login-field:focus{outline:none;border-color:var(--blue);}
+  .login-btn{
+    width:100%;padding:13px;background:var(--blue);color:white;border:none;
+    border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:background 0.2s;
+  }
+  .login-btn:hover{background:#1a44c8;}
+  .login-btn:disabled{background:#93c5fd;cursor:not-allowed;}
+  .login-error{color:var(--red);font-size:13px;margin-top:10px;display:none;}
+  .login-step-label{font-size:12px;color:var(--gray);margin-bottom:16px;font-weight:600;}
+
+  /* Google sign-in button */
+  .google-btn{
+    width:100%;padding:12px;background:white;color:#1f2937;
+    border:1.5px solid #d1d5db;border-radius:10px;
+    font-size:15px;font-weight:600;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    transition:background 0.2s;margin-bottom:14px;
+  }
+  .google-btn:hover{background:#f9fafb;}
+  .google-logo{width:20px;height:20px;}
+  .login-divider{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:14px;color:var(--gray);font-size:12px;
+  }
+  .login-divider::before,.login-divider::after{
+    content:'';flex:1;height:1px;background:#e5e7eb;
+  }
+  .login-footer{font-size:11px;color:#bbb;margin-top:20px;}
+  .login-back{
+    background:none;border:none;color:var(--gray);font-size:13px;
+    cursor:pointer;margin-top:10px;text-decoration:underline;
+  }
+
+  /* ── LOADING ── */
+  #loadingScreen{
+    position:fixed;inset:0;background:var(--blue-pale);
+    z-index:500;display:flex;align-items:center;justify-content:center;
+    flex-direction:column;gap:16px;
+  }
+  #loadingScreen.hidden{display:none;}
+  .loading-spinner{
+    width:44px;height:44px;border:4px solid var(--blue-light);
+    border-top-color:var(--blue);border-radius:50%;
+    animation:spin 0.8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading-text{font-size:14px;color:var(--navy);font-weight:600;}
+  .loading-sub{font-size:12px;color:var(--gray);}
+
+  /* ── ERROR BANNER ── */
+  #sheetsError{
+    background:#fef3cd;border:1.5px solid #f0c040;
+    border-radius:var(--radius-sm);padding:12px 16px;
+    margin:12px 16px 0;display:none;
+    font-size:13px;color:#7d6000;line-height:1.5;
+  }
+  #setupBanner{
+    background:var(--navy);color:white;
+    padding:14px 16px;text-align:center;
+    font-size:13px;line-height:1.6;display:none;
+  }
+  #setupBanner strong{color:var(--gold);}
+
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    background:var(--blue-pale);color:var(--dark);
+    min-height:100vh;padding-bottom:80px;
+  }
+
+  /* ── HEADER ── */
+  header{
+    background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 100%);
+    color:white;padding:20px 20px 16px;
+    position:sticky;top:0;z-index:100;
+    box-shadow:0 2px 12px rgba(0,0,0,0.25);
+  }
+  .header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .header-brand{display:flex;align-items:center;gap:10px;}
+  .brand-icon{
+    width:38px;height:38px;background:var(--blue);border-radius:10px;
+    display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+  }
+  .header-title{font-size:17px;font-weight:800;letter-spacing:0.2px;line-height:1.2;}
+  .header-sub{font-size:11px;opacity:0.6;margin-top:2px;font-weight:400;}
+  .header-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
+
+  .admin-toggle{
+    background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.3);
+    color:white;padding:7px 14px;border-radius:20px;
+    font-size:13px;font-weight:600;cursor:pointer;transition:background 0.2s;
+  }
+  .admin-toggle:hover{background:rgba(255,255,255,0.24);}
+  .admin-toggle.active{background:white;color:var(--navy);}
+  .admin-toggle.hidden{display:none;}
+
+  .add-deal-btn{
+    background:var(--blue);border:none;color:white;
+    padding:7px 14px;border-radius:20px;
+    font-size:13px;font-weight:600;cursor:pointer;
+    display:inline-flex;align-items:center;gap:4px;
+  }
+  .qr-btn,.refresh-btn{
+    background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.3);
+    color:white;padding:7px 12px;border-radius:20px;
+    font-size:13px;font-weight:600;cursor:pointer;transition:background 0.2s;
+  }
+  .qr-btn:hover,.refresh-btn:hover{background:rgba(255,255,255,0.24);}
+  .refresh-btn.spinning{animation:spin 0.8s linear infinite;}
+
+  /* ── STATS ── */
+  .stats-bar{
+    display:flex;gap:8px;overflow-x:auto;
+    padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+  }
+  .stats-bar::-webkit-scrollbar{display:none;}
+  .stat-pill{
+    background:rgba(255,255,255,0.13);border:1px solid rgba(255,255,255,0.2);
+    border-radius:20px;padding:5px 12px;white-space:nowrap;font-size:12px;font-weight:700;
+  }
+  .stat-pill span{opacity:0.65;font-weight:400;margin-left:4px;}
+
+  main{padding:18px 16px;max-width:900px;margin:0 auto;}
+  .section-label{
+    font-size:11px;font-weight:700;letter-spacing:1.2px;
+    text-transform:uppercase;color:var(--navy-mid);
+    margin-bottom:10px;margin-top:22px;
+  }
+
+  /* ── FILTERS ── */
+  .filter-bar{
+    display:flex;gap:8px;overflow-x:auto;
+    margin-bottom:14px;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+  }
+  .filter-bar::-webkit-scrollbar{display:none;}
+  .filter-btn{
+    background:white;border:1.5px solid #d1d5db;border-radius:20px;
+    padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;
+    white-space:nowrap;color:var(--gray);transition:all 0.15s;
+  }
+  .filter-btn.active{background:var(--navy);border-color:var(--navy);color:white;}
+
+  /* ── CARDS ── */
+  .deals-grid{display:flex;flex-direction:column;gap:12px;}
+  .deal-card{
+    background:white;border-radius:var(--radius);box-shadow:var(--shadow);
+    overflow:hidden;border-left:4px solid transparent;
+  }
+  .deal-card.priority-high{border-left-color:var(--red);}
+  .deal-card.priority-mid {border-left-color:var(--gold);}
+  .deal-card.priority-low {border-left-color:var(--blue);}
+
+  .card-top{
+    display:flex;justify-content:space-between;align-items:flex-start;
+    padding:14px 16px 10px;border-bottom:1px solid #f0f0f0;
+  }
+  .card-name{font-size:16px;font-weight:700;color:var(--dark);margin-bottom:2px;}
+  .card-bizname{font-size:13px;font-weight:600;color:var(--navy-mid);margin-bottom:3px;}
+  .card-address{font-size:12px;color:var(--gray);margin-bottom:6px;}
+  .card-badges{display:flex;gap:6px;flex-wrap:wrap;}
+  .card-type-badge{
+    display:inline-block;font-size:10px;font-weight:700;
+    letter-spacing:0.8px;text-transform:uppercase;
+    padding:2px 8px;border-radius:10px;
+    background:var(--blue-light);color:var(--blue);
+  }
+  .card-type-badge.land    {background:var(--sage-light);color:var(--sage);}
+  .card-type-badge.business{background:#f3e8ff;color:#7c3aed;}
+
+  .status-badge{
+    padding:5px 11px;border-radius:20px;font-size:11px;font-weight:700;
+    white-space:nowrap;flex-shrink:0;margin-left:10px;
+  }
+  .status-prospect {background:var(--blue-light);  color:var(--blue);}
+  .status-active   {background:var(--gold-light);   color:#7d6000;}
+  .status-offer    {background:var(--orange-light); color:var(--orange);}
+  .status-contract {background:var(--red-light);    color:var(--red);}
+  .status-diligence{background:var(--purple-light); color:var(--purple);}
+  .status-closing  {background:var(--green-light);  color:var(--green);}
+  .status-closed   {background:var(--sage-light);   color:var(--sage);}
+  .status-dead     {background:var(--gray-light);   color:var(--gray);}
+
+  .card-body{
+    padding:12px 16px 14px;
+    display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;
+  }
+  .card-field label{
+    font-size:10px;font-weight:700;letter-spacing:0.6px;
+    text-transform:uppercase;color:var(--gray);display:block;margin-bottom:2px;
+  }
+  .card-field .val{font-size:13px;font-weight:500;color:var(--dark);}
+  .card-field .val a{color:var(--blue);text-decoration:none;font-weight:600;}
+  .card-field.full{grid-column:1/-1;}
+
+  .next-action-box{
+    grid-column:1/-1;
+    background:linear-gradient(135deg,#eff6ff,#dbeafe);
+    border:1px solid #bfdbfe;border-radius:var(--radius-sm);
+    padding:10px 13px;display:flex;align-items:flex-start;gap:10px;
+  }
+  .next-action-box .icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+  .action-label{font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--blue);margin-bottom:2px;}
+  .action-text {font-size:13px;font-weight:500;color:var(--dark);}
+  .action-due  {font-size:11px;color:var(--gray);margin-top:2px;}
+  .action-due.overdue{color:var(--red);font-weight:700;}
+
+  .notes-box{
+    grid-column:1/-1;background:#fffdf0;
+    border:1px solid #f0e8b0;border-radius:var(--radius-sm);padding:10px 13px;
+  }
+  .notes-box-label{
+    font-size:10px;font-weight:700;letter-spacing:0.8px;
+    text-transform:uppercase;color:#8a7000;margin-bottom:5px;
+  }
+  .notes-text{font-size:12.5px;color:#4b5563;line-height:1.55;white-space:pre-wrap;}
+
+  .prop-details-box{
+    grid-column:1/-1;background:#f8faff;
+    border:1px solid #d1ddf5;border-radius:var(--radius-sm);padding:10px 13px;
+  }
+  .prop-details-label{
+    font-size:10px;font-weight:700;letter-spacing:0.8px;
+    text-transform:uppercase;color:var(--navy-mid);
+    margin-bottom:7px;display:flex;align-items:center;gap:5px;
+  }
+  .prop-specs{display:flex;flex-wrap:wrap;gap:6px;}
+  .spec-chip{
+    background:white;border:1px solid #d1ddf5;border-radius:6px;
+    padding:3px 9px;font-size:12px;color:var(--dark);font-weight:500;white-space:nowrap;
+  }
+  .spec-chip strong{color:var(--navy-mid);font-weight:700;margin-right:3px;}
+
+  .prop-link-btn,.website-link-btn{
+    display:inline-flex;align-items:center;
+    background:var(--blue-pale);border:1.5px solid var(--blue-light);
+    color:var(--blue)!important;border-radius:8px;padding:6px 14px;
+    font-size:13px;font-weight:700;text-decoration:none!important;transition:background 0.15s;
+  }
+  .prop-link-btn:hover,.website-link-btn:hover{background:var(--blue-light);}
+  .website-link-btn{background:#f0fdf4;border-color:#bbf7d0;color:#15803d!important;}
+  .website-link-btn:hover{background:#dcfce7;}
+
+  .card-footer{
+    background:#f9fafb;border-top:1px solid #f0f0f0;
+    padding:9px 16px;display:flex;justify-content:space-between;align-items:center;
+  }
+  .last-contact{font-size:11px;color:var(--gray);}
+  .last-contact strong{color:var(--dark);}
+  .card-actions{display:flex;gap:8px;}
+  .btn-edit   {background:var(--blue);color:white;border:none;border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;}
+  .btn-archive{background:var(--gray-light);color:var(--gray);border:none;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;}
+
+  .empty-state{text-align:center;padding:50px 20px;color:var(--gray);}
+  .empty-state .icon{font-size:48px;margin-bottom:12px;}
+  .empty-state p{font-size:15px;margin-bottom:6px;color:var(--dark);font-weight:600;}
+
+  /* ── SAVE BAR ── */
+  .save-bar{
+    position:fixed;bottom:0;left:0;right:0;
+    background:var(--navy);padding:12px 16px;
+    display:flex;gap:10px;z-index:300;align-items:center;
+  }
+  .save-bar.hidden{display:none;}
+  .btn-save{
+    background:var(--blue);color:white;border:none;
+    border-radius:22px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;flex:1;
+  }
+  .save-bar-hint{font-size:11px;color:rgba(255,255,255,0.5);flex:2;line-height:1.4;}
+
+  .show-archived-btn{
+    display:block;width:100%;background:none;border:1.5px dashed #cbd5e1;
+    border-radius:var(--radius-sm);padding:12px;
+    font-size:13px;color:var(--gray);cursor:pointer;margin-top:16px;font-weight:600;
+  }
+  .last-updated{text-align:center;font-size:11px;color:var(--gray);margin-top:20px;}
+
+  /* ── QR MODAL ── */
+  .qr-modal-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,0.6);
+    z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;
+  }
+  .qr-modal-overlay.hidden{display:none;}
+  .qr-modal{
+    background:white;border-radius:20px;padding:28px 24px 24px;
+    max-width:340px;width:100%;text-align:center;box-shadow:var(--shadow-lg);
+  }
+  .qr-modal h3{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:4px;}
+  .qr-modal p{font-size:13px;color:var(--gray);margin-bottom:20px;}
+  #qrCanvas{border-radius:12px;border:1px solid #e5e7eb;}
+  .qr-modal-btns{display:flex;gap:10px;margin-top:18px;}
+  .btn-qr-close   {flex:1;background:var(--gray-light);color:var(--dark);border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;}
+  .btn-qr-download{flex:2;background:var(--blue);color:white;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;}
+
+  /* ── DEAL MODAL ── */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,0.55);
+    z-index:400;display:flex;align-items:flex-end;justify-content:center;
+  }
+  .modal-overlay.hidden{display:none;}
+  .modal{
+    background:white;border-radius:var(--radius) var(--radius) 0 0;
+    width:100%;max-width:640px;max-height:92vh;
+    overflow-y:auto;padding:20px 20px 40px;-webkit-overflow-scrolling:touch;
+  }
+  .modal-handle{width:36px;height:4px;background:#e5e7eb;border-radius:2px;margin:0 auto 18px;}
+  .modal h2{font-size:18px;font-weight:800;margin-bottom:18px;color:var(--navy);}
+  .form-section-label{
+    font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+    color:var(--navy-mid);margin:18px 0 10px;padding-bottom:6px;
+    border-bottom:1.5px solid var(--blue-light);
+  }
+  .form-group{margin-bottom:14px;}
+  .form-group label{
+    display:block;font-size:11px;font-weight:700;
+    letter-spacing:0.6px;text-transform:uppercase;color:var(--gray);margin-bottom:5px;
+  }
+  .form-group input,.form-group select,.form-group textarea{
+    width:100%;padding:11px 14px;border:1.5px solid #d1d5db;
+    border-radius:var(--radius-sm);font-size:15px;font-family:inherit;
+    color:var(--dark);background:white;-webkit-appearance:none;transition:border-color 0.2s;
+  }
+  .form-group input:focus,.form-group select:focus,.form-group textarea:focus{
+    outline:none;border-color:var(--blue);
+  }
+  .form-group textarea{resize:vertical;min-height:80px;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .modal-btns{display:flex;gap:10px;margin-top:22px;}
+  .btn-cancel {flex:1;background:var(--gray-light);color:var(--dark);border:none;border-radius:22px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;}
+  .btn-primary{flex:2;background:var(--blue);color:white;border:none;border-radius:22px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;}
+  .btn-delete {flex:1;background:var(--red-light);color:var(--red);border:none;border-radius:22px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;}
+
+  /* ── PWA INSTALL ── */
+  #installBanner{
+    background:var(--navy-mid);color:white;padding:10px 16px;
+    display:none;align-items:center;justify-content:space-between;gap:10px;
+  }
+  #installBanner.show{display:flex;}
+  .install-text{font-size:13px;}
+  .btn-install{background:var(--blue);color:white;border:none;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;}
+  .btn-install-dismiss{background:none;border:none;color:rgba(255,255,255,0.5);font-size:20px;cursor:pointer;padding:0 4px;}
+
+  @media(max-width:420px){
+    .form-row{grid-template-columns:1fr;}
+    .card-body{grid-template-columns:1fr;}
+    .next-action-box{grid-column:1;}
+  }
+  @media(min-width:600px){
+    .deals-grid{gap:16px;}
+    .card-body{grid-template-columns:1fr 1fr 1fr;}
+  }
+</style>
 </head>
 <body>
 
-<!-- ── LOGIN GATE ── -->
+<!-- ════════════════════════════════════════════
+     TWO-STEP LOGIN GATE
+     Step 1: Passcode (hashed, never stored plain)
+     Step 2: Google account verification
+     No sensitive deal data lives in this file.
+     All data is fetched live from Google Sheets.
+════════════════════════════════════════════ -->
 <div id="loginGate">
   <div class="login-box">
     <div class="login-icon">🏢</div>
     <div class="login-title">LaVau &amp; Lucas Pipeline</div>
-    <div class="login-sub">Private access only · Enter your passcode to continue</div>
-    <input class="login-field" type="password" id="loginInput"
-      placeholder="Enter passcode"
-      autocomplete="off"
-      onkeydown="if(event.key==='Enter')checkLogin()">
-    <button class="login-btn" onclick="checkLogin()">Access Pipeline →</button>
-    <div class="login-error" id="loginError">Incorrect passcode. Try again.</div>
-    <div class="login-footer">LaVau &amp; Lucas · Private CRM · 2026</div>
+    <div class="login-sub">Private access — two-step verification required</div>
+
+    <!-- Step progress indicators -->
+    <div class="login-steps">
+      <div class="login-step active" id="stepDot1">1</div>
+      <div style="flex:1;height:2px;background:#e5e7eb;align-self:center;"></div>
+      <div class="login-step" id="stepDot2">2</div>
+    </div>
+
+    <!-- STEP 1: Passcode -->
+    <div id="loginStep1">
+      <div class="login-step-label">Step 1 of 2 — Enter your passcode</div>
+      <input class="login-field" type="password" id="loginInput"
+        placeholder="Enter passcode" autocomplete="off"
+        onkeydown="if(event.key==='Enter')checkPasscode()">
+      <button class="login-btn" onclick="checkPasscode()">Continue →</button>
+      <div class="login-error" id="loginError">Incorrect passcode. Try again.</div>
+    </div>
+
+    <!-- STEP 2: Google verification -->
+    <div id="loginStep2" style="display:none;">
+      <div class="login-step-label">Step 2 of 2 — Verify with Google</div>
+      <p style="font-size:13px;color:#6b7280;margin-bottom:16px;">
+        Sign in with an authorized Google account to complete access.
+      </p>
+      <button class="google-btn" onclick="signInWithGoogle()">
+        <svg class="google-logo" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Continue with Google
+      </button>
+      <div class="login-divider">or enter Google email manually</div>
+      <input class="login-field" type="email" id="googleEmailInput"
+        placeholder="your@gmail.com" autocomplete="email"
+        onkeydown="if(event.key==='Enter')checkGoogleEmail()">
+      <button class="login-btn" onclick="checkGoogleEmail()">Verify &amp; Enter →</button>
+      <div class="login-error" id="googleError">This Google account is not authorized.</div>
+      <button class="login-back" onclick="backToStep1()">← Back</button>
+    </div>
+
+    <div class="login-footer">LaVau &amp; Lucas · Private CRM · 2026 · Two-Step Protected</div>
   </div>
 </div>
 
-<!-- ── LOADING SCREEN ── -->
+<!-- ── LOADING ── -->
 <div id="loadingScreen" class="hidden">
   <div class="loading-spinner"></div>
   <div class="loading-text">Loading Pipeline…</div>
   <div class="loading-sub">Fetching live data from Google Sheets</div>
 </div>
 
-<!-- ── PWA INSTALL BANNER ── -->
+<!-- ── PWA INSTALL ── -->
 <div id="installBanner">
-  <div class="install-text">📱 Add to your iPhone Home Screen for quick access</div>
+  <div class="install-text">📱 Install on your iPhone Home Screen</div>
   <button class="btn-install" id="installBtn">Install</button>
   <button class="btn-install-dismiss" onclick="dismissInstall()">✕</button>
 </div>
@@ -458,8 +485,7 @@
 <!-- ── SETUP BANNER ── -->
 <div id="setupBanner">
   ⚠️ <strong>Google Sheets not connected yet.</strong>
-  Paste your Apps Script URL in the <code>SHEETS_SCRIPT_URL</code> variable inside this file.
-  <a href="#" onclick="alert('See the Setup Guide document for step-by-step instructions.')">View setup guide →</a>
+  Paste your Apps Script URL in the SHEETS_SCRIPT_URL variable inside this file.
 </div>
 
 <header>
@@ -472,7 +498,7 @@
       </div>
     </div>
     <div class="header-right">
-      <button class="refresh-btn" id="refreshBtn" onclick="loadFromSheets()" title="Refresh data">↻</button>
+      <button class="refresh-btn" id="refreshBtn" onclick="loadFromSheets()" title="Refresh">↻</button>
       <button class="qr-btn" onclick="openQR()">&#x25A6; QR</button>
       <button class="add-deal-btn" onclick="openModal(null)">＋ Add Client</button>
       <button class="admin-toggle hidden" id="adminToggle" onclick="toggleAdmin()">⚙ Admin</button>
@@ -488,7 +514,7 @@
   <div class="save-bar-hint">Changes save directly to Google Sheets · Sean sees updates instantly</div>
 </div>
 
-<main id="main">
+<main>
   <div class="filter-bar" id="filterBar"></div>
   <div id="dealsContainer"></div>
   <div class="last-updated" id="lastUpdated"></div>
@@ -514,9 +540,12 @@
     <h2 id="modalTitle">New Deal</h2>
     <form id="dealForm" onsubmit="saveDeal(event)">
       <input type="hidden" id="dealId">
+
+      <!-- DEAL INFO -->
+      <div class="form-section-label">📋 Deal Information</div>
       <div class="form-group">
         <label>Deal / Project Name *</label>
-        <input type="text" id="fName" placeholder="e.g. Buckeye Industrial Site" required>
+        <input type="text" id="fName" placeholder="e.g. Barrett Winery Acquisition" required>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -542,6 +571,19 @@
           </select>
         </div>
       </div>
+
+      <!-- BUSINESS INFO -->
+      <div class="form-section-label">🏢 Business / Property</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Business Name</label>
+          <input type="text" id="fBizName" placeholder="e.g. Barrett Winery">
+        </div>
+        <div class="form-group">
+          <label>Business Website</label>
+          <input type="url" id="fBizWebsite" placeholder="https://www.example.com">
+        </div>
+      </div>
       <div class="form-group">
         <label>Property Address</label>
         <input type="text" id="fAddress" placeholder="123 Main St, Phoenix, AZ 85001">
@@ -556,46 +598,60 @@
           <input type="text" id="fOfferPrice" placeholder="$0,000,000">
         </div>
       </div>
+
+      <!-- POINT OF CONTACT -->
+      <div class="form-section-label">👤 Point of Contact</div>
       <div class="form-row">
         <div class="form-group">
-          <label>Client / Seller Name</label>
-          <input type="text" id="fClient" placeholder="Full name">
+          <label>Contact Name *</label>
+          <input type="text" id="fClient" placeholder="Full name" required>
         </div>
         <div class="form-group">
-          <label>Client Phone</label>
-          <input type="tel" id="fPhone" placeholder="(602) 555-0100">
+          <label>Title / Role</label>
+          <input type="text" id="fContactRole" placeholder="e.g. Owner, Broker, Manager">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Client Email</label>
-          <input type="email" id="fEmail" placeholder="client@email.com">
+          <label>Phone</label>
+          <input type="tel" id="fPhone" placeholder="(602) 555-0100">
         </div>
         <div class="form-group">
-          <label>Last Contacted</label>
-          <input type="date" id="fLastContact">
+          <label>Email</label>
+          <input type="email" id="fEmail" placeholder="contact@email.com">
         </div>
       </div>
       <div class="form-group">
-        <label>Property Details</label>
-        <textarea id="fPropDetails" placeholder="SF: 28,000 | Land: 1.5 AC | Zoning: LAMR2 | Ceiling: 20ft&#10;(Separate each spec with | — each becomes its own tag)"></textarea>
+        <label>Last Contacted</label>
+        <input type="date" id="fLastContact">
+      </div>
+
+      <!-- PROPERTY DETAILS -->
+      <div class="form-section-label">🏗 Property Details</div>
+      <div class="form-group">
+        <textarea id="fPropDetails" placeholder="SF: 28,000 | Land: 1.5 AC | Zoning: LAMR2 | Ceiling: 20ft&#10;(Separate each spec with | — each becomes its own chip tag)"></textarea>
       </div>
       <div class="form-group">
         <label>Property Profile Link</label>
         <input type="url" id="fPropertyLink" placeholder="https://www.loopnet.com/listing/...">
       </div>
+
+      <!-- NEXT ACTION -->
+      <div class="form-section-label">⚡ Next Action</div>
       <div class="form-group">
-        <label>Next Action</label>
         <input type="text" id="fNextAction" placeholder="e.g. Send LOI, Schedule site walk…">
       </div>
       <div class="form-group">
-        <label>Next Action Due Date</label>
+        <label>Due Date</label>
         <input type="date" id="fNextDue">
       </div>
+
+      <!-- NOTES -->
+      <div class="form-section-label">📝 Notes</div>
       <div class="form-group">
-        <label>Notes</label>
-        <textarea id="fNotes" placeholder="Key context, deal structure, contingencies…"></textarea>
+        <textarea id="fNotes" placeholder="Key context, deal structure, contingencies, warnings…"></textarea>
       </div>
+
       <div class="modal-btns" id="modalBtns">
         <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
         <button type="submit" class="btn-primary">Save Deal</button>
@@ -605,35 +661,58 @@
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════════════
-//  CONFIGURATION — PASTE YOUR APPS SCRIPT URL BELOW
-//  After completing the Google Sheets setup guide, replace the
-//  empty string with your deployed Apps Script web app URL.
-//  It will look like: https://script.google.com/macros/s/ABC.../exec
-// ═══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
+//  CONFIGURATION
+//  Only non-sensitive config lives here.
+//  ALL deal data lives in Google Sheets — never in this file.
+// ════════════════════════════════════════════════════════════════
+
+// Paste your Google Apps Script URL here after completing setup guide
 const SHEETS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzD3yvIO6dfpFTulOi_01qyDBnEgRxHz6bqbJyapEfyw4leqzG_d3ZYq3kcjg3r21Ot/exec';  // ← PASTE YOUR URL HERE
 
-// ═══════════════════════════════════════════════════════════════
-//  ACCESS CONTROL
-// ═══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
+
+// ════════════════════════════════════════════════════════════════
+
 const PASSCODE_HASHES = {
   'efdf19b48308be395e33250da93599df49509472dae775259a24c789607831e5': 'admin',
   '1ad7a96f92f81928a946f4747311f39e5735eb8e58ca22f79d9fd6631c4b9365': 'viewer'
 };
 
+// Add your Gmail addresses here — only these can access the pipeline
+const AUTHORIZED_EMAILS = [
+  // 'frankalemanylucas@gmail.com',   ← replace with your actual Gmail
+  // 'sean@lavau.com',    ← replace with Sean's actual Gmail
+];
+
+// Role assigned per email (must match an email in AUTHORIZED_EMAILS)
+const EMAIL_ROLES = {
+  // 'frankalemanylucas@gmail.com': 'admin',
+  // 'sean@lavau.com':  'viewer',
+};
+
+let currentRole = null;
+
+// ── Hashing utility ──
 async function hashInput(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
-async function checkLogin() {
+// ── STEP 1: Check passcode ──
+async function checkPasscode() {
   const val = document.getElementById('loginInput').value.trim();
+  if (!val) return;
   const hashed = await hashInput(val);
   const role = PASSCODE_HASHES[hashed];
   if (role) {
-    document.getElementById('loginGate').classList.add('hidden');
-    if (role === 'admin') document.getElementById('adminToggle').classList.remove('hidden');
-    await loadFromSheets();
+    currentRole = role;
+    // Advance to step 2
+    document.getElementById('loginStep1').style.display = 'none';
+    document.getElementById('loginStep2').style.display = 'block';
+    document.getElementById('stepDot1').className = 'login-step done';
+    document.getElementById('stepDot1').textContent = '✓';
+    document.getElementById('stepDot2').className = 'login-step active';
   } else {
     const err = document.getElementById('loginError');
     err.style.display = 'block';
@@ -643,24 +722,104 @@ async function checkLogin() {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  GOOGLE SHEETS INTEGRATION
-// ═══════════════════════════════════════════════════════════════
-let DEALS = [];   // live deal data — loaded from Sheets on login
+// ── STEP 2a: Google OAuth popup ──
+function signInWithGoogle() {
+  // Build Google OAuth URL
+  // NOTE: For full OAuth, you need a Google Client ID from Google Cloud Console.
+  // Until then, this falls back to the manual email verification below.
+  // To upgrade: create a project at console.cloud.google.com, enable Google Identity,
+  // get a Client ID, and replace CLIENT_ID below.
+  const CLIENT_ID = '';  // ← paste Google OAuth Client ID here when ready
 
-async function loadFromSheets() {
-  // If no script URL configured yet, fall back to empty state with setup banner
-  if (!SHEETS_SCRIPT_URL) {
-    document.getElementById('setupBanner').style.display = 'block';
-    DEALS = [];
-    render();
+  if (CLIENT_ID) {
+    const params = new URLSearchParams({
+      client_id: CLIENT_ID,
+      redirect_uri: window.location.href.split('?')[0],
+      response_type: 'token',
+      scope: 'email profile',
+      state: 'login'
+    });
+    window.location.href = 'https://accounts.google.com/o/oauth2/auth?' + params;
+  } else {
+    // Fallback: prompt for email manually
+    document.getElementById('googleEmailInput').focus();
+    document.getElementById('googleEmailInput').placeholder = 'Enter your Gmail address to verify';
+  }
+}
+
+// Handle OAuth redirect token (if CLIENT_ID is configured)
+function handleOAuthRedirect() {
+  const hash = window.location.hash;
+  if (!hash.includes('access_token')) return;
+  const params = new URLSearchParams(hash.slice(1));
+  const token = params.get('access_token');
+  if (!token) return;
+  // Fetch user info from Google
+  fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+    headers: { Authorization: 'Bearer ' + token }
+  }).then(r => r.json()).then(info => {
+    const email = (info.email || '').toLowerCase();
+    verifyEmail(email);
+    // Clean URL
+    history.replaceState(null, '', window.location.pathname);
+  });
+}
+
+// ── STEP 2b: Manual email check ──
+function checkGoogleEmail() {
+  const email = document.getElementById('googleEmailInput').value.trim().toLowerCase();
+  verifyEmail(email);
+}
+
+function verifyEmail(email) {
+  // If AUTHORIZED_EMAILS list is empty (not yet configured), skip email check
+  // and grant access based on passcode role alone
+  if (AUTHORIZED_EMAILS.length === 0) {
+    grantAccess(currentRole);
     return;
   }
+  const normalizedList = AUTHORIZED_EMAILS.map(e => e.toLowerCase());
+  if (normalizedList.includes(email)) {
+    const role = EMAIL_ROLES[email] || currentRole;
+    grantAccess(role);
+  } else {
+    const err = document.getElementById('googleError');
+    err.style.display = 'block';
+    setTimeout(() => err.style.display = 'none', 3000);
+  }
+}
 
+function grantAccess(role) {
+  currentRole = role;
+  document.getElementById('loginGate').classList.add('hidden');
+  if (role === 'admin') document.getElementById('adminToggle').classList.remove('hidden');
+  loadFromSheets();
+}
+
+function backToStep1() {
+  document.getElementById('loginStep2').style.display = 'none';
+  document.getElementById('loginStep1').style.display = 'block';
+  document.getElementById('stepDot1').className = 'login-step active';
+  document.getElementById('stepDot1').textContent = '1';
+  document.getElementById('stepDot2').className = 'login-step';
+  document.getElementById('loginInput').value = '';
+  document.getElementById('loginInput').focus();
+}
+
+// ════════════════════════════════════════════════════════════════
+//  GOOGLE SHEETS INTEGRATION
+//  All deal data lives here — zero client data in this HTML file
+// ════════════════════════════════════════════════════════════════
+let DEALS = [];
+
+async function loadFromSheets() {
+  if (!SHEETS_SCRIPT_URL) {
+    document.getElementById('setupBanner').style.display = 'block';
+    DEALS = []; render(); return;
+  }
   document.getElementById('loadingScreen').classList.remove('hidden');
   document.getElementById('refreshBtn').classList.add('spinning');
   document.getElementById('sheetsError').style.display = 'none';
-
   try {
     const res = await fetch(SHEETS_SCRIPT_URL + '?action=getDeals', { cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -668,9 +827,9 @@ async function loadFromSheets() {
     if (data.error) throw new Error(data.error);
     DEALS = data.deals || [];
     document.getElementById('lastUpdated').textContent =
-      `Live from Google Sheets · Last refreshed: ${new Date().toLocaleTimeString()}`;
+      `Live from Google Sheets · Refreshed ${new Date().toLocaleTimeString()}`;
   } catch(err) {
-    showSheetsError('Could not load data from Google Sheets. Check your internet connection or Apps Script URL. Details: ' + err.message);
+    showSheetsError('Could not load data. Check connection or Apps Script URL. ' + err.message);
   } finally {
     document.getElementById('loadingScreen').classList.add('hidden');
     document.getElementById('refreshBtn').classList.remove('spinning');
@@ -679,14 +838,9 @@ async function loadFromSheets() {
 }
 
 async function saveToSheets() {
-  if (!SHEETS_SCRIPT_URL) {
-    alert('Google Sheets is not connected yet. See the setup guide.');
-    return;
-  }
+  if (!SHEETS_SCRIPT_URL) { alert('Google Sheets not connected yet.'); return; }
   const btn = document.querySelector('.btn-save');
-  btn.textContent = '⏳ Saving…';
-  btn.disabled = true;
-
+  btn.textContent = '⏳ Saving…'; btn.disabled = true;
   try {
     const res = await fetch(SHEETS_SCRIPT_URL, {
       method: 'POST',
@@ -700,8 +854,7 @@ async function saveToSheets() {
     document.getElementById('lastUpdated').textContent =
       `Saved to Google Sheets · ${new Date().toLocaleTimeString()}`;
   } catch(err) {
-    btn.textContent = '❌ Save Failed';
-    btn.disabled = false;
+    btn.textContent = '❌ Failed'; btn.disabled = false;
     showSheetsError('Save failed: ' + err.message);
     setTimeout(() => btn.textContent = '☁️ Save to Sheets', 3000);
   }
@@ -709,23 +862,20 @@ async function saveToSheets() {
 
 function showSheetsError(msg) {
   const el = document.getElementById('sheetsError');
-  el.innerHTML = `<strong>⚠️ Google Sheets Error</strong>${msg}`;
+  el.innerHTML = `<strong>⚠️ Sheets Error</strong> ${msg}`;
   el.style.display = 'block';
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
 //  STATE & CONSTANTS
-// ═══════════════════════════════════════════════════════════════
-let isAdmin = false;
-let activeFilter = 'All';
-let showArchived = false;
-let editingId = null;
+// ════════════════════════════════════════════════════════════════
+let isAdmin = false, activeFilter = 'All', showArchived = false, editingId = null;
 
 const STATUS_ORDER  = ['Prospect','Active','Offer','Contract','Diligence','Closing','Closed','Dead'];
 const STATUS_LABELS = {
   Prospect:'Prospect', Active:'Active Pursuit', Offer:'Offer/LOI',
-  Contract:'Under Contract', Diligence:'Due Diligence', Closing:'Closing',
-  Closed:'Closed', Dead:'Inactive'
+  Contract:'Under Contract', Diligence:'Due Diligence',
+  Closing:'Closing', Closed:'Closed', Dead:'Inactive'
 };
 
 // ── RENDER ──
@@ -755,23 +905,21 @@ function setFilter(f) { activeFilter = f; renderFilters(); renderDeals(); }
 
 function getFilteredDeals() {
   let deals = DEALS.filter(d => !d.archived);
-  if (activeFilter === 'All') {
-    deals = deals.filter(d => d.status !== 'Closed' && d.status !== 'Dead');
-  } else if (['Commercial','Land','Business'].includes(activeFilter)) {
-    deals = deals.filter(d => d.type === activeFilter && d.status !== 'Closed' && d.status !== 'Dead');
-  } else if (activeFilter === 'Overdue') {
-    deals = deals.filter(d => d.nextDue && new Date(d.nextDue+'T23:59:59') < new Date() && d.status !== 'Closed' && d.status !== 'Dead');
-  } else {
-    deals = deals.filter(d => d.status === activeFilter);
-  }
+  if (activeFilter === 'All') deals = deals.filter(d => d.status!=='Closed'&&d.status!=='Dead');
+  else if (['Commercial','Land','Business'].includes(activeFilter))
+    deals = deals.filter(d => d.type===activeFilter&&d.status!=='Closed'&&d.status!=='Dead');
+  else if (activeFilter==='Overdue')
+    deals = deals.filter(d => d.nextDue&&new Date(d.nextDue+'T23:59:59')<new Date()&&d.status!=='Closed'&&d.status!=='Dead');
+  else deals = deals.filter(d => d.status===activeFilter);
+
   const now = new Date();
-  const isOverdue = d => d.nextDue && new Date(d.nextDue+'T23:59:59') < now && d.status !== 'Closed' && d.status !== 'Dead';
-  return deals.sort((a,b) => {
-    const ao = isOverdue(a) ? 0 : 1, bo = isOverdue(b) ? 0 : 1;
-    if (ao !== bo) return ao - bo;
-    const si = STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status);
-    if (si !== 0) return si;
-    if (a.nextDue && b.nextDue) return a.nextDue.localeCompare(b.nextDue);
+  const isOD = d => d.nextDue&&new Date(d.nextDue+'T23:59:59')<now&&d.status!=='Closed'&&d.status!=='Dead';
+  return deals.sort((a,b)=>{
+    const ao=isOD(a)?0:1, bo=isOD(b)?0:1;
+    if(ao!==bo) return ao-bo;
+    const si=STATUS_ORDER.indexOf(a.status)-STATUS_ORDER.indexOf(b.status);
+    if(si!==0) return si;
+    if(a.nextDue&&b.nextDue) return a.nextDue.localeCompare(b.nextDue);
     return 0;
   });
 }
@@ -779,17 +927,17 @@ function getFilteredDeals() {
 function renderDeals() {
   const container = document.getElementById('dealsContainer');
   const deals = getFilteredDeals();
-  if (deals.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="icon">🏙️</div><p>${SHEETS_SCRIPT_URL ? 'No deals match this filter' : 'Google Sheets not connected yet'}</p><small>${SHEETS_SCRIPT_URL ? '' : 'Follow the setup guide to connect your data.'}</small></div>`;
+  if (!deals.length) {
+    container.innerHTML = `<div class="empty-state"><div class="icon">🏙️</div><p>${SHEETS_SCRIPT_URL?'No deals match this filter':'Google Sheets not connected yet'}</p></div>`;
     renderArchivedToggle(container); return;
   }
   const sections = {};
-  deals.forEach(d => { (sections[d.type||'Other'] = sections[d.type||'Other']||[]).push(d); });
-  const typeIcons = { Commercial:'🏢', Land:'🌵', Business:'💼', Other:'📁' };
+  deals.forEach(d => { (sections[d.type||'Other']=sections[d.type||'Other']||[]).push(d); });
+  const icons = { Commercial:'🏢', Land:'🌵', Business:'💼', Other:'📁' };
   let html = '';
   for (const [type, td] of Object.entries(sections)) {
     if (Object.keys(sections).length > 1)
-      html += `<div class="section-label">${typeIcons[type]||'📁'} ${type}</div>`;
+      html += `<div class="section-label">${icons[type]||'📁'} ${type}</div>`;
     html += `<div class="deals-grid">${td.map(buildCard).join('')}</div>`;
   }
   container.innerHTML = html;
@@ -797,12 +945,12 @@ function renderDeals() {
 }
 
 function renderArchivedToggle(container) {
-  const closed = DEALS.filter(d => d.status==='Closed' || d.status==='Dead' || d.archived);
+  const closed = DEALS.filter(d => d.status==='Closed'||d.status==='Dead'||d.archived);
   if (!closed.length) return;
   const btn = document.createElement('button');
   btn.className = 'show-archived-btn';
-  btn.textContent = showArchived ? `▲ Hide Closed / Inactive (${closed.length})` : `▼ Show Closed / Inactive (${closed.length})`;
-  btn.onclick = () => { showArchived = !showArchived; renderDeals(); };
+  btn.textContent = showArchived?`▲ Hide Closed / Inactive (${closed.length})`:`▼ Show Closed / Inactive (${closed.length})`;
+  btn.onclick = () => { showArchived=!showArchived; renderDeals(); };
   container.appendChild(btn);
   if (showArchived) {
     const div = document.createElement('div');
@@ -812,14 +960,15 @@ function renderArchivedToggle(container) {
 }
 
 function buildCard(d) {
-  const overdue = d.nextDue && new Date(d.nextDue+'T23:59:59') < new Date() && d.status!=='Closed' && d.status!=='Dead';
+  const overdue = d.nextDue&&new Date(d.nextDue+'T23:59:59')<new Date()&&d.status!=='Closed'&&d.status!=='Dead';
   const daysAgo = d.lastContact ? daysSince(d.lastContact) : null;
-  const priority = ['Contract','Closing','Diligence'].includes(d.status) ? 'high' : ['Offer','Active'].includes(d.status) ? 'mid' : 'low';
+  const priority = ['Contract','Closing','Diligence'].includes(d.status)?'high':['Offer','Active'].includes(d.status)?'mid':'low';
   return `
   <div class="deal-card priority-${priority}">
     <div class="card-top">
       <div>
         <div class="card-name">${esc(d.name)}</div>
+        ${d.bizName?`<div class="card-bizname">🏢 ${esc(d.bizName)}</div>`:''}
         ${d.address?`<div class="card-address">📍 ${esc(d.address)}</div>`:''}
         <div class="card-badges">
           <span class="card-type-badge ${d.type==='Land'?'land':d.type==='Business'?'business':''}">${d.type||'Deal'}</span>
@@ -828,14 +977,15 @@ function buildCard(d) {
       <span class="status-badge status-${(d.status||'prospect').toLowerCase()}">${STATUS_LABELS[d.status]||d.status}</span>
     </div>
     <div class="card-body">
-      ${d.client?`<div class="card-field"><label>Client / Seller</label><div class="val">${esc(d.client)}</div></div>`:''}
-      ${d.phone?`<div class="card-field"><label>Phone</label><div class="val"><a href="tel:${esc(d.phone)}">${esc(d.phone)}</a> <a href="sms:${esc(d.phone)}" style="font-size:11px;color:var(--sage)">💬 Text</a></div></div>`:''}
+      ${d.client?`<div class="card-field"><label>Point of Contact</label><div class="val">${esc(d.client)}${d.contactRole?` <span style="color:var(--gray);font-size:11px">· ${esc(d.contactRole)}</span>`:''}</div></div>`:''}
+      ${d.phone?`<div class="card-field"><label>Phone</label><div class="val"><a href="tel:${esc(d.phone)}">${esc(d.phone)}</a> <a href="sms:${esc(d.phone)}" style="font-size:11px;color:var(--sage)">💬</a></div></div>`:''}
+      ${d.email?`<div class="card-field"><label>Email</label><div class="val"><a href="mailto:${esc(d.email)}">${esc(d.email)}</a></div></div>`:''}
       ${d.askPrice?`<div class="card-field"><label>Asking Price</label><div class="val">${esc(d.askPrice)}</div></div>`:''}
       ${d.offerPrice?`<div class="card-field"><label>Offer / Contract</label><div class="val" style="color:var(--blue);font-weight:700">${esc(d.offerPrice)}</div></div>`:''}
-      ${d.email?`<div class="card-field"><label>Email</label><div class="val"><a href="mailto:${esc(d.email)}">${esc(d.email)}</a></div></div>`:''}
+      ${d.bizWebsite?`<div class="card-field full"><label>Business Website</label><div class="val"><a href="${esc(d.bizWebsite)}" target="_blank" class="website-link-btn">🌐 ${esc(d.bizWebsite.replace(/^https?:\/\//,''))} →</a></div></div>`:''}
       ${d.nextAction?`<div class="next-action-box"><div class="icon">⚡</div><div><div class="action-label">Next Action</div><div class="action-text">${esc(d.nextAction)}</div>${d.nextDue?`<div class="action-due ${overdue?'overdue':''}">${overdue?'⚠️ Overdue · ':''}Due ${formatDate(d.nextDue)}</div>`:''}</div></div>`:''}
-      ${d.propertyDetails ? buildPropDetails(d.propertyDetails) : ''}
-      ${d.propertyLink ? `<div class="card-field full"><label>Property Profile</label><div class="val"><a href="${esc(d.propertyLink)}" target="_blank" class="prop-link-btn">🔗 View Listing →</a></div></div>` : ''}
+      ${d.propertyDetails?buildPropDetails(d.propertyDetails):''}
+      ${d.propertyLink?`<div class="card-field full"><label>Property Profile</label><div class="val"><a href="${esc(d.propertyLink)}" target="_blank" class="prop-link-btn">🔗 View Listing →</a></div></div>`:''}
       ${d.notes?`<div class="notes-box"><div class="notes-box-label">📝 Notes</div><div class="notes-text">${esc(d.notes)}</div></div>`:''}
     </div>
     <div class="card-footer">
@@ -846,10 +996,10 @@ function buildCard(d) {
 }
 
 function buildPropDetails(raw) {
-  if (!raw || !raw.trim()) return '';
-  const chips = raw.split(/\s*[\|\n]\s*/).map(s=>s.trim()).filter(Boolean).map(p => {
-    const ci = p.indexOf(':');
-    if (ci > 0) return `<span class="spec-chip"><strong>${esc(p.slice(0,ci).trim())}:</strong>${esc(p.slice(ci+1).trim())}</span>`;
+  if (!raw||!raw.trim()) return '';
+  const chips = raw.split(/\s*[\|\n]\s*/).map(s=>s.trim()).filter(Boolean).map(p=>{
+    const ci=p.indexOf(':');
+    if(ci>0) return `<span class="spec-chip"><strong>${esc(p.slice(0,ci).trim())}:</strong>${esc(p.slice(ci+1).trim())}</span>`;
     return `<span class="spec-chip">${esc(p)}</span>`;
   }).join('');
   return `<div class="prop-details-box"><div class="prop-details-label">🏗 Property Details</div><div class="prop-specs">${chips}</div></div>`;
@@ -859,7 +1009,7 @@ function buildPropDetails(raw) {
 function toggleAdmin() {
   isAdmin = !isAdmin;
   const btn = document.getElementById('adminToggle');
-  btn.textContent = isAdmin ? '✕ Exit Admin' : '⚙ Admin';
+  btn.textContent = isAdmin?'✕ Exit Admin':'⚙ Admin';
   btn.classList.toggle('active', isAdmin);
   document.getElementById('saveBar').classList.toggle('hidden', !isAdmin);
   renderDeals();
@@ -869,114 +1019,112 @@ function toggleAdmin() {
 function openModal(id) {
   editingId = id;
   document.getElementById('dealForm').reset();
-  const title = document.getElementById('modalTitle');
-  const btns  = document.getElementById('modalBtns');
+  const btns = document.getElementById('modalBtns');
   if (id) {
-    const d = DEALS.find(x => x.id === id);
-    title.textContent = 'Edit Deal';
-    document.getElementById('dealId').value          = d.id;
-    document.getElementById('fName').value           = d.name||'';
-    document.getElementById('fType').value           = d.type||'';
-    document.getElementById('fStatus').value         = d.status||'Prospect';
-    document.getElementById('fAddress').value        = d.address||'';
-    document.getElementById('fAskPrice').value       = d.askPrice||'';
-    document.getElementById('fOfferPrice').value     = d.offerPrice||'';
-    document.getElementById('fClient').value         = d.client||'';
-    document.getElementById('fPhone').value          = d.phone||'';
-    document.getElementById('fEmail').value          = d.email||'';
-    document.getElementById('fLastContact').value    = d.lastContact||'';
-    document.getElementById('fPropDetails').value    = d.propertyDetails||'';
-    document.getElementById('fPropertyLink').value   = d.propertyLink||'';
-    document.getElementById('fNextAction').value     = d.nextAction||'';
-    document.getElementById('fNextDue').value        = d.nextDue||'';
-    document.getElementById('fNotes').value          = d.notes||'';
+    const d = DEALS.find(x=>x.id===id);
+    document.getElementById('modalTitle').textContent = 'Edit Deal';
+    document.getElementById('dealId').value        = d.id;
+    document.getElementById('fName').value         = d.name||'';
+    document.getElementById('fType').value         = d.type||'';
+    document.getElementById('fStatus').value       = d.status||'Prospect';
+    document.getElementById('fBizName').value      = d.bizName||'';
+    document.getElementById('fBizWebsite').value   = d.bizWebsite||'';
+    document.getElementById('fAddress').value      = d.address||'';
+    document.getElementById('fAskPrice').value     = d.askPrice||'';
+    document.getElementById('fOfferPrice').value   = d.offerPrice||'';
+    document.getElementById('fClient').value       = d.client||'';
+    document.getElementById('fContactRole').value  = d.contactRole||'';
+    document.getElementById('fPhone').value        = d.phone||'';
+    document.getElementById('fEmail').value        = d.email||'';
+    document.getElementById('fLastContact').value  = d.lastContact||'';
+    document.getElementById('fPropDetails').value  = d.propertyDetails||'';
+    document.getElementById('fPropertyLink').value = d.propertyLink||'';
+    document.getElementById('fNextAction').value   = d.nextAction||'';
+    document.getElementById('fNextDue').value      = d.nextDue||'';
+    document.getElementById('fNotes').value        = d.notes||'';
     btns.innerHTML = `<button type="button" class="btn-delete" onclick="deleteDeal('${id}')">Delete</button><button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button><button type="submit" class="btn-primary">Save</button>`;
   } else {
-    title.textContent = 'New Deal';
+    document.getElementById('modalTitle').textContent = 'New Deal';
     document.getElementById('dealId').value = '';
     btns.innerHTML = `<button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button><button type="submit" class="btn-primary">Add Deal</button>`;
   }
   document.getElementById('modalOverlay').classList.remove('hidden');
 }
-function closeModal() { document.getElementById('modalOverlay').classList.add('hidden'); editingId = null; }
-function handleOverlayClick(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+function closeModal() { document.getElementById('modalOverlay').classList.add('hidden'); editingId=null; }
+function handleOverlayClick(e) { if(e.target===document.getElementById('modalOverlay')) closeModal(); }
 
 function saveDeal(e) {
   e.preventDefault();
-  const id = document.getElementById('dealId').value || ('deal-' + Date.now());
-  const existing = DEALS.find(d => d.id === id);
+  const id = document.getElementById('dealId').value||('deal-'+Date.now());
+  const existing = DEALS.find(d=>d.id===id);
   const dealData = {
-    id, archived: existing?.archived || false,
-    created: existing?.created || todayISO(),
-    name:            document.getElementById('fName').value.trim(),
-    type:            document.getElementById('fType').value,
-    status:          document.getElementById('fStatus').value,
-    address:         document.getElementById('fAddress').value.trim(),
-    askPrice:        document.getElementById('fAskPrice').value.trim(),
-    offerPrice:      document.getElementById('fOfferPrice').value.trim(),
-    client:          document.getElementById('fClient').value.trim(),
-    phone:           document.getElementById('fPhone').value.trim(),
-    email:           document.getElementById('fEmail').value.trim(),
-    lastContact:     document.getElementById('fLastContact').value,
-    propertyDetails: document.getElementById('fPropDetails').value.trim(),
-    propertyLink:    document.getElementById('fPropertyLink').value.trim(),
-    nextAction:      document.getElementById('fNextAction').value.trim(),
-    nextDue:         document.getElementById('fNextDue').value,
-    notes:           document.getElementById('fNotes').value.trim(),
+    id, archived:existing?.archived||false, created:existing?.created||todayISO(),
+    name:           document.getElementById('fName').value.trim(),
+    type:           document.getElementById('fType').value,
+    status:         document.getElementById('fStatus').value,
+    bizName:        document.getElementById('fBizName').value.trim(),
+    bizWebsite:     document.getElementById('fBizWebsite').value.trim(),
+    address:        document.getElementById('fAddress').value.trim(),
+    askPrice:       document.getElementById('fAskPrice').value.trim(),
+    offerPrice:     document.getElementById('fOfferPrice').value.trim(),
+    client:         document.getElementById('fClient').value.trim(),
+    contactRole:    document.getElementById('fContactRole').value.trim(),
+    phone:          document.getElementById('fPhone').value.trim(),
+    email:          document.getElementById('fEmail').value.trim(),
+    lastContact:    document.getElementById('fLastContact').value,
+    propertyDetails:document.getElementById('fPropDetails').value.trim(),
+    propertyLink:   document.getElementById('fPropertyLink').value.trim(),
+    nextAction:     document.getElementById('fNextAction').value.trim(),
+    nextDue:        document.getElementById('fNextDue').value,
+    notes:          document.getElementById('fNotes').value.trim(),
   };
-  const idx = DEALS.findIndex(d => d.id === id);
-  if (idx >= 0) DEALS[idx] = dealData; else DEALS.push(dealData);
+  const idx = DEALS.findIndex(d=>d.id===id);
+  if(idx>=0) DEALS[idx]=dealData; else DEALS.push(dealData);
   closeModal(); render();
 }
 function deleteDeal(id) {
-  if (!confirm('Delete this deal permanently?')) return;
-  DEALS = DEALS.filter(d => d.id !== id);
+  if(!confirm('Delete this deal permanently?')) return;
+  DEALS = DEALS.filter(d=>d.id!==id);
   closeModal(); render();
 }
 function toggleArchive(id) {
-  const d = DEALS.find(x => x.id === id);
-  if (d) d.archived = !d.archived;
-  render();
+  const d=DEALS.find(x=>x.id===id); if(d) d.archived=!d.archived; render();
 }
 
 // ── QR CODE ──
-function openQR() { document.getElementById('qrModalOverlay').classList.remove('hidden'); drawQR(); }
-function closeQR() { document.getElementById('qrModalOverlay').classList.add('hidden'); }
-function downloadQR() {
-  const a = document.createElement('a');
-  a.download = 'LaVau-Lucas-Intake-QR.png';
-  a.href = document.getElementById('qrCanvas').toDataURL('image/png');
+function openQR(){ document.getElementById('qrModalOverlay').classList.remove('hidden'); drawQR(); }
+function closeQR(){ document.getElementById('qrModalOverlay').classList.add('hidden'); }
+function downloadQR(){
+  const a=document.createElement('a');
+  a.download='LaVau-Lucas-QR.png';
+  a.href=document.getElementById('qrCanvas').toDataURL('image/png');
   a.click();
 }
-function drawQR() {
-  const canvas = document.getElementById('qrCanvas');
-  const ctx = canvas.getContext('2d');
-  const size = 240;
-  canvas.width = size; canvas.height = size;
-  ctx.fillStyle = '#0f2850'; ctx.fillRect(0,0,size,size);
-  ctx.fillStyle = '#ffffff';
-  ctx.beginPath(); roundRect(ctx,16,16,size-32,size-32,10); ctx.fill();
-  ctx.fillStyle = '#0f2850'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
-  ctx.fillText('📲 CLIENT INTAKE', size/2, 56);
-  ctx.font = '9px sans-serif'; ctx.fillStyle = '#6b7280';
-  ctx.fillText('Scan via Intake Page', size/2, 72);
-  ctx.fillStyle = '#0f2850'; drawQRPattern(ctx, size);
-  ctx.font = 'bold 10px sans-serif'; ctx.fillStyle = '#0f2850';
-  ctx.fillText('LaVau & Lucas Pipeline', size/2, size-26);
-  ctx.font = '9px sans-serif'; ctx.fillStyle = '#6b7280';
-  ctx.fillText('lavau-lucas-pipeline', size/2, size-14);
+function drawQR(){
+  const canvas=document.getElementById('qrCanvas'),ctx=canvas.getContext('2d'),size=240;
+  canvas.width=size; canvas.height=size;
+  ctx.fillStyle='#0f2850'; ctx.fillRect(0,0,size,size);
+  ctx.fillStyle='#ffffff'; ctx.beginPath(); roundRect(ctx,16,16,size-32,size-32,10); ctx.fill();
+  ctx.fillStyle='#0f2850'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('📲 CLIENT INTAKE',size/2,56);
+  ctx.font='9px sans-serif'; ctx.fillStyle='#6b7280';
+  ctx.fillText('Scan via Intake Page',size/2,72);
+  ctx.fillStyle='#0f2850'; drawQRPattern(ctx,size);
+  ctx.font='bold 10px sans-serif'; ctx.fillStyle='#0f2850';
+  ctx.fillText('LaVau & Lucas Pipeline',size/2,size-26);
+  ctx.font='9px sans-serif'; ctx.fillStyle='#6b7280';
+  ctx.fillText('lavau-lucas-pipeline',size/2,size-14);
 }
-function drawQRPattern(ctx, size) {
-  const modules = 21, cellSize = Math.floor((size-80)/modules);
-  const ox = Math.floor((size-modules*cellSize)/2), oy = 84;
-  let seed = 42;
-  const rand = () => { seed=(seed*1664525+1013904223)&0xffffffff; return (seed>>>0)/0xffffffff; };
-  for (let r=0;r<modules;r++) for (let c=0;c<modules;c++) {
-    const inC=(r<7&&c<7)||(r<7&&c>=modules-7)||(r>=modules-7&&c<7);
+function drawQRPattern(ctx,size){
+  const m=21,cs=Math.floor((size-80)/m),ox=Math.floor((size-m*cs)/2),oy=84;
+  let seed=42;
+  const rand=()=>{seed=(seed*1664525+1013904223)&0xffffffff;return(seed>>>0)/0xffffffff;};
+  for(let r=0;r<m;r++) for(let c=0;c<m;c++){
+    const inC=(r<7&&c<7)||(r<7&&c>=m-7)||(r>=m-7&&c<7);
     let f=false;
     if(inC){if((r===0||r===6)&&c<=6)f=true;else if((c===0||c===6)&&r<=6)f=true;else if(r>=2&&r<=4&&c>=2&&c<=4)f=true;}
     else f=rand()>0.5;
-    if(f) ctx.fillRect(ox+c*cellSize, oy+r*cellSize, cellSize-1, cellSize-1);
+    if(f) ctx.fillRect(ox+c*cs,oy+r*cs,cs-1,cs-1);
   }
 }
 function roundRect(ctx,x,y,w,h,r){
@@ -987,32 +1135,35 @@ function roundRect(ctx,x,y,w,h,r){
 }
 
 // ── PWA INSTALL ──
-let deferredInstallPrompt = null;
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault(); deferredInstallPrompt = e;
+let deferredInstall=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault(); deferredInstall=e;
   document.getElementById('installBanner').classList.add('show');
 });
-document.getElementById('installBtn').addEventListener('click', async () => {
-  if (!deferredInstallPrompt) return;
-  deferredInstallPrompt.prompt();
-  const { outcome } = await deferredInstallPrompt.userChoice;
-  if (outcome === 'accepted') dismissInstall();
-  deferredInstallPrompt = null;
+document.getElementById('installBtn').addEventListener('click',async()=>{
+  if(!deferredInstall) return;
+  deferredInstall.prompt();
+  const{outcome}=await deferredInstall.userChoice;
+  if(outcome==='accepted') dismissInstall();
+  deferredInstall=null;
 });
-function dismissInstall() { document.getElementById('installBanner').classList.remove('show'); }
+function dismissInstall(){ document.getElementById('installBanner').classList.remove('show'); }
+
+// ── Check for OAuth redirect on page load ──
+window.addEventListener('load', handleOAuthRedirect);
 
 // ── HELPERS ──
-function esc(s) { return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):''; }
-function formatDate(iso) {
-  if (!iso) return '';
-  const [y,m,d] = iso.split('-');
+function esc(s){ return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):''; }
+function formatDate(iso){
+  if(!iso) return '';
+  const[y,m,d]=iso.split('-');
   return `${'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ')[+m-1]} ${+d}, ${y}`;
 }
-function daysSince(iso) {
-  if (!iso) return null;
+function daysSince(iso){
+  if(!iso) return null;
   return Math.floor((new Date()-new Date(iso+'T12:00:00'))/86400000);
 }
-function todayISO() { return new Date().toISOString().split('T')[0]; }
+function todayISO(){ return new Date().toISOString().split('T')[0]; }
 </script>
 </body>
 </html>
