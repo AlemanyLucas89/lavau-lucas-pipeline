@@ -11,7 +11,6 @@
     --blue:       #1d4ed8;
     --blue-light: #dbeafe;
     --blue-pale:  #eff6ff;
-    --sky:        #3b82f6;
     --sage:       #5a8a6a;
     --sage-light: #d5e8d4;
     --gold:       #c9a84c;
@@ -46,12 +45,9 @@
   }
   #loginGate.hidden { display: none; }
   .login-box {
-    background: white;
-    border-radius: 20px;
-    padding: 36px 30px 32px;
-    width: 100%; max-width: 360px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-    text-align: center;
+    background: white; border-radius: 20px;
+    padding: 36px 30px 32px; width: 100%; max-width: 360px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4); text-align: center;
   }
   .login-icon { font-size: 40px; margin-bottom: 10px; }
   .login-title { font-size: 22px; font-weight: 800; color: var(--navy); margin-bottom: 4px; }
@@ -60,8 +56,7 @@
     width: 100%; padding: 13px 16px;
     border: 1.5px solid #d1d5db; border-radius: 10px;
     font-size: 16px; font-family: inherit; color: var(--dark);
-    margin-bottom: 14px; -webkit-appearance: none;
-    transition: border-color 0.2s;
+    margin-bottom: 14px; -webkit-appearance: none; transition: border-color 0.2s;
   }
   .login-field:focus { outline: none; border-color: var(--blue); }
   .login-btn {
@@ -71,71 +66,82 @@
     cursor: pointer; transition: background 0.2s;
   }
   .login-btn:hover { background: #1a44c8; }
-  .login-error {
-    color: var(--red); font-size: 13px; margin-top: 10px;
-    display: none;
-  }
+  .login-error { color: var(--red); font-size: 13px; margin-top: 10px; display: none; }
   .login-footer { font-size: 11px; color: #bbb; margin-top: 20px; }
+
+  /* ── LOADING SCREEN ── */
+  #loadingScreen {
+    position: fixed; inset: 0;
+    background: var(--blue-pale);
+    z-index: 500; display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 16px;
+  }
+  #loadingScreen.hidden { display: none; }
+  .loading-spinner {
+    width: 44px; height: 44px;
+    border: 4px solid var(--blue-light);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 14px; color: var(--navy); font-weight: 600; }
+  .loading-sub { font-size: 12px; color: var(--gray); }
+
+  /* ── SHEETS ERROR BANNER ── */
+  #sheetsError {
+    background: #fef3cd; border: 1.5px solid #f0c040;
+    border-radius: var(--radius-sm); padding: 12px 16px;
+    margin: 12px 16px 0; display: none;
+    font-size: 13px; color: #7d6000; line-height: 1.5;
+  }
+  #sheetsError strong { display: block; margin-bottom: 4px; }
+
+  /* ── SETUP BANNER (shown when script URL not configured) ── */
+  #setupBanner {
+    background: var(--navy); color: white;
+    padding: 14px 16px; text-align: center;
+    font-size: 13px; line-height: 1.6; display: none;
+  }
+  #setupBanner strong { color: var(--gold); }
+  #setupBanner a { color: #93c5fd; }
 
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--blue-pale);
-    color: var(--dark);
-    min-height: 100vh;
-    padding-bottom: 80px;
+    background: var(--blue-pale); color: var(--dark);
+    min-height: 100vh; padding-bottom: 80px;
   }
 
   /* ── HEADER ── */
   header {
     background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
-    color: white;
-    padding: 20px 20px 16px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    color: white; padding: 20px 20px 16px;
+    position: sticky; top: 0; z-index: 100;
     box-shadow: 0 2px 12px rgba(0,0,0,0.25);
   }
   .header-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 14px;
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 14px;
   }
-  .header-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+  .header-brand { display: flex; align-items: center; gap: 10px; }
   .brand-icon {
-    width: 38px; height: 38px;
-    background: var(--blue);
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; flex-shrink: 0;
+    width: 38px; height: 38px; background: var(--blue);
+    border-radius: 10px; display: flex; align-items: center;
+    justify-content: center; font-size: 18px; flex-shrink: 0;
   }
-  .header-title {
-    font-size: 17px; font-weight: 800;
-    letter-spacing: 0.2px; line-height: 1.2;
-  }
-  .header-sub {
-    font-size: 11px; opacity: 0.6;
-    margin-top: 2px; font-weight: 400;
-  }
-  .header-right { display: flex; gap: 8px; align-items: center; }
+  .header-title { font-size: 17px; font-weight: 800; letter-spacing: 0.2px; line-height: 1.2; }
+  .header-sub { font-size: 11px; opacity: 0.6; margin-top: 2px; font-weight: 400; }
+  .header-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
 
-  /* Admin button — hidden from Sean (non-admin view) */
   .admin-toggle {
-    background: rgba(255,255,255,0.14);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: white; padding: 7px 14px;
-    border-radius: 20px; font-size: 13px; font-weight: 600;
-    cursor: pointer; transition: background 0.2s;
+    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.3);
+    color: white; padding: 7px 14px; border-radius: 20px;
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s;
   }
   .admin-toggle:hover { background: rgba(255,255,255,0.24); }
   .admin-toggle.active { background: white; color: var(--navy); }
   .admin-toggle.hidden { display: none; }
 
-  /* Add Client button — always visible for all users */
   .add-deal-btn {
     background: var(--blue); border: none; color: white;
     padding: 7px 14px; border-radius: 20px;
@@ -143,27 +149,30 @@
     display: inline-flex; align-items: center; gap: 4px;
   }
 
-  /* QR code button */
   .qr-btn {
-    background: rgba(255,255,255,0.14);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: white; padding: 7px 12px;
-    border-radius: 20px; font-size: 13px; font-weight: 600;
-    cursor: pointer; transition: background 0.2s;
-    display: flex; align-items: center; gap: 4px;
+    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.3);
+    color: white; padding: 7px 12px; border-radius: 20px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: background 0.2s; display: flex; align-items: center; gap: 4px;
   }
   .qr-btn:hover { background: rgba(255,255,255,0.24); }
+
+  .refresh-btn {
+    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.3);
+    color: white; padding: 7px 10px; border-radius: 20px;
+    font-size: 13px; cursor: pointer; transition: background 0.2s;
+  }
+  .refresh-btn:hover { background: rgba(255,255,255,0.24); }
+  .refresh-btn.spinning { animation: spin 0.8s linear infinite; }
 
   /* ── STATS ── */
   .stats-bar {
     display: flex; gap: 8px; overflow-x: auto;
-    padding-bottom: 2px; -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    padding-bottom: 2px; -webkit-overflow-scrolling: touch; scrollbar-width: none;
   }
   .stats-bar::-webkit-scrollbar { display: none; }
   .stat-pill {
-    background: rgba(255,255,255,0.13);
-    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.13); border: 1px solid rgba(255,255,255,0.2);
     border-radius: 20px; padding: 5px 12px;
     white-space: nowrap; font-size: 12px; font-weight: 700;
   }
@@ -171,7 +180,6 @@
 
   /* ── MAIN ── */
   main { padding: 18px 16px; max-width: 900px; margin: 0 auto; }
-
   .section-label {
     font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
     text-transform: uppercase; color: var(--navy-mid);
@@ -181,25 +189,21 @@
   /* ── FILTER BAR ── */
   .filter-bar {
     display: flex; gap: 8px; overflow-x: auto;
-    margin-bottom: 14px; -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    margin-bottom: 14px; -webkit-overflow-scrolling: touch; scrollbar-width: none;
   }
   .filter-bar::-webkit-scrollbar { display: none; }
   .filter-btn {
-    background: white; border: 1.5px solid #d1d5db;
-    border-radius: 20px; padding: 6px 14px;
-    font-size: 12px; font-weight: 600; cursor: pointer;
+    background: white; border: 1.5px solid #d1d5db; border-radius: 20px;
+    padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
     white-space: nowrap; color: var(--gray); transition: all 0.15s;
   }
   .filter-btn.active { background: var(--navy); border-color: var(--navy); color: white; }
 
   /* ── CARDS ── */
   .deals-grid { display: flex; flex-direction: column; gap: 12px; }
-
   .deal-card {
-    background: white; border-radius: var(--radius);
-    box-shadow: var(--shadow); overflow: hidden;
-    transition: transform 0.15s, box-shadow 0.15s;
+    background: white; border-radius: var(--radius); box-shadow: var(--shadow);
+    overflow: hidden; transition: transform 0.15s, box-shadow 0.15s;
     border-left: 4px solid transparent;
   }
   .deal-card.priority-high { border-left-color: var(--red); }
@@ -224,8 +228,7 @@
   .card-type-badge.business { background: #f3e8ff; color: #7c3aed; }
 
   .status-badge {
-    padding: 5px 11px; border-radius: 20px;
-    font-size: 11px; font-weight: 700;
+    padding: 5px 11px; border-radius: 20px; font-size: 11px; font-weight: 700;
     white-space: nowrap; flex-shrink: 0; margin-left: 10px;
   }
   .status-prospect   { background: var(--blue-light);   color: var(--blue); }
@@ -243,8 +246,7 @@
   }
   .card-field label {
     font-size: 10px; font-weight: 700; letter-spacing: 0.6px;
-    text-transform: uppercase; color: var(--gray);
-    display: block; margin-bottom: 2px;
+    text-transform: uppercase; color: var(--gray); display: block; margin-bottom: 2px;
   }
   .card-field .val { font-size: 13px; font-weight: 500; color: var(--dark); }
   .card-field .val a { color: var(--blue); text-decoration: none; font-weight: 600; }
@@ -262,25 +264,19 @@
   .action-due   { font-size: 11px; color: var(--gray); margin-top: 2px; }
   .action-due.overdue { color: var(--red); font-weight: 700; }
 
-  /* Notes box styled distinctly */
   .notes-box {
-    grid-column: 1 / -1;
-    background: #fffdf0;
-    border: 1px solid #f0e8b0;
-    border-radius: var(--radius-sm);
-    padding: 10px 13px;
+    grid-column: 1 / -1; background: #fffdf0;
+    border: 1px solid #f0e8b0; border-radius: var(--radius-sm); padding: 10px 13px;
   }
   .notes-box-label {
     font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
     text-transform: uppercase; color: #8a7000; margin-bottom: 5px;
-    display: flex; align-items: center; gap: 5px;
   }
   .notes-text { font-size: 12.5px; color: #4b5563; line-height: 1.55; white-space: pre-wrap; }
 
   .prop-details-box {
-    grid-column: 1 / -1;
-    background: #f8faff; border: 1px solid #d1ddf5;
-    border-radius: var(--radius-sm); padding: 10px 13px;
+    grid-column: 1 / -1; background: #f8faff;
+    border: 1px solid #d1ddf5; border-radius: var(--radius-sm); padding: 10px 13px;
   }
   .prop-details-label {
     font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
@@ -289,25 +285,22 @@
   }
   .prop-specs { display: flex; flex-wrap: wrap; gap: 6px; }
   .spec-chip {
-    background: white; border: 1px solid #d1ddf5;
-    border-radius: 6px; padding: 3px 9px;
-    font-size: 12px; color: var(--dark); font-weight: 500; white-space: nowrap;
+    background: white; border: 1px solid #d1ddf5; border-radius: 6px;
+    padding: 3px 9px; font-size: 12px; color: var(--dark); font-weight: 500; white-space: nowrap;
   }
   .spec-chip strong { color: var(--navy-mid); font-weight: 700; margin-right: 3px; }
 
   .prop-link-btn {
     display: inline-flex; align-items: center;
     background: var(--blue-pale); border: 1.5px solid var(--blue-light);
-    color: var(--blue) !important; border-radius: 8px;
-    padding: 6px 14px; font-size: 13px; font-weight: 700;
-    text-decoration: none !important; transition: background 0.15s;
+    color: var(--blue) !important; border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 700; text-decoration: none !important; transition: background 0.15s;
   }
   .prop-link-btn:hover { background: var(--blue-light); }
 
   .card-footer {
     background: #f9fafb; border-top: 1px solid #f0f0f0;
-    padding: 9px 16px; display: flex;
-    justify-content: space-between; align-items: center;
+    padding: 9px 16px; display: flex; justify-content: space-between; align-items: center;
   }
   .last-contact { font-size: 11px; color: var(--gray); }
   .last-contact strong { color: var(--dark); }
@@ -315,12 +308,12 @@
   .btn-edit    { background: var(--blue); color: white; border: none; border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
   .btn-archive { background: var(--gray-light); color: var(--gray); border: none; border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
 
-  /* ── EMPTY STATE ── */
+  /* ── EMPTY / ERROR STATES ── */
   .empty-state { text-align: center; padding: 50px 20px; color: var(--gray); }
   .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
   .empty-state p { font-size: 15px; margin-bottom: 6px; color: var(--dark); font-weight: 600; }
 
-  /* ── SAVE BAR ── */
+  /* ── ADMIN SAVE BAR ── */
   .save-bar {
     position: fixed; bottom: 0; left: 0; right: 0;
     background: var(--navy); padding: 12px 16px;
@@ -329,31 +322,28 @@
   .save-bar.hidden { display: none; }
   .btn-save {
     background: var(--blue); color: white; border: none;
-    border-radius: 22px; padding: 10px 22px; font-size: 14px; font-weight: 700;
-    cursor: pointer; flex: 1;
+    border-radius: 22px; padding: 10px 22px; font-size: 14px; font-weight: 700; cursor: pointer; flex: 1;
   }
   .save-bar-hint { font-size: 11px; color: rgba(255,255,255,0.5); flex: 2; line-height: 1.4; }
 
   /* ── SHOW ARCHIVED ── */
   .show-archived-btn {
-    display: block; width: 100%;
-    background: none; border: 1.5px dashed #cbd5e1;
-    border-radius: var(--radius-sm); padding: 12px;
-    font-size: 13px; color: var(--gray); cursor: pointer; margin-top: 16px; font-weight: 600;
+    display: block; width: 100%; background: none;
+    border: 1.5px dashed #cbd5e1; border-radius: var(--radius-sm);
+    padding: 12px; font-size: 13px; color: var(--gray);
+    cursor: pointer; margin-top: 16px; font-weight: 600;
   }
   .last-updated { text-align: center; font-size: 11px; color: var(--gray); margin-top: 20px; }
 
   /* ── QR MODAL ── */
   .qr-modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.6);
-    z-index: 500; display: flex; align-items: center; justify-content: center;
-    padding: 20px;
+    z-index: 500; display: flex; align-items: center; justify-content: center; padding: 20px;
   }
   .qr-modal-overlay.hidden { display: none; }
   .qr-modal {
-    background: white; border-radius: 20px;
-    padding: 28px 24px 24px; max-width: 340px; width: 100%;
-    text-align: center; box-shadow: var(--shadow-lg);
+    background: white; border-radius: 20px; padding: 28px 24px 24px;
+    max-width: 340px; width: 100%; text-align: center; box-shadow: var(--shadow-lg);
   }
   .qr-modal h3 { font-size: 17px; font-weight: 800; color: var(--navy); margin-bottom: 4px; }
   .qr-modal p { font-size: 13px; color: var(--gray); margin-bottom: 20px; }
@@ -371,8 +361,7 @@
   .modal {
     background: white; border-radius: var(--radius) var(--radius) 0 0;
     width: 100%; max-width: 640px; max-height: 92vh;
-    overflow-y: auto; padding: 20px 20px 40px;
-    -webkit-overflow-scrolling: touch;
+    overflow-y: auto; padding: 20px 20px 40px; -webkit-overflow-scrolling: touch;
   }
   .modal-handle { width: 36px; height: 4px; background: #e5e7eb; border-radius: 2px; margin: 0 auto 18px; }
   .modal h2 { font-size: 18px; font-weight: 800; margin-bottom: 18px; color: var(--navy); }
@@ -383,10 +372,9 @@
     letter-spacing: 0.6px; text-transform: uppercase; color: var(--gray); margin-bottom: 5px;
   }
   .form-group input, .form-group select, .form-group textarea {
-    width: 100%; padding: 11px 14px;
-    border: 1.5px solid #d1d5db; border-radius: var(--radius-sm);
-    font-size: 15px; font-family: inherit; color: var(--dark);
-    background: white; -webkit-appearance: none; transition: border-color 0.2s;
+    width: 100%; padding: 11px 14px; border: 1.5px solid #d1d5db;
+    border-radius: var(--radius-sm); font-size: 15px; font-family: inherit;
+    color: var(--dark); background: white; -webkit-appearance: none; transition: border-color 0.2s;
   }
   .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
     outline: none; border-color: var(--blue);
@@ -399,6 +387,16 @@
   .btn-primary { flex: 2; background: var(--blue); color: white; border: none; border-radius: 22px; padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; }
   .btn-delete  { flex: 1; background: var(--red-light); color: var(--red); border: none; border-radius: 22px; padding: 13px; font-size: 14px; font-weight: 600; cursor: pointer; }
 
+  /* ── PWA INSTALL BANNER ── */
+  #installBanner {
+    background: var(--navy-mid); color: white; padding: 10px 16px;
+    display: none; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  #installBanner.show { display: flex; }
+  .install-text { font-size: 13px; }
+  .btn-install { background: var(--blue); color: white; border: none; border-radius: 20px; padding: 7px 16px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .btn-install-dismiss { background: none; border: none; color: rgba(255,255,255,0.5); font-size: 20px; cursor: pointer; padding: 0 4px; }
+
   @media (max-width: 420px) {
     .form-row { grid-template-columns: 1fr; }
     .card-body { grid-template-columns: 1fr; }
@@ -409,6 +407,21 @@
     .card-body { grid-template-columns: 1fr 1fr 1fr; }
   }
 </style>
+
+<!-- PWA Manifest inline -->
+<link rel="manifest" href="data:application/json,{
+  %22name%22:%22LaVau %26 Lucas Pipeline%22,
+  %22short_name%22:%22LL Pipeline%22,
+  %22start_url%22:%22.%22,
+  %22display%22:%22standalone%22,
+  %22background_color%22:%22%230f2850%22,
+  %22theme_color%22:%22%230f2850%22,
+  %22icons%22:[{%22src%22:%22https://placehold.co/192x192/0f2850/ffffff?text=LL%22,%22sizes%22:%22192x192%22,%22type%22:%22image/png%22}]
+}">
+<meta name="theme-color" content="#0f2850">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LL Pipeline">
 </head>
 <body>
 
@@ -417,13 +430,36 @@
   <div class="login-box">
     <div class="login-icon">🏢</div>
     <div class="login-title">LaVau &amp; Lucas Pipeline</div>
-    <div class="login-sub">Private access only — enter your passcode to continue</div>
-    <input class="login-field" type="password" id="loginInput" placeholder="Enter passcode" onkeydown="if(event.key==='Enter')checkLogin()"
-    autocomplete="off">
+    <div class="login-sub">Private access only · Enter your passcode to continue</div>
+    <input class="login-field" type="password" id="loginInput"
+      placeholder="Enter passcode"
+      autocomplete="off"
+      onkeydown="if(event.key==='Enter')checkLogin()">
     <button class="login-btn" onclick="checkLogin()">Access Pipeline →</button>
     <div class="login-error" id="loginError">Incorrect passcode. Try again.</div>
-    <div class="login-footer">LaVau &amp; Lucas · Private CRM · April 2026</div>
+    <div class="login-footer">LaVau &amp; Lucas · Private CRM · 2026</div>
   </div>
+</div>
+
+<!-- ── LOADING SCREEN ── -->
+<div id="loadingScreen" class="hidden">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Loading Pipeline…</div>
+  <div class="loading-sub">Fetching live data from Google Sheets</div>
+</div>
+
+<!-- ── PWA INSTALL BANNER ── -->
+<div id="installBanner">
+  <div class="install-text">📱 Add to your iPhone Home Screen for quick access</div>
+  <button class="btn-install" id="installBtn">Install</button>
+  <button class="btn-install-dismiss" onclick="dismissInstall()">✕</button>
+</div>
+
+<!-- ── SETUP BANNER ── -->
+<div id="setupBanner">
+  ⚠️ <strong>Google Sheets not connected yet.</strong>
+  Paste your Apps Script URL in the <code>SHEETS_SCRIPT_URL</code> variable inside this file.
+  <a href="#" onclick="alert('See the Setup Guide document for step-by-step instructions.')">View setup guide →</a>
 </div>
 
 <header>
@@ -436,22 +472,20 @@
       </div>
     </div>
     <div class="header-right">
-      <!-- QR code widget — always visible -->
-      <button class="qr-btn" onclick="openQR()" title="Client intake QR code">
-        <span>&#x25A6;</span> QR
-      </button>
-      <!-- Add Client — always visible for all users -->
-      <button class="add-deal-btn" id="addDealBtn" onclick="openModal(null)">＋ Add Client</button>
-      <!-- Admin toggle — hidden in default view -->
+      <button class="refresh-btn" id="refreshBtn" onclick="loadFromSheets()" title="Refresh data">↻</button>
+      <button class="qr-btn" onclick="openQR()">&#x25A6; QR</button>
+      <button class="add-deal-btn" onclick="openModal(null)">＋ Add Client</button>
       <button class="admin-toggle hidden" id="adminToggle" onclick="toggleAdmin()">⚙ Admin</button>
     </div>
   </div>
   <div class="stats-bar" id="statsBar"></div>
 </header>
 
+<div id="sheetsError"></div>
+
 <div class="save-bar hidden" id="saveBar">
-  <button class="btn-save" onclick="saveAndDownload()">💾 Save &amp; Download</button>
-  <div class="save-bar-hint">Replace the old file on GitHub after downloading to sync with Sean.</div>
+  <button class="btn-save" onclick="saveToSheets()">☁️ Save to Sheets</button>
+  <div class="save-bar-hint">Changes save directly to Google Sheets · Sean sees updates instantly</div>
 </div>
 
 <main id="main">
@@ -480,7 +514,6 @@
     <h2 id="modalTitle">New Deal</h2>
     <form id="dealForm" onsubmit="saveDeal(event)">
       <input type="hidden" id="dealId">
-
       <div class="form-group">
         <label>Deal / Project Name *</label>
         <input type="text" id="fName" placeholder="e.g. Buckeye Industrial Site" required>
@@ -545,7 +578,7 @@
       </div>
       <div class="form-group">
         <label>Property Details</label>
-        <textarea id="fPropDetails" placeholder="SF: 28,000 | Land: 1.5 AC | Zoning: LAMR2 | Built: 1986 | Ceiling: 20ft | Docks: 2 | Power: 800a/480v&#10;(Use | to separate specs — each becomes its own tag on the card)"></textarea>
+        <textarea id="fPropDetails" placeholder="SF: 28,000 | Land: 1.5 AC | Zoning: LAMR2 | Ceiling: 20ft&#10;(Separate each spec with | — each becomes its own tag)"></textarea>
       </div>
       <div class="form-group">
         <label>Property Profile Link</label>
@@ -572,21 +605,27 @@
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════
-//  ACCESS CONTROL
-//  Passcodes are stored as SHA-256 hashes — the real
-//  passcodes are never visible in the source code.
+// ═══════════════════════════════════════════════════════════════
+//  CONFIGURATION — PASTE YOUR APPS SCRIPT URL BELOW
+//  After completing the Google Sheets setup guide, replace the
+//  empty string with your deployed Apps Script web app URL.
+//  It will look like: https://script.google.com/macros/s/ABC.../exec
+// ═══════════════════════════════════════════════════════════════
+const SHEETS_SCRIPT_URL = '';  // ← PASTE YOUR URL HERE
+
+// ═══════════════════════════════════════════════════════════════
+//  ACCESS CONTROL — SHA-256 hashed passcodes
+//  To change: hash your new passcode at https://emn178.github.io/online-tools/sha256.html
 //  Frank: LL2026frank  |  Sean: LL2026sean
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 const PASSCODE_HASHES = {
-  'efdf19b48308be395e33250da93599df49509472dae775259a24c789607831e5': 'admin',   // Frank
-  '1ad7a96f92f81928a946f4747311f39e5735eb8e58ca22f79d9fd6631c4b9365': 'viewer'   // Sean
+  'efdf19b48308be395e33250da93599df49509472dae775259a24c789607831e5': 'admin',
+  '1ad7a96f92f81928a946f4747311f39e5735eb8e58ca22f79d9fd6631c4b9365': 'viewer'
 };
 
 async function hashInput(str) {
-  const msgBuf = new TextEncoder().encode(str);
-  const hashBuf = await crypto.subtle.digest('SHA-256', msgBuf);
-  return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
 async function checkLogin() {
@@ -595,10 +634,8 @@ async function checkLogin() {
   const role = PASSCODE_HASHES[hashed];
   if (role) {
     document.getElementById('loginGate').classList.add('hidden');
-    if (role === 'admin') {
-      document.getElementById('adminToggle').classList.remove('hidden');
-    }
-    render();
+    if (role === 'admin') document.getElementById('adminToggle').classList.remove('hidden');
+    await loadFromSheets();
   } else {
     const err = document.getElementById('loginError');
     err.style.display = 'block';
@@ -608,281 +645,98 @@ async function checkLogin() {
   }
 }
 
-// ═══════════════════════════════════════════════════════
-//  CRM DATA — Frank edits deals in Admin mode,
-//  then Save & Download bakes this into the file.
-// ═══════════════════════════════════════════════════════
-const CRM_DATA = {
-  lastUpdated: "April 16, 2026",
-  deals: [
-    {
-      id: "rick-delarosa-fitchow",
-      name: "Fit Chow Restaurant — Rick Delarosa",
-      type: "Business",
-      status: "Active",
-      address: "604 W Ave L Ste 101, Lancaster, CA 93534",
-      askPrice: "",
-      offerPrice: "",
-      client: "Rick Delarosa",
-      phone: "",
-      email: "",
-      lastContact: "",
-      nextAction: "Clarify deal objective — buy, sell, or lease? Gather full property details.",
-      nextDue: "2026-04-16",
-      notes: "Restaurant business: Fit Chow. Property at 604 W Ave L Ste 101, Lancaster, CA 93534.",
-      archived: false,
-      created: "2026-04-12"
-    },
-    {
-      id: "john-barrett-winery",
-      name: "Barrett Winery — John Barrett",
-      type: "Business",
-      status: "Active",
-      address: "114 Newgrove St, Lancaster, CA 93534",
-      askPrice: "",
-      offerPrice: "",
-      client: "John Barrett",
-      phone: "",
-      email: "",
-      lastContact: "2026-02-16",
-      nextAction: "Follow up with John — still waiting on copies of his paperwork",
-      nextDue: "2026-04-16",
-      notes: "Objective: Sell the property for John. Deferred maintenance issues noted. City of Lancaster Zoning: 661-723-6100. Email sent 02/16. Barrett Winery Checklist in progress. Steve Lombardo (title) involved.",
-      archived: false,
-      created: "2026-04-12"
-    },
-    {
-      id: "emil-ovrid-motorcycle",
-      name: "Motorcycle Business SBA Purchase — Emil Ovrid",
-      type: "Commercial",
-      status: "Active",
-      address: "Palmdale / Santa Clarita, CA (searching)",
-      askPrice: "",
-      offerPrice: "",
-      client: "Emil Ovrid",
-      phone: "",
-      email: "emilovrid122@gmail.com",
-      lastContact: "2026-02-25",
-      propertyDetails: "",
-      nextAction: "Find mixed-use properties in Palmdale/SCV matching buyer criteria — send options to Emil",
-      nextDue: "2026-04-16",
-      notes: "Buyer seeking owner-user relocation + expansion (motorcycle business). Submitted intake 2/25/2026.\n\nClient Requirements: Mixed-use | ~5,000 SF | 16ft min clear height | Roll-up doors | Single-phase power | Yard needed | Low office build-out | Markets: Palmdale / Santa Clarita | Budget: ~$1/SF | Payment comfort: $5K/mo | Reno budget: $15K | Financing: SBA",
-      archived: false,
-      created: "2026-04-12"
-    },
-    {
-      id: "jennifer-harless-church",
-      name: "Church Title Issue — Jennifer Harless",
-      type: "Commercial",
-      status: "Active",
-      address: "2646 East Ave Q-4, Palmdale, CA",
-      askPrice: "",
-      offerPrice: "",
-      client: "Jennifer Harless",
-      phone: "(661) 810-1676",
-      email: "Mckymose@gmail.com",
-      lastContact: "",
-      propertyDetails: "Address: 2646 East Ave Q-4, Palmdale CA | Type: Church / Commercial | Title Status: Terminated 3/24/2020 | Corp: Palmdale Landmark Missionary Baptist Church",
-      nextAction: "Client must provide all purchase documentation for title resolution — follow up",
-      nextDue: "2026-04-16",
-      notes: "Complex title issue. Per Steve Lombardo (Title): Need corporate paperwork proving signing authority + governing authority approval. Options: (1) Reinstate corporation, (2) Quiet title action via courts. Senior underwriting approval likely required. Pastor may not be authorized signer.",
-      archived: false,
-      created: "2026-04-12"
-    },
-    {
-      id: "jennifer-kelsey-land",
-      name: "Cal Water Vacant Land — Jennifer Kelsey",
-      type: "Land",
-      status: "Active",
-      address: "Vac Avenue M, Littlerock, CA 93543",
-      askPrice: "",
-      offerPrice: "",
-      client: "Jennifer Kelsey",
-      phone: "(408) 367-8200",
-      email: "Propertiesinquiries@calwater.com",
-      lastContact: "2026-02-11",
-      propertyDetails: "APN: 3109-022-039 | Acres: 2.36 | Zoning: LRA22 | Use: Church school",
-      nextAction: "Sean to send warm & professional email re: APN inquiry — confirm email address first",
-      nextDue: "2026-03-05",
-      notes: "Purchasing vacant land for church school. Must verify email (Propertiesinquiries@calwater.com) is correct before sending. Keep tone very warm and professional.",
-      archived: false,
-      created: "2026-04-12"
-    },
-    {
-      id: "ricky-stamps-repo",
-      name: "Bank Repo Research — Ricky Stamps",
-      type: "Commercial",
-      status: "Prospect",
-      address: "6578 Elder (city TBD)",
-      askPrice: "",
-      offerPrice: "",
-      client: "Ricky Stamps",
-      phone: "",
-      email: "",
-      lastContact: "2026-02-16",
-      nextAction: "Research Freddie Mac REO Department for property status",
-      nextDue: "2026-04-16",
-      notes: "Bank repo property. Asked Rick on status 02/16. Email sent to Steve Lombardo 02/16. Need to look into Freddie Mac REO Department.",
-      archived: false,
-      created: "2026-04-12"
-    },
-    {
-      id: "kris-vaca-industrial",
-      name: "Industrial Lease — Kris Vaca",
-      type: "Commercial",
-      status: "Prospect",
-      address: "TBD",
-      askPrice: "",
-      offerPrice: "",
-      client: "Kris Vaca",
-      phone: "",
-      email: "",
-      lastContact: "",
-      nextAction: "Qualify Kris — get property size, budget, location requirements",
-      nextDue: "2026-04-16",
-      notes: "Contractor seeking industrial lease. Location and details TBD.",
-      archived: false,
-      created: "2026-04-12"
-    },
-    {
-      id: "steven-medina-lease",
-      name: "Commercial Lease — Steven Medina",
-      type: "Commercial",
-      status: "Prospect",
-      address: "TBD",
-      askPrice: "",
-      offerPrice: "",
-      client: "Steven Medina",
-      phone: "",
-      email: "",
-      lastContact: "",
-      nextAction: "Qualify Steven — get property size, budget, location requirements",
-      nextDue: "2026-04-16",
-      notes: "Fitness coach seeking commercial space for lease. Location and details TBD.",
-      archived: false,
-      created: "2026-04-12"
-    },
-    {
-      id: "lf-illumination-dearing",
-      name: "LF Illumination — 9200 Dearing Ave",
-      type: "Commercial",
-      status: "Active",
-      address: "9200 Dearing Ave, Chatsworth, CA",
-      askPrice: "",
-      offerPrice: "",
-      client: "Anthony",
-      phone: "(818) 885-1335",
-      email: "",
-      lastContact: "",
-      propertyDetails: "SF: 34,424 | Land: 1.50 AC | Zoning: LAMR2 | Built: 1980 | Ceiling: 15ft | Docks: 1 ext (10w×12h) | Parking: 0.87/1000",
-      nextAction: "Follow up with Anthony — lease expires April, confirm relocation interest",
-      nextDue: "2026-04-16",
-      notes: "Leasing opportunity. Lease coming up April 2026. Company is a subset of Delta Light Group (HQ: Belgium). Anthony said they are considering moving.",
-      archived: false,
-      created: "2026-04-12"
-    },
-    {
-      id: "lurline-9144-deering",
-      name: "Lurline Investment — 9144 Deering Ave",
-      type: "Commercial",
-      status: "Active",
-      address: "9144 Deering Ave, Chatsworth, CA",
-      askPrice: "",
-      offerPrice: "",
-      client: "Murray Siegal",
-      phone: "",
-      email: "",
-      lastContact: "",
-      propertyDetails: "SF: 27,960 | Land: 0.92 AC | Zoning: LAMR2 | Built: 1986 | Ceiling: 20ft | Docks: 2 (12w×12h) | Power: 800a/277-480v 3ph 4w Heavy | Parking: 1.70/1000",
-      nextAction: "Contact Scott Cadswell (Leasing Agent) — property vacant until April",
-      nextDue: "2026-04-16",
-      notes: "Lease opportunity. Vacant until April. Leasing Agent: Scott Cadswell (owns 80% of Chatsworth Market). ⚠️ Murray Siegal does not like being told what to do — handle carefully.",
-      archived: false,
-      created: "2026-04-12"
-    },
-    {
-      id: "whitecap-sunburst",
-      name: "WhiteCap Expansion — 20131 Sunburst St",
-      type: "Commercial",
-      status: "Active",
-      address: "20131 Sunburst St, Chatsworth, CA",
-      askPrice: "",
-      offerPrice: "",
-      client: "Eduardo (Eddy) Preciado",
-      phone: "(818) 727-1600",
-      email: "",
-      lastContact: "",
-      propertyDetails: "SF: 28,125 | Land: 1.50 AC | Zoning: LAMR2 | Built: 1966 | Ceiling: 20ft | Docks: 2 (12w×14h) | Parking: 1.78/1000",
-      nextAction: "Confirm expansion timeline and space requirements with Eddy",
-      nextDue: "2026-04-16",
-      notes: "WhiteCap looking to expand. Current loc: 8966 Comanche Ave (50K SF, 22yr lease). HQ: Norcross, GA. Company has deep roots — strong tenant.",
-      archived: false,
-      created: "2026-04-12"
-    },
-    {
-      id: "vatche-aida-eton",
-      name: "Lease / Buyout Opportunity — 9757 Eton Ave",
-      type: "Commercial",
-      status: "Prospect",
-      address: "9757 Eton Ave, Chatsworth, CA",
-      askPrice: "",
-      offerPrice: "",
-      client: "Vatche & Aida",
-      phone: "",
-      email: "",
-      lastContact: "",
-      propertyDetails: "SF: 6,480 | Land: 0.30 AC | Zoning: MR2 | Built: 1980 | Docks: 1 (10w×12h) | Parking: 1.08/1000",
-      nextAction: "Call again — no response yet on lease/buyout opportunity",
-      nextDue: "2026-04-16",
-      notes: "Small vacant unit. Potential lease or buyout. No response on initial call attempt.",
-      archived: false,
-      created: "2026-04-12"
-    },
-    {
-      id: "roe-visual-oso",
-      name: "ROE Visual Expansion — 9311 Oso Ave",
-      type: "Commercial",
-      status: "Active",
-      address: "9311-9315 Oso Ave, Chatsworth, CA",
-      askPrice: "",
-      offerPrice: "",
-      client: "Angel (Branch Manager)",
-      phone: "",
-      email: "",
-      lastContact: "",
-      propertyDetails: "SF: 35,785 | Land: 1.71 AC | Zoning: MR2-1 | Built: 1977 | Ceiling: 21ft | Docks: 4 ext + 1 drive-by (12w×14h, 2 levelers) | Power: 2,000a/277-480v 3ph 4w Heavy | Parking: 2.18/1000",
-      nextAction: "Follow up with Angel — confirm expansion plans, they are over capacity",
-      nextDue: "2026-04-16",
-      notes: "Company over capacity, considering expansion. Also owns 9232 Eton Ave (purchased 2024 for $6.3M) — serious buyer with capital.",
-      archived: false,
-      created: "2026-04-12"
-    }
-  ]
-};
+// ═══════════════════════════════════════════════════════════════
+//  GOOGLE SHEETS INTEGRATION
+// ═══════════════════════════════════════════════════════════════
+let DEALS = [];   // live deal data — loaded from Sheets on login
 
-// ── STATE ──
+async function loadFromSheets() {
+  // If no script URL configured yet, fall back to empty state with setup banner
+  if (!SHEETS_SCRIPT_URL) {
+    document.getElementById('setupBanner').style.display = 'block';
+    DEALS = [];
+    render();
+    return;
+  }
+
+  document.getElementById('loadingScreen').classList.remove('hidden');
+  document.getElementById('refreshBtn').classList.add('spinning');
+  document.getElementById('sheetsError').style.display = 'none';
+
+  try {
+    const res = await fetch(SHEETS_SCRIPT_URL + '?action=getDeals', { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    DEALS = data.deals || [];
+    document.getElementById('lastUpdated').textContent =
+      `Live from Google Sheets · Last refreshed: ${new Date().toLocaleTimeString()}`;
+  } catch(err) {
+    showSheetsError('Could not load data from Google Sheets. Check your internet connection or Apps Script URL. Details: ' + err.message);
+  } finally {
+    document.getElementById('loadingScreen').classList.add('hidden');
+    document.getElementById('refreshBtn').classList.remove('spinning');
+    render();
+  }
+}
+
+async function saveToSheets() {
+  if (!SHEETS_SCRIPT_URL) {
+    alert('Google Sheets is not connected yet. See the setup guide.');
+    return;
+  }
+  const btn = document.querySelector('.btn-save');
+  btn.textContent = '⏳ Saving…';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(SHEETS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'saveDeals', deals: DEALS })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    btn.textContent = '✅ Saved!';
+    setTimeout(() => { btn.textContent = '☁️ Save to Sheets'; btn.disabled = false; }, 2000);
+    document.getElementById('lastUpdated').textContent =
+      `Saved to Google Sheets · ${new Date().toLocaleTimeString()}`;
+  } catch(err) {
+    btn.textContent = '❌ Save Failed';
+    btn.disabled = false;
+    showSheetsError('Save failed: ' + err.message);
+    setTimeout(() => btn.textContent = '☁️ Save to Sheets', 3000);
+  }
+}
+
+function showSheetsError(msg) {
+  const el = document.getElementById('sheetsError');
+  el.innerHTML = `<strong>⚠️ Google Sheets Error</strong>${msg}`;
+  el.style.display = 'block';
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  STATE & CONSTANTS
+// ═══════════════════════════════════════════════════════════════
 let isAdmin = false;
-let activeFilter = "All";
+let activeFilter = 'All';
 let showArchived = false;
 let editingId = null;
 
-const STATUS_ORDER = ["Prospect","Active","Offer","Contract","Diligence","Closing","Closed","Dead"];
+const STATUS_ORDER  = ['Prospect','Active','Offer','Contract','Diligence','Closing','Closed','Dead'];
 const STATUS_LABELS = {
-  Prospect:"Prospect", Active:"Active Pursuit", Offer:"Offer/LOI",
-  Contract:"Under Contract", Diligence:"Due Diligence", Closing:"Closing",
-  Closed:"Closed", Dead:"Inactive"
+  Prospect:'Prospect', Active:'Active Pursuit', Offer:'Offer/LOI',
+  Contract:'Under Contract', Diligence:'Due Diligence', Closing:'Closing',
+  Closed:'Closed', Dead:'Inactive'
 };
 
-// Don't auto-render — wait for login
-// document.addEventListener('DOMContentLoaded', render);
+// ── RENDER ──
+function render() { renderStats(); renderFilters(); renderDeals(); }
 
-function render() { renderStats(); renderFilters(); renderDeals(); renderLastUpdated(); }
-
-// ── STATS ──
 function renderStats() {
-  const active  = CRM_DATA.deals.filter(d => !d.archived && d.status !== 'Closed' && d.status !== 'Dead');
-  const closing = CRM_DATA.deals.filter(d => !d.archived && ['Closing','Contract','Diligence'].includes(d.status));
-  const closed  = CRM_DATA.deals.filter(d => d.status === 'Closed');
+  const active  = DEALS.filter(d => !d.archived && d.status !== 'Closed' && d.status !== 'Dead');
+  const closing = DEALS.filter(d => !d.archived && ['Closing','Contract','Diligence'].includes(d.status));
+  const closed  = DEALS.filter(d => d.status === 'Closed');
   const overdue = active.filter(d => d.nextDue && new Date(d.nextDue+'T23:59:59') < new Date());
   document.getElementById('statsBar').innerHTML = [
     `<div class="stat-pill">${active.length} <span>Active</span></div>`,
@@ -892,19 +746,17 @@ function renderStats() {
   ].join('');
 }
 
-// ── FILTERS ──
 function renderFilters() {
   const filters = ['All','Commercial','Land','Business','Overdue','Prospect','Active','Offer','Contract','Closing'];
-  const labels  = {Offer:'Offer/LOI', Contract:'Under Contract'};
+  const labels  = { Offer:'Offer/LOI', Contract:'Under Contract' };
   document.getElementById('filterBar').innerHTML = filters.map(f =>
     `<button class="filter-btn ${activeFilter===f?'active':''}" onclick="setFilter('${f}')">${labels[f]||f}</button>`
   ).join('');
 }
 function setFilter(f) { activeFilter = f; renderFilters(); renderDeals(); }
 
-// ── DEALS ──
 function getFilteredDeals() {
-  let deals = CRM_DATA.deals.filter(d => !d.archived);
+  let deals = DEALS.filter(d => !d.archived);
   if (activeFilter === 'All') {
     deals = deals.filter(d => d.status !== 'Closed' && d.status !== 'Dead');
   } else if (['Commercial','Land','Business'].includes(activeFilter)) {
@@ -917,8 +769,7 @@ function getFilteredDeals() {
   const now = new Date();
   const isOverdue = d => d.nextDue && new Date(d.nextDue+'T23:59:59') < now && d.status !== 'Closed' && d.status !== 'Dead';
   return deals.sort((a,b) => {
-    const ao = isOverdue(a) ? 0 : 1;
-    const bo = isOverdue(b) ? 0 : 1;
+    const ao = isOverdue(a) ? 0 : 1, bo = isOverdue(b) ? 0 : 1;
     if (ao !== bo) return ao - bo;
     const si = STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status);
     if (si !== 0) return si;
@@ -931,13 +782,13 @@ function renderDeals() {
   const container = document.getElementById('dealsContainer');
   const deals = getFilteredDeals();
   if (deals.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="icon">🏙️</div><p>No deals here yet</p><small>${isAdmin?'Tap "+ Add Deal" above to get started.':'Check back — Frank will add deals soon.'}</small></div>`;
+    container.innerHTML = `<div class="empty-state"><div class="icon">🏙️</div><p>${SHEETS_SCRIPT_URL ? 'No deals match this filter' : 'Google Sheets not connected yet'}</p><small>${SHEETS_SCRIPT_URL ? '' : 'Follow the setup guide to connect your data.'}</small></div>`;
     renderArchivedToggle(container); return;
   }
   const sections = {};
   deals.forEach(d => { (sections[d.type||'Other'] = sections[d.type||'Other']||[]).push(d); });
-  let html = '';
   const typeIcons = { Commercial:'🏢', Land:'🌵', Business:'💼', Other:'📁' };
+  let html = '';
   for (const [type, td] of Object.entries(sections)) {
     if (Object.keys(sections).length > 1)
       html += `<div class="section-label">${typeIcons[type]||'📁'} ${type}</div>`;
@@ -948,7 +799,7 @@ function renderDeals() {
 }
 
 function renderArchivedToggle(container) {
-  const closed = CRM_DATA.deals.filter(d => d.status==='Closed'||d.status==='Dead'||d.archived);
+  const closed = DEALS.filter(d => d.status==='Closed' || d.status==='Dead' || d.archived);
   if (!closed.length) return;
   const btn = document.createElement('button');
   btn.className = 'show-archived-btn';
@@ -986,7 +837,7 @@ function buildCard(d) {
       ${d.email?`<div class="card-field"><label>Email</label><div class="val"><a href="mailto:${esc(d.email)}">${esc(d.email)}</a></div></div>`:''}
       ${d.nextAction?`<div class="next-action-box"><div class="icon">⚡</div><div><div class="action-label">Next Action</div><div class="action-text">${esc(d.nextAction)}</div>${d.nextDue?`<div class="action-due ${overdue?'overdue':''}">${overdue?'⚠️ Overdue · ':''}Due ${formatDate(d.nextDue)}</div>`:''}</div></div>`:''}
       ${d.propertyDetails ? buildPropDetails(d.propertyDetails) : ''}
-      ${d.propertyLink ? `<div class="card-field full"><label>Property Profile</label><div class="val"><a href="${esc(d.propertyLink)}" target="_blank" class="prop-link-btn">🔗 View Listing / Profile →</a></div></div>` : ''}
+      ${d.propertyLink ? `<div class="card-field full"><label>Property Profile</label><div class="val"><a href="${esc(d.propertyLink)}" target="_blank" class="prop-link-btn">🔗 View Listing →</a></div></div>` : ''}
       ${d.notes?`<div class="notes-box"><div class="notes-box-label">📝 Notes</div><div class="notes-text">${esc(d.notes)}</div></div>`:''}
     </div>
     <div class="card-footer">
@@ -998,24 +849,12 @@ function buildCard(d) {
 
 function buildPropDetails(raw) {
   if (!raw || !raw.trim()) return '';
-  const parts = raw.split(/\s*[\|\n]\s*/).map(s => s.trim()).filter(Boolean);
-  const chips = parts.map(p => {
-    const colonIdx = p.indexOf(':');
-    if (colonIdx > 0) {
-      const label = p.slice(0, colonIdx).trim();
-      const val   = p.slice(colonIdx + 1).trim();
-      return `<span class="spec-chip"><strong>${esc(label)}:</strong>${esc(val)}</span>`;
-    }
+  const chips = raw.split(/\s*[\|\n]\s*/).map(s=>s.trim()).filter(Boolean).map(p => {
+    const ci = p.indexOf(':');
+    if (ci > 0) return `<span class="spec-chip"><strong>${esc(p.slice(0,ci).trim())}:</strong>${esc(p.slice(ci+1).trim())}</span>`;
     return `<span class="spec-chip">${esc(p)}</span>`;
   }).join('');
-  return `<div class="prop-details-box">
-    <div class="prop-details-label">🏗 Property Details</div>
-    <div class="prop-specs">${chips}</div>
-  </div>`;
-}
-
-function renderLastUpdated() {
-  document.getElementById('lastUpdated').textContent = CRM_DATA.lastUpdated ? `Last updated by Frank: ${CRM_DATA.lastUpdated}` : '';
+  return `<div class="prop-details-box"><div class="prop-details-label">🏗 Property Details</div><div class="prop-specs">${chips}</div></div>`;
 }
 
 // ── ADMIN ──
@@ -1028,115 +867,6 @@ function toggleAdmin() {
   renderDeals();
 }
 
-// ── QR CODE ──
-const INTAKE_URL = 'https://docs.google.com/forms/d/1FXUhUC5Wg8GeIT6EeJY0qxdjSdA8R3nYRRCoEUoRM1k/viewform';
-
-function openQR() {
-  document.getElementById('qrModalOverlay').classList.remove('hidden');
-  drawQR();
-}
-function closeQR() {
-  document.getElementById('qrModalOverlay').classList.add('hidden');
-}
-function downloadQR() {
-  const canvas = document.getElementById('qrCanvas');
-  const a = document.createElement('a');
-  a.download = 'LaVau-Lucas-Intake-QR.png';
-  a.href = canvas.toDataURL('image/png');
-  a.click();
-}
-
-// Lightweight QR code generator (no external library needed)
-function drawQR() {
-  const canvas = document.getElementById('qrCanvas');
-  const ctx = canvas.getContext('2d');
-  const size = 240;
-  canvas.width = size; canvas.height = size;
-
-  // Navy background
-  ctx.fillStyle = '#0f2850';
-  ctx.fillRect(0, 0, size, size);
-
-  // White inner box
-  const pad = 16;
-  ctx.fillStyle = '#ffffff';
-  ctx.beginPath();
-  roundRect(ctx, pad, pad, size-pad*2, size-pad*2, 10);
-  ctx.fill();
-
-  // QR placeholder — centered text directing user to URL
-  // (Full QR generation requires a library; this gives a clean placeholder
-  //  with the URL displayed. For a real scannable QR, upload to GitHub and
-  //  the intake page's existing QR generator handles it.)
-  ctx.fillStyle = '#0f2850';
-  ctx.font = 'bold 11px -apple-system, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('📲 CLIENT INTAKE', size/2, 56);
-
-  ctx.font = '9px -apple-system, sans-serif';
-  ctx.fillStyle = '#6b7280';
-  ctx.fillText('Scan via Intake Page →', size/2, 76);
-
-  // Draw a decorative QR-style grid pattern
-  ctx.fillStyle = '#0f2850';
-  drawQRPattern(ctx, size);
-
-  // Label at bottom
-  ctx.fillStyle = '#0f2850';
-  ctx.font = 'bold 10px -apple-system, sans-serif';
-  ctx.fillText('LaVau & Lucas Pipeline', size/2, size - 26);
-  ctx.font = '9px -apple-system, sans-serif';
-  ctx.fillStyle = '#6b7280';
-  ctx.fillText('lavau-lucas-pipeline', size/2, size - 14);
-}
-
-function drawQRPattern(ctx, size) {
-  // Simplified decorative QR pattern
-  const modules = 21;
-  const cellSize = Math.floor((size - 80) / modules);
-  const offsetX = Math.floor((size - modules * cellSize) / 2);
-  const offsetY = 88;
-
-  // Seeded pseudo-random for consistent pattern
-  let seed = 42;
-  const rand = () => { seed = (seed * 1664525 + 1013904223) & 0xffffffff; return (seed >>> 0) / 0xffffffff; };
-
-  for (let r = 0; r < modules; r++) {
-    for (let c = 0; c < modules; c++) {
-      // Corner finder patterns
-      const inCorner = (r < 7 && c < 7) || (r < 7 && c >= modules-7) || (r >= modules-7 && c < 7);
-      let filled = false;
-      if (inCorner) {
-        if ((r===0||r===6) && c>=0 && c<=6) filled=true;
-        else if ((c===0||c===6) && r>=0 && r<=6) filled=true;
-        else if (r>=2&&r<=4&&c>=2&&c<=4) filled=true;
-        if (r>=modules-7) {
-          const rr=r-(modules-7);
-          if ((rr===0||rr===6) && c>=0&&c<=6) filled=true;
-          else if ((c===0||c===6)&&rr>=0&&rr<=6) filled=true;
-          else if (rr>=2&&rr<=4&&c>=2&&c<=4) filled=true;
-          else filled=false;
-          if ((r===0||r===6)&&c>=0&&c<=6) filled=true;
-        }
-      } else {
-        filled = rand() > 0.5;
-      }
-      if (filled) {
-        ctx.fillRect(offsetX + c*cellSize, offsetY + r*cellSize, cellSize-1, cellSize-1);
-      }
-    }
-  }
-}
-
-function roundRect(ctx, x, y, w, h, r) {
-  ctx.moveTo(x+r, y);
-  ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
-  ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
-  ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
-  ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
-  ctx.closePath();
-}
-
 // ── MODAL ──
 function openModal(id) {
   editingId = id;
@@ -1144,24 +874,24 @@ function openModal(id) {
   const title = document.getElementById('modalTitle');
   const btns  = document.getElementById('modalBtns');
   if (id) {
-    const d = CRM_DATA.deals.find(x => x.id === id);
+    const d = DEALS.find(x => x.id === id);
     title.textContent = 'Edit Deal';
-    document.getElementById('dealId').value       = d.id;
-    document.getElementById('fName').value        = d.name||'';
-    document.getElementById('fType').value        = d.type||'';
-    document.getElementById('fStatus').value      = d.status||'Prospect';
-    document.getElementById('fAddress').value     = d.address||'';
-    document.getElementById('fAskPrice').value    = d.askPrice||'';
-    document.getElementById('fOfferPrice').value  = d.offerPrice||'';
-    document.getElementById('fClient').value      = d.client||'';
-    document.getElementById('fPhone').value       = d.phone||'';
-    document.getElementById('fEmail').value       = d.email||'';
-    document.getElementById('fLastContact').value = d.lastContact||'';
+    document.getElementById('dealId').value          = d.id;
+    document.getElementById('fName').value           = d.name||'';
+    document.getElementById('fType').value           = d.type||'';
+    document.getElementById('fStatus').value         = d.status||'Prospect';
+    document.getElementById('fAddress').value        = d.address||'';
+    document.getElementById('fAskPrice').value       = d.askPrice||'';
+    document.getElementById('fOfferPrice').value     = d.offerPrice||'';
+    document.getElementById('fClient').value         = d.client||'';
+    document.getElementById('fPhone').value          = d.phone||'';
+    document.getElementById('fEmail').value          = d.email||'';
+    document.getElementById('fLastContact').value    = d.lastContact||'';
     document.getElementById('fPropDetails').value    = d.propertyDetails||'';
     document.getElementById('fPropertyLink').value   = d.propertyLink||'';
-    document.getElementById('fNextAction').value  = d.nextAction||'';
-    document.getElementById('fNextDue').value     = d.nextDue||'';
-    document.getElementById('fNotes').value       = d.notes||'';
+    document.getElementById('fNextAction').value     = d.nextAction||'';
+    document.getElementById('fNextDue').value        = d.nextDue||'';
+    document.getElementById('fNotes').value          = d.notes||'';
     btns.innerHTML = `<button type="button" class="btn-delete" onclick="deleteDeal('${id}')">Delete</button><button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button><button type="submit" class="btn-primary">Save</button>`;
   } else {
     title.textContent = 'New Deal';
@@ -1176,59 +906,105 @@ function handleOverlayClick(e) { if (e.target === document.getElementById('modal
 function saveDeal(e) {
   e.preventDefault();
   const id = document.getElementById('dealId').value || ('deal-' + Date.now());
-  const existing = CRM_DATA.deals.find(d => d.id === id);
+  const existing = DEALS.find(d => d.id === id);
   const dealData = {
-    id, archived: false,
+    id, archived: existing?.archived || false,
     created: existing?.created || todayISO(),
-    name:        document.getElementById('fName').value.trim(),
-    type:        document.getElementById('fType').value,
-    status:      document.getElementById('fStatus').value,
-    address:     document.getElementById('fAddress').value.trim(),
-    askPrice:    document.getElementById('fAskPrice').value.trim(),
-    offerPrice:  document.getElementById('fOfferPrice').value.trim(),
-    client:      document.getElementById('fClient').value.trim(),
-    phone:       document.getElementById('fPhone').value.trim(),
-    email:       document.getElementById('fEmail').value.trim(),
-    lastContact: document.getElementById('fLastContact').value,
+    name:            document.getElementById('fName').value.trim(),
+    type:            document.getElementById('fType').value,
+    status:          document.getElementById('fStatus').value,
+    address:         document.getElementById('fAddress').value.trim(),
+    askPrice:        document.getElementById('fAskPrice').value.trim(),
+    offerPrice:      document.getElementById('fOfferPrice').value.trim(),
+    client:          document.getElementById('fClient').value.trim(),
+    phone:           document.getElementById('fPhone').value.trim(),
+    email:           document.getElementById('fEmail').value.trim(),
+    lastContact:     document.getElementById('fLastContact').value,
     propertyDetails: document.getElementById('fPropDetails').value.trim(),
     propertyLink:    document.getElementById('fPropertyLink').value.trim(),
-    nextAction:  document.getElementById('fNextAction').value.trim(),
-    nextDue:     document.getElementById('fNextDue').value,
-    notes:       document.getElementById('fNotes').value.trim(),
+    nextAction:      document.getElementById('fNextAction').value.trim(),
+    nextDue:         document.getElementById('fNextDue').value,
+    notes:           document.getElementById('fNotes').value.trim(),
   };
-  const idx = CRM_DATA.deals.findIndex(d => d.id === id);
-  if (idx >= 0) CRM_DATA.deals[idx] = dealData; else CRM_DATA.deals.push(dealData);
+  const idx = DEALS.findIndex(d => d.id === id);
+  if (idx >= 0) DEALS[idx] = dealData; else DEALS.push(dealData);
   closeModal(); render();
 }
 function deleteDeal(id) {
   if (!confirm('Delete this deal permanently?')) return;
-  CRM_DATA.deals = CRM_DATA.deals.filter(d => d.id !== id);
+  DEALS = DEALS.filter(d => d.id !== id);
   closeModal(); render();
 }
 function toggleArchive(id) {
-  const d = CRM_DATA.deals.find(x => x.id === id);
+  const d = DEALS.find(x => x.id === id);
   if (d) d.archived = !d.archived;
   render();
 }
 
-// ── SAVE & DOWNLOAD ──
-function saveAndDownload() {
-  CRM_DATA.lastUpdated = new Date().toLocaleDateString('en-US',
-    {year:'numeric',month:'long',day:'numeric',hour:'numeric',minute:'2-digit'});
-  const src = document.documentElement.outerHTML;
-  const newData = 'const CRM_DATA = ' + JSON.stringify(CRM_DATA, null, 2) + ';';
-  const updated = src.replace(/const CRM_DATA = \{[\s\S]*?\};(?=\n)/, newData);
-  const a = Object.assign(document.createElement('a'), {
-    href: URL.createObjectURL(new Blob([updated], {type:'text/html'})),
-    download: 'LaVau-Lucas-CRM.html'
-  });
-  a.click(); URL.revokeObjectURL(a.href);
-  renderLastUpdated();
-  alert('✅ Downloaded!\n\nUpload this file to GitHub to sync with Sean.\n\nRemember: Sean\'s passcode is LL2026sean');
+// ── QR CODE ──
+function openQR() { document.getElementById('qrModalOverlay').classList.remove('hidden'); drawQR(); }
+function closeQR() { document.getElementById('qrModalOverlay').classList.add('hidden'); }
+function downloadQR() {
+  const a = document.createElement('a');
+  a.download = 'LaVau-Lucas-Intake-QR.png';
+  a.href = document.getElementById('qrCanvas').toDataURL('image/png');
+  a.click();
+}
+function drawQR() {
+  const canvas = document.getElementById('qrCanvas');
+  const ctx = canvas.getContext('2d');
+  const size = 240;
+  canvas.width = size; canvas.height = size;
+  ctx.fillStyle = '#0f2850'; ctx.fillRect(0,0,size,size);
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); roundRect(ctx,16,16,size-32,size-32,10); ctx.fill();
+  ctx.fillStyle = '#0f2850'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('📲 CLIENT INTAKE', size/2, 56);
+  ctx.font = '9px sans-serif'; ctx.fillStyle = '#6b7280';
+  ctx.fillText('Scan via Intake Page', size/2, 72);
+  ctx.fillStyle = '#0f2850'; drawQRPattern(ctx, size);
+  ctx.font = 'bold 10px sans-serif'; ctx.fillStyle = '#0f2850';
+  ctx.fillText('LaVau & Lucas Pipeline', size/2, size-26);
+  ctx.font = '9px sans-serif'; ctx.fillStyle = '#6b7280';
+  ctx.fillText('lavau-lucas-pipeline', size/2, size-14);
+}
+function drawQRPattern(ctx, size) {
+  const modules = 21, cellSize = Math.floor((size-80)/modules);
+  const ox = Math.floor((size-modules*cellSize)/2), oy = 84;
+  let seed = 42;
+  const rand = () => { seed=(seed*1664525+1013904223)&0xffffffff; return (seed>>>0)/0xffffffff; };
+  for (let r=0;r<modules;r++) for (let c=0;c<modules;c++) {
+    const inC=(r<7&&c<7)||(r<7&&c>=modules-7)||(r>=modules-7&&c<7);
+    let f=false;
+    if(inC){if((r===0||r===6)&&c<=6)f=true;else if((c===0||c===6)&&r<=6)f=true;else if(r>=2&&r<=4&&c>=2&&c<=4)f=true;}
+    else f=rand()>0.5;
+    if(f) ctx.fillRect(ox+c*cellSize, oy+r*cellSize, cellSize-1, cellSize-1);
+  }
+}
+function roundRect(ctx,x,y,w,h,r){
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
 }
 
+// ── PWA INSTALL ──
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredInstallPrompt = e;
+  document.getElementById('installBanner').classList.add('show');
+});
+document.getElementById('installBtn').addEventListener('click', async () => {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  const { outcome } = await deferredInstallPrompt.userChoice;
+  if (outcome === 'accepted') dismissInstall();
+  deferredInstallPrompt = null;
+});
+function dismissInstall() { document.getElementById('installBanner').classList.remove('show'); }
+
 // ── HELPERS ──
-function esc(s) { return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : ''; }
+function esc(s) { return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):''; }
 function formatDate(iso) {
   if (!iso) return '';
   const [y,m,d] = iso.split('-');
@@ -1236,7 +1012,7 @@ function formatDate(iso) {
 }
 function daysSince(iso) {
   if (!iso) return null;
-  return Math.floor((new Date() - new Date(iso+'T12:00:00')) / 86400000);
+  return Math.floor((new Date()-new Date(iso+'T12:00:00'))/86400000);
 }
 function todayISO() { return new Date().toISOString().split('T')[0]; }
 </script>
