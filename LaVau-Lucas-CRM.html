@@ -52,6 +52,31 @@
   .login-step.active{background:var(--blue);border-color:var(--blue);color:white;}
   .login-step.done{background:var(--green);border-color:var(--green);color:white;}
 
+  /* Biometric button */
+  .biometric-btn{
+    width:100%;padding:16px;margin-bottom:14px;
+    background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 100%);
+    color:white;border:none;border-radius:14px;
+    font-size:16px;font-weight:700;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:12px;
+    transition:opacity 0.2s;box-shadow:0 4px 16px rgba(15,40,80,0.3);
+  }
+  .biometric-btn:hover{opacity:0.92;}
+  .biometric-btn:disabled{opacity:0.5;cursor:not-allowed;}
+  .biometric-icon{font-size:26px;}
+  .biometric-status{
+    font-size:13px;color:var(--gray);margin-bottom:14px;
+    padding:10px;background:var(--gray-light);border-radius:8px;
+    display:none;
+  }
+  .biometric-status.show{display:block;}
+  .biometric-status.success{background:var(--green-light);color:var(--green);}
+  .biometric-status.error{background:var(--red-light);color:var(--red);}
+  .register-link{
+    font-size:12px;color:var(--blue);cursor:pointer;
+    text-decoration:underline;margin-top:8px;display:inline-block;
+  }
+
   .login-field{
     width:100%;padding:13px 16px;border:1.5px solid #d1d5db;border-radius:10px;
     font-size:16px;font-family:inherit;color:var(--dark);
@@ -467,9 +492,26 @@
       <div class="login-step" id="stepDot2">2</div>
     </div>
 
-    <!-- STEP 1: Passcode -->
+    <!-- STEP 1: Biometric or passcode fallback -->
     <div id="loginStep1">
-      <div class="login-step-label">Step 1 of 2 — Enter your passcode</div>
+      <div class="login-step-label" id="step1Label">Step 1 of 2 — Verify your identity</div>
+
+      <!-- Biometric button — shown when WebAuthn is available -->
+      <div id="biometricSection" style="display:none;">
+        <button class="biometric-btn" id="biometricBtn" onclick="startBiometric()">
+          <span class="biometric-icon">🔐</span>
+          <span id="biometricBtnText">Use Face ID / Touch ID</span>
+        </button>
+        <div class="biometric-status" id="biometricStatus"></div>
+        <div style="text-align:center;">
+          <span class="register-link" onclick="showRegisterPrompt()">
+            First time? Register your biometric →
+          </span>
+        </div>
+        <div class="login-divider" style="margin-top:14px;">or use passcode instead</div>
+      </div>
+
+      <!-- Passcode fallback — always available -->
       <input class="login-field" type="password" id="loginInput"
         placeholder="Enter passcode" autocomplete="off"
         onkeydown="if(event.key==='Enter')checkPasscode()">
@@ -501,7 +543,7 @@
       <button class="login-back" onclick="backToStep1()">← Back</button>
     </div>
 
-    <div class="login-footer">LaVau &amp; Lucas · Private CRM · 2026 · Two-Step Protected</div>
+    <div class="login-footer">LaVau &amp; Lucas · Private CRM · 2026 · Biometric Two-Step Protected</div>
   </div>
 </div>
 
@@ -743,15 +785,12 @@ const SHEETS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzD3yvIO6dfpF
 // ════════════════════════════════════════════════════════════════
 //  TWO-STEP ACCESS CONTROL
 //
-//  Step 1 — Passcode check
-//  Passcodes are stored as SHA-256 hashes only.
-//  The actual passcode text never appears anywhere in this file.
-//  To update: hash your new passcode at emn178.github.io/online-tools/sha256.html
-//  then replace the hash string below.
+//  Step 1 — WebAuthn biometric (Face ID / Touch ID)
+//           Falls back to hashed passcode on unregistered devices
 //
-//  Step 2 — Google account check
-//  Only Google email addresses in the AUTHORIZED_EMAILS list can enter.
-//  Add or remove emails as needed.
+//  Step 2 — Google email verification
+//           Full OAuth when CLIENT_ID is configured
+//           Falls back to email list check
 // ════════════════════════════════════════════════════════════════
 
 const PASSCODE_HASHES = {
@@ -759,27 +798,236 @@ const PASSCODE_HASHES = {
   '1ad7a96f92f81928a946f4747311f39e5735eb8e58ca22f79d9fd6631c4b9365': 'viewer'
 };
 
-// Add your Gmail addresses here — only these can access the pipeline
+// Add Gmail addresses — only these can complete Step 2
 const AUTHORIZED_EMAILS = [
-  // 'frankalemanylucas@gmail.com',   ← replace with your actual Gmail
-  // 'sean@lavau.com',    ← replace with Sean's actual Gmail
+  // 'frankalemanylucas@gmail.com',
+  // 'sean@lavau.com',
 ];
 
-// Role assigned per email (must match an email in AUTHORIZED_EMAILS)
 const EMAIL_ROLES = {
-  // 'frankalemanyluas@gmail.com': 'admin',
+  // 'frankalemanylucas@gmail.com': 'admin',
   // 'sean@lavau.com':  'viewer',
 };
 
+// Google OAuth Client ID — get free from console.cloud.google.com
+// Leave empty to use manual email check instead
+const GOOGLE_CLIENT_ID = '';  // ← paste Client ID here when ready
+
 let currentRole = null;
 
-// ── Hashing utility ──
+// ── SHA-256 hashing utility ──
 async function hashInput(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
-// ── STEP 1: Check passcode ──
+// ════════════════════════════════════════════════════════════════
+//  WEBAUTHN — BIOMETRIC AUTHENTICATION
+//  Uses the device's secure chip (same as Apple Pay / Face ID)
+//  Credentials stored locally — never sent to any server
+// ════════════════════════════════════════════════════════════════
+
+// Storage keys
+const WA_CREDS_KEY  = 'll_pipeline_creds';   // stored credential IDs
+const WA_ROLES_KEY  = 'll_pipeline_roles';   // role per credential
+const WA_RP_ID      = window.location.hostname || 'localhost';
+const WA_RP_NAME    = 'LaVau & Lucas Pipeline';
+
+// Check if WebAuthn is supported on this device
+function webAuthnSupported() {
+  return window.PublicKeyCredential !== undefined &&
+    typeof window.PublicKeyCredential === 'function';
+}
+
+// Load stored credentials from localStorage
+function loadCredentials() {
+  try { return JSON.parse(localStorage.getItem(WA_CREDS_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+
+// Load stored roles
+function loadRoles() {
+  try { return JSON.parse(localStorage.getItem(WA_ROLES_KEY) || '{}'); }
+  catch(e) { return {}; }
+}
+
+// Check if any credentials are registered on this device
+function hasRegisteredCredential() {
+  return loadCredentials().length > 0;
+}
+
+// Convert base64url string to Uint8Array
+function b64ToUint8(b64) {
+  const b64std = b64.replace(/-/g,'+').replace(/_/g,'/');
+  return Uint8Array.from(atob(b64std), c => c.charCodeAt(0));
+}
+
+// Convert Uint8Array to base64url string
+function uint8ToB64(buf) {
+  return btoa(String.fromCharCode(...new Uint8Array(buf)))
+    .replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+}
+
+// ── REGISTER biometric on this device ──
+async function registerBiometric(role) {
+  if (!webAuthnSupported()) {
+    showBiometricStatus('This device does not support biometric login.', 'error');
+    return false;
+  }
+  try {
+    setBiometricBtn('Registering…', true);
+    showBiometricStatus('Follow the prompt on your device to register your biometric.', '');
+
+    const challenge = crypto.getRandomValues(new Uint8Array(32));
+    const userId    = crypto.getRandomValues(new Uint8Array(16));
+
+    const credential = await navigator.credentials.create({
+      publicKey: {
+        challenge,
+        rp: { id: WA_RP_ID, name: WA_RP_NAME },
+        user: { id: userId, name: role === 'admin' ? 'Frank Lucas' : 'Sean LaVau', displayName: role === 'admin' ? 'Frank' : 'Sean' },
+        pubKeyCredParams: [
+          { type: 'public-key', alg: -7  },   // ES256
+          { type: 'public-key', alg: -257 },  // RS256
+        ],
+        authenticatorSelection: {
+          authenticatorAttachment: 'platform',  // device biometric only
+          userVerification: 'required',
+          residentKey: 'preferred',
+        },
+        timeout: 60000,
+        attestation: 'none',
+      }
+    });
+
+    // Store credential ID and role
+    const credId  = uint8ToB64(credential.rawId);
+    const creds   = loadCredentials();
+    const roles   = loadRoles();
+    if (!creds.includes(credId)) creds.push(credId);
+    roles[credId] = role;
+    localStorage.setItem(WA_CREDS_KEY, JSON.stringify(creds));
+    localStorage.setItem(WA_ROLES_KEY, JSON.stringify(roles));
+
+    showBiometricStatus('✓ Biometric registered! Tap the button above to sign in next time.', 'success');
+    setBiometricBtn('Use Face ID / Touch ID', false);
+    return true;
+
+  } catch(err) {
+    const msg = err.name === 'NotAllowedError'
+      ? 'Biometric was cancelled. Try again.'
+      : 'Registration failed: ' + err.message;
+    showBiometricStatus(msg, 'error');
+    setBiometricBtn('Use Face ID / Touch ID', false);
+    return false;
+  }
+}
+
+// ── AUTHENTICATE with biometric ──
+async function startBiometric() {
+  if (!webAuthnSupported()) {
+    showBiometricStatus('Biometrics not supported — use passcode below.', 'error');
+    return;
+  }
+  if (!hasRegisteredCredential()) {
+    showRegisterPrompt();
+    return;
+  }
+  try {
+    setBiometricBtn('Scanning…', true);
+    showBiometricStatus('Place your finger or look at your device…', '');
+
+    const challenge   = crypto.getRandomValues(new Uint8Array(32));
+    const storedCreds = loadCredentials().map(id => ({
+      id: b64ToUint8(id), type: 'public-key'
+    }));
+
+    const assertion = await navigator.credentials.get({
+      publicKey: {
+        challenge,
+        allowCredentials: storedCreds,
+        userVerification: 'required',
+        timeout: 60000,
+      }
+    });
+
+    // Match returned credential to stored role
+    const credId = uint8ToB64(assertion.rawId);
+    const roles  = loadRoles();
+    const role   = roles[credId];
+
+    if (role) {
+      showBiometricStatus('✓ Identity verified!', 'success');
+      setBiometricBtn('Use Face ID / Touch ID', false);
+      currentRole = role;
+      setTimeout(() => advanceToStep2(), 600);
+    } else {
+      showBiometricStatus('Credential not recognized. Use passcode below.', 'error');
+      setBiometricBtn('Use Face ID / Touch ID', false);
+    }
+
+  } catch(err) {
+    const msg = err.name === 'NotAllowedError'
+      ? 'Biometric cancelled. Try again or use passcode below.'
+      : 'Biometric failed: ' + err.message;
+    showBiometricStatus(msg, 'error');
+    setBiometricBtn('Use Face ID / Touch ID', false);
+  }
+}
+
+// ── Show register prompt ──
+function showRegisterPrompt() {
+  // Need to know role before registering — ask for passcode first to determine role
+  const input = document.getElementById('loginInput').value.trim();
+  if (!input) {
+    showBiometricStatus('Enter your passcode below first, then register your biometric.', 'error');
+    document.getElementById('loginInput').focus();
+    return;
+  }
+  hashInput(input).then(hashed => {
+    const role = PASSCODE_HASHES[hashed];
+    if (!role) {
+      showBiometricStatus('Incorrect passcode. Cannot register biometric.', 'error');
+      return;
+    }
+    registerBiometric(role);
+  });
+}
+
+// ── UI helpers ──
+function setBiometricBtn(text, disabled) {
+  const btn = document.getElementById('biometricBtn');
+  document.getElementById('biometricBtnText').textContent = text;
+  btn.disabled = disabled;
+}
+
+function showBiometricStatus(msg, type) {
+  const el = document.getElementById('biometricStatus');
+  el.textContent = msg;
+  el.className = 'biometric-status show' + (type ? ' ' + type : '');
+}
+
+function advanceToStep2() {
+  document.getElementById('loginStep1').style.display = 'none';
+  document.getElementById('loginStep2').style.display = 'block';
+  document.getElementById('stepDot1').className = 'login-step done';
+  document.getElementById('stepDot1').textContent = '✓';
+  document.getElementById('stepDot2').className = 'login-step active';
+}
+
+// ── Initialize biometric section on page load ──
+function initBiometricUI() {
+  if (!webAuthnSupported()) return;
+  const section = document.getElementById('biometricSection');
+  section.style.display = 'block';
+  if (hasRegisteredCredential()) {
+    document.getElementById('biometricBtnText').textContent = 'Use Face ID / Touch ID';
+  } else {
+    document.getElementById('biometricBtnText').textContent = 'Register Biometric Login';
+  }
+}
+
+// ── STEP 1: Passcode fallback ──
 async function checkPasscode() {
   const val = document.getElementById('loginInput').value.trim();
   if (!val) return;
@@ -787,12 +1035,7 @@ async function checkPasscode() {
   const role = PASSCODE_HASHES[hashed];
   if (role) {
     currentRole = role;
-    // Advance to step 2
-    document.getElementById('loginStep1').style.display = 'none';
-    document.getElementById('loginStep2').style.display = 'block';
-    document.getElementById('stepDot1').className = 'login-step done';
-    document.getElementById('stepDot1').textContent = '✓';
-    document.getElementById('stepDot2').className = 'login-step active';
+    advanceToStep2();
   } else {
     const err = document.getElementById('loginError');
     err.style.display = 'block';
@@ -802,18 +1045,11 @@ async function checkPasscode() {
   }
 }
 
-// ── STEP 2a: Google OAuth popup ──
+// ── STEP 2a: Google OAuth ──
 function signInWithGoogle() {
-  // Build Google OAuth URL
-  // NOTE: For full OAuth, you need a Google Client ID from Google Cloud Console.
-  // Until then, this falls back to the manual email verification below.
-  // To upgrade: create a project at console.cloud.google.com, enable Google Identity,
-  // get a Client ID, and replace CLIENT_ID below.
-  const CLIENT_ID = '';  // ← paste Google OAuth Client ID here when ready
-
-  if (CLIENT_ID) {
+  if (GOOGLE_CLIENT_ID) {
     const params = new URLSearchParams({
-      client_id: CLIENT_ID,
+      client_id: GOOGLE_CLIENT_ID,
       redirect_uri: window.location.href.split('?')[0],
       response_type: 'token',
       scope: 'email profile',
@@ -821,7 +1057,6 @@ function signInWithGoogle() {
     });
     window.location.href = 'https://accounts.google.com/o/oauth2/auth?' + params;
   } else {
-    // Fallback: prompt for email manually
     document.getElementById('googleEmailInput').focus();
     document.getElementById('googleEmailInput').placeholder = 'Enter your Gmail address to verify';
   }
@@ -1294,8 +1529,11 @@ document.getElementById('installBtn').addEventListener('click',async()=>{
 });
 function dismissInstall(){ document.getElementById('installBanner').classList.remove('show'); }
 
-// ── Check for OAuth redirect on page load ──
-window.addEventListener('load', handleOAuthRedirect);
+// ── Initialize on page load ──
+window.addEventListener('load', () => {
+  handleOAuthRedirect();
+  initBiometricUI();
+});
 
 // ── HELPERS ──
 function esc(s){ return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):''; }
