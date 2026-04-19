@@ -3,561 +3,511 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>LaVau & Lucas Pipeline</title>
+<title>LaVau &amp; Lucas Pipeline</title>
 <meta name="theme-color" content="#0f2850">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="LL Pipeline">
-<link rel="manifest" href="data:application/json,%7B%22name%22%3A%22LaVau%20%26%20Lucas%20Pipeline%22%2C%22short_name%22%3A%22LL%20Pipeline%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f2850%22%2C%22theme_color%22%3A%22%230f2850%22%7D">
 <style>
-  :root {
-    --navy:#0f2850; --navy-mid:#1e3f6e; --blue:#1d4ed8;
-    --blue-light:#dbeafe; --blue-pale:#eff6ff;
-    --sage:#5a8a6a; --sage-light:#d5e8d4;
-    --gold:#c9a84c; --gold-light:#fef3cd;
-    --red:#c0392b; --red-light:#fde8e6;
-    --orange:#ea580c; --orange-light:#fff0e0;
-    --purple:#6037a0; --purple-light:#efe8ff;
-    --green:#1a6b2a; --green-light:#e0f5e0;
-    --gray:#6b7280; --gray-light:#f3f4f6;
-    --dark:#111827; --white:#ffffff;
-    --shadow:0 2px 12px rgba(0,0,0,0.10);
-    --shadow-lg:0 8px 32px rgba(0,0,0,0.16);
-    --radius:14px; --radius-sm:8px;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
+:root {
+  --navy:         #0f2850;
+  --navy-mid:     #1e3f6e;
+  --blue:         #1d4ed8;
+  --blue-light:   #dbeafe;
+  --blue-pale:    #eff6ff;
+  --sage:         #5a8a6a;
+  --sage-light:   #d5e8d4;
+  --gold:         #c9a84c;
+  --gold-light:   #fef3cd;
+  --red:          #c0392b;
+  --red-light:    #fde8e6;
+  --orange:       #ea580c;
+  --orange-light: #fff0e0;
+  --purple:       #6037a0;
+  --purple-light: #efe8ff;
+  --green:        #1a6b2a;
+  --green-light:  #e0f5e0;
+  --gray:         #6b7280;
+  --gray-light:   #f3f4f6;
+  --dark:         #111827;
+  --white:        #ffffff;
+  --shadow:       0 2px 12px rgba(0,0,0,0.10);
+  --shadow-lg:    0 8px 32px rgba(0,0,0,0.16);
+  --radius:       14px;
+  --radius-sm:    8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* ── LOGIN GATE ── */
-  #loginGate{
-    position:fixed;inset:0;
-    background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 100%);
-    z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;
-  }
-  #loginGate.hidden{display:none;}
-  .login-box{
-    background:white;border-radius:20px;padding:36px 30px 32px;
-    width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.4);text-align:center;
-  }
-  .login-icon{font-size:40px;margin-bottom:10px;}
-  .login-title{font-size:22px;font-weight:800;color:var(--navy);margin-bottom:4px;}
-  .login-sub{font-size:13px;color:var(--gray);margin-bottom:24px;}
+/* ── LOGIN ── */
+#loginGate {
+  position: fixed; inset: 0;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+  z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+#loginGate.hidden { display: none; }
+.login-box {
+  background: white; border-radius: 20px; padding: 36px 30px 28px;
+  width: 100%; max-width: 380px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); text-align: center;
+}
+.login-icon { font-size: 40px; margin-bottom: 10px; }
+.login-title { font-size: 22px; font-weight: 800; color: var(--navy); margin-bottom: 4px; }
+.login-sub { font-size: 13px; color: var(--gray); margin-bottom: 24px; }
+.login-step-label { font-size: 12px; color: var(--gray); margin-bottom: 16px; font-weight: 600; }
+.biometric-btn {
+  width: 100%; padding: 16px; margin-bottom: 14px;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+  color: white; border: none; border-radius: 14px;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  box-shadow: 0 4px 16px rgba(15,40,80,0.3); transition: opacity 0.2s;
+}
+.biometric-btn:hover { opacity: 0.92; }
+.biometric-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.biometric-status {
+  font-size: 13px; color: var(--gray); margin-bottom: 14px;
+  padding: 10px; background: var(--gray-light); border-radius: 8px; display: none;
+}
+.biometric-status.show   { display: block; }
+.biometric-status.success { background: var(--green-light); color: var(--green); }
+.biometric-status.error   { background: var(--red-light);   color: var(--red); }
+.register-link {
+  font-size: 12px; color: var(--blue); cursor: pointer;
+  text-decoration: underline; margin-top: 8px; display: inline-block;
+}
+.login-divider {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px; color: var(--gray); font-size: 12px;
+}
+.login-divider::before, .login-divider::after {
+  content: ''; flex: 1; height: 1px; background: #e5e7eb;
+}
+.login-field {
+  width: 100%; padding: 13px 16px; border: 1.5px solid #d1d5db; border-radius: 10px;
+  font-size: 16px; font-family: inherit; color: var(--dark);
+  margin-bottom: 14px; -webkit-appearance: none; transition: border-color 0.2s;
+}
+.login-field:focus { outline: none; border-color: var(--blue); }
+.login-btn {
+  width: 100%; padding: 13px; background: var(--blue); color: white; border: none;
+  border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s;
+}
+.login-btn:hover { background: #1a44c8; }
+.login-error { color: var(--red); font-size: 13px; margin-top: 10px; display: none; }
+.login-footer { font-size: 11px; color: #bbb; margin-top: 20px; }
 
-  /* Step indicators */
-  .login-steps{display:flex;justify-content:center;gap:8px;margin-bottom:24px;}
-  .login-step{
-    width:28px;height:28px;border-radius:50%;border:2px solid #d1d5db;
-    display:flex;align-items:center;justify-content:center;
-    font-size:12px;font-weight:700;color:var(--gray);transition:all 0.2s;
-  }
-  .login-step.active{background:var(--blue);border-color:var(--blue);color:white;}
-  .login-step.done{background:var(--green);border-color:var(--green);color:white;}
+/* ── LOADING ── */
+#loadingScreen {
+  position: fixed; inset: 0; background: var(--blue-pale);
+  z-index: 500; display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 16px;
+}
+#loadingScreen.hidden { display: none; }
+.loading-spinner {
+  width: 44px; height: 44px; border: 4px solid var(--blue-light);
+  border-top-color: var(--blue); border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 14px; color: var(--navy); font-weight: 600; }
+.loading-sub  { font-size: 12px; color: var(--gray); }
 
-  /* Biometric button */
-  .biometric-btn{
-    width:100%;padding:16px;margin-bottom:14px;
-    background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 100%);
-    color:white;border:none;border-radius:14px;
-    font-size:16px;font-weight:700;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;gap:12px;
-    transition:opacity 0.2s;box-shadow:0 4px 16px rgba(15,40,80,0.3);
-  }
-  .biometric-btn:hover{opacity:0.92;}
-  .biometric-btn:disabled{opacity:0.5;cursor:not-allowed;}
-  .biometric-icon{font-size:26px;}
-  .biometric-status{
-    font-size:13px;color:var(--gray);margin-bottom:14px;
-    padding:10px;background:var(--gray-light);border-radius:8px;
-    display:none;
-  }
-  .biometric-status.show{display:block;}
-  .biometric-status.success{background:var(--green-light);color:var(--green);}
-  .biometric-status.error{background:var(--red-light);color:var(--red);}
-  .register-link{
-    font-size:12px;color:var(--blue);cursor:pointer;
-    text-decoration:underline;margin-top:8px;display:inline-block;
-  }
+/* ── SESSION WARNING ── */
+#sessionWarning {
+  position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+  background: var(--navy); color: white; padding: 14px 20px; border-radius: 14px;
+  box-shadow: var(--shadow-lg); z-index: 800;
+  display: none; align-items: center; gap: 14px;
+  font-size: 13px; font-weight: 600; white-space: nowrap;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+#sessionWarning.show { display: flex; }
+.btn-session-extend {
+  background: var(--blue); border: none; color: white;
+  padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;
+}
 
-  .login-field{
-    width:100%;padding:13px 16px;border:1.5px solid #d1d5db;border-radius:10px;
-    font-size:16px;font-family:inherit;color:var(--dark);
-    margin-bottom:14px;-webkit-appearance:none;transition:border-color 0.2s;
-  }
-  .login-field:focus{outline:none;border-color:var(--blue);}
-  .login-btn{
-    width:100%;padding:13px;background:var(--blue);color:white;border:none;
-    border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:background 0.2s;
-  }
-  .login-btn:hover{background:#1a44c8;}
-  .login-btn:disabled{background:#93c5fd;cursor:not-allowed;}
-  .login-error{color:var(--red);font-size:13px;margin-top:10px;display:none;}
-  .login-step-label{font-size:12px;color:var(--gray);margin-bottom:16px;font-weight:600;}
+/* ── BANNERS ── */
+#sheetsError {
+  background: #fef3cd; border: 1.5px solid #f0c040; border-radius: var(--radius-sm);
+  padding: 12px 16px; margin: 12px 16px 0; display: none;
+  font-size: 13px; color: #7d6000; line-height: 1.5;
+}
+#setupBanner {
+  background: var(--navy); color: white; padding: 14px 16px;
+  text-align: center; font-size: 13px; line-height: 1.6; display: none;
+}
+#setupBanner strong { color: var(--gold); }
+#installBanner {
+  background: var(--navy-mid); color: white; padding: 10px 16px;
+  display: none; align-items: center; justify-content: space-between; gap: 10px;
+}
+#installBanner.show { display: flex; }
+.install-text { font-size: 13px; }
+.btn-install { background: var(--blue); color: white; border: none; border-radius: 20px; padding: 7px 16px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.btn-install-dismiss { background: none; border: none; color: rgba(255,255,255,0.5); font-size: 20px; cursor: pointer; }
 
-  /* Google sign-in button */
-  .google-btn{
-    width:100%;padding:12px;background:white;color:#1f2937;
-    border:1.5px solid #d1d5db;border-radius:10px;
-    font-size:15px;font-weight:600;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;gap:10px;
-    transition:background 0.2s;margin-bottom:14px;
-  }
-  .google-btn:hover{background:#f9fafb;}
-  .google-logo{width:20px;height:20px;}
-  .login-divider{
-    display:flex;align-items:center;gap:10px;
-    margin-bottom:14px;color:var(--gray);font-size:12px;
-  }
-  .login-divider::before,.login-divider::after{
-    content:'';flex:1;height:1px;background:#e5e7eb;
-  }
-  .login-footer{font-size:11px;color:#bbb;margin-top:20px;}
-  .login-back{
-    background:none;border:none;color:var(--gray);font-size:13px;
-    cursor:pointer;margin-top:10px;text-decoration:underline;
-  }
+/* ── BODY ── */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--blue-pale); color: var(--dark);
+  min-height: 100vh; padding-bottom: 80px;
+}
 
-  /* ── LOADING ── */
-  #loadingScreen{
-    position:fixed;inset:0;background:var(--blue-pale);
-    z-index:500;display:flex;align-items:center;justify-content:center;
-    flex-direction:column;gap:16px;
-  }
-  #loadingScreen.hidden{display:none;}
-  .loading-spinner{
-    width:44px;height:44px;border:4px solid var(--blue-light);
-    border-top-color:var(--blue);border-radius:50%;
-    animation:spin 0.8s linear infinite;
-  }
-  @keyframes spin{to{transform:rotate(360deg);}}
-  .loading-text{font-size:14px;color:var(--navy);font-weight:600;}
-  .loading-sub{font-size:12px;color:var(--gray);}
+/* ── HEADER ── */
+header {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+  color: white; padding: 20px 20px 16px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+}
+.header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.header-brand { display: flex; align-items: center; gap: 10px; }
+.brand-icon {
+  width: 38px; height: 38px; background: var(--blue); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+}
+.header-title { font-size: 17px; font-weight: 800; letter-spacing: 0.2px; line-height: 1.2; }
+.header-sub   { font-size: 11px; opacity: 0.6; margin-top: 2px; font-weight: 400; }
+.header-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
 
-  /* ── ERROR BANNER ── */
-  #sheetsError{
-    background:#fef3cd;border:1.5px solid #f0c040;
-    border-radius:var(--radius-sm);padding:12px 16px;
-    margin:12px 16px 0;display:none;
-    font-size:13px;color:#7d6000;line-height:1.5;
-  }
-  #setupBanner{
-    background:var(--navy);color:white;
-    padding:14px 16px;text-align:center;
-    font-size:13px;line-height:1.6;display:none;
-  }
-  #setupBanner strong{color:var(--gold);}
+.hdr-btn {
+  background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.3);
+  color: white; padding: 7px 12px; border-radius: 20px;
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s;
+}
+.hdr-btn:hover { background: rgba(255,255,255,0.24); }
+.hdr-btn.active { background: white; color: var(--navy); }
+.hdr-btn.hidden { display: none; }
+.hdr-btn-blue {
+  background: var(--blue); border: none; color: white; padding: 7px 14px;
+  border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.refresh-btn.spinning { animation: spin 0.8s linear infinite; }
 
-  body{
-    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-    background:var(--blue-pale);color:var(--dark);
-    min-height:100vh;padding-bottom:80px;
-  }
+/* ── STATS ── */
+.stats-bar {
+  display: flex; gap: 8px; overflow-x: auto;
+  padding-bottom: 2px; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+.stats-bar::-webkit-scrollbar { display: none; }
+.stat-pill {
+  background: rgba(255,255,255,0.13); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px; padding: 5px 12px; white-space: nowrap; font-size: 12px; font-weight: 700;
+}
+.stat-pill span { opacity: 0.65; font-weight: 400; margin-left: 4px; }
 
-  /* ── HEADER ── */
-  header{
-    background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 100%);
-    color:white;padding:20px 20px 16px;
-    position:sticky;top:0;z-index:100;
-    box-shadow:0 2px 12px rgba(0,0,0,0.25);
-  }
-  .header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
-  .header-brand{display:flex;align-items:center;gap:10px;}
-  .brand-icon{
-    width:38px;height:38px;background:var(--blue);border-radius:10px;
-    display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
-  }
-  .header-title{font-size:17px;font-weight:800;letter-spacing:0.2px;line-height:1.2;}
-  .header-sub{font-size:11px;opacity:0.6;margin-top:2px;font-weight:400;}
-  .header-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
+/* ── MAIN ── */
+main { padding: 18px 16px; max-width: 900px; margin: 0 auto; }
+.section-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+  color: var(--navy-mid); margin-bottom: 10px; margin-top: 22px;
+}
 
-  .admin-toggle{
-    background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.3);
-    color:white;padding:7px 14px;border-radius:20px;
-    font-size:13px;font-weight:600;cursor:pointer;transition:background 0.2s;
-  }
-  .admin-toggle:hover{background:rgba(255,255,255,0.24);}
-  .admin-toggle.active{background:white;color:var(--navy);}
-  .admin-toggle.hidden{display:none;}
+/* ── FILTERS ── */
+.filter-bar {
+  display: flex; gap: 8px; overflow-x: auto; margin-bottom: 14px;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+.filter-bar::-webkit-scrollbar { display: none; }
+.filter-btn {
+  background: white; border: 1.5px solid #d1d5db; border-radius: 20px;
+  padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
+  white-space: nowrap; color: var(--gray); transition: all 0.15s;
+}
+.filter-btn.active { background: var(--navy); border-color: var(--navy); color: white; }
 
-  .add-deal-btn{
-    background:var(--blue);border:none;color:white;
-    padding:7px 14px;border-radius:20px;
-    font-size:13px;font-weight:600;cursor:pointer;
-    display:inline-flex;align-items:center;gap:4px;
-  }
-  .qr-btn,.refresh-btn{
-    background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.3);
-    color:white;padding:7px 12px;border-radius:20px;
-    font-size:13px;font-weight:600;cursor:pointer;transition:background 0.2s;
-  }
-  .qr-btn:hover,.refresh-btn:hover{background:rgba(255,255,255,0.24);}
-  .refresh-btn.spinning{animation:spin 0.8s linear infinite;}
+/* ── CARDS ── */
+.deals-grid { display: flex; flex-direction: column; gap: 12px; }
+.deal-card {
+  background: white; border-radius: var(--radius); box-shadow: var(--shadow);
+  overflow: hidden; border-left: 4px solid transparent;
+}
+.deal-card.priority-high { border-left-color: var(--red); }
+.deal-card.priority-mid  { border-left-color: var(--gold); }
+.deal-card.priority-low  { border-left-color: var(--blue); }
 
-  /* ── STATS ── */
-  .stats-bar{
-    display:flex;gap:8px;overflow-x:auto;
-    padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none;
-  }
-  .stats-bar::-webkit-scrollbar{display:none;}
-  .stat-pill{
-    background:rgba(255,255,255,0.13);border:1px solid rgba(255,255,255,0.2);
-    border-radius:20px;padding:5px 12px;white-space:nowrap;font-size:12px;font-weight:700;
-  }
-  .stat-pill span{opacity:0.65;font-weight:400;margin-left:4px;}
+.card-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 14px 16px 10px; border-bottom: 1px solid #f0f0f0;
+}
+.card-name    { font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 2px; }
+.card-bizname { font-size: 13px; font-weight: 600; color: var(--navy-mid); margin-bottom: 3px; }
+.card-address { font-size: 12px; color: var(--gray); margin-bottom: 6px; }
+.card-badges  { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.card-type-badge {
+  display: inline-block; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.8px; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 10px;
+  background: var(--blue-light); color: var(--blue);
+}
+.card-type-badge.land     { background: var(--sage-light); color: var(--sage); }
+.card-type-badge.business { background: #f3e8ff; color: #7c3aed; }
+.lead-source-badge {
+  font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+  background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0;
+  text-transform: uppercase; letter-spacing: 0.6px;
+}
 
-  main{padding:18px 16px;max-width:900px;margin:0 auto;}
-  .section-label{
-    font-size:11px;font-weight:700;letter-spacing:1.2px;
-    text-transform:uppercase;color:var(--navy-mid);
-    margin-bottom:10px;margin-top:22px;
-  }
+.status-badge {
+  padding: 5px 11px; border-radius: 20px; font-size: 11px; font-weight: 700;
+  white-space: nowrap; flex-shrink: 0; margin-left: 10px;
+}
+.status-prospect   { background: var(--blue-light);   color: var(--blue); }
+.status-active     { background: var(--gold-light);   color: #7d6000; }
+.status-offer      { background: var(--orange-light); color: var(--orange); }
+.status-contract   { background: var(--red-light);    color: var(--red); }
+.status-diligence  { background: var(--purple-light); color: var(--purple); }
+.status-closing    { background: var(--green-light);  color: var(--green); }
+.status-closed     { background: var(--sage-light);   color: var(--sage); }
+.status-parked     { background: var(--gold-light);   color: #7d6000; }
+.status-backburner { background: var(--gray-light);   color: var(--gray); }
 
-  /* ── FILTERS ── */
-  .filter-bar{
-    display:flex;gap:8px;overflow-x:auto;
-    margin-bottom:14px;-webkit-overflow-scrolling:touch;scrollbar-width:none;
-  }
-  .filter-bar::-webkit-scrollbar{display:none;}
-  .filter-btn{
-    background:white;border:1.5px solid #d1d5db;border-radius:20px;
-    padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;
-    white-space:nowrap;color:var(--gray);transition:all 0.15s;
-  }
-  .filter-btn.active{background:var(--navy);border-color:var(--navy);color:white;}
+.card-body { padding: 12px 16px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+.card-field label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
+  color: var(--gray); display: block; margin-bottom: 2px;
+}
+.card-field .val { font-size: 13px; font-weight: 500; color: var(--dark); }
+.card-field .val a { color: var(--blue); text-decoration: none; font-weight: 600; }
+.card-field.full { grid-column: 1 / -1; }
 
-  /* ── CARDS ── */
-  .deals-grid{display:flex;flex-direction:column;gap:12px;}
-  .deal-card{
-    background:white;border-radius:var(--radius);box-shadow:var(--shadow);
-    overflow:hidden;border-left:4px solid transparent;
-  }
-  .deal-card.priority-high{border-left-color:var(--red);}
-  .deal-card.priority-mid {border-left-color:var(--gold);}
-  .deal-card.priority-low {border-left-color:var(--blue);}
+.next-action-box {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border: 1px solid #bfdbfe; border-radius: var(--radius-sm);
+  padding: 10px 13px; display: flex; align-items: flex-start; gap: 10px;
+}
+.next-action-box .icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.action-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--blue); margin-bottom: 2px; }
+.action-text  { font-size: 13px; font-weight: 500; color: var(--dark); }
+.action-due   { font-size: 11px; color: var(--gray); margin-top: 2px; }
+.action-due.overdue { color: var(--red); font-weight: 700; }
 
-  .card-top{
-    display:flex;justify-content:space-between;align-items:flex-start;
-    padding:14px 16px 10px;border-bottom:1px solid #f0f0f0;
-  }
-  .card-name{font-size:16px;font-weight:700;color:var(--dark);margin-bottom:2px;}
-  .card-bizname{font-size:13px;font-weight:600;color:var(--navy-mid);margin-bottom:3px;}
-  .card-address{font-size:12px;color:var(--gray);margin-bottom:6px;}
-  .card-badges{display:flex;gap:6px;flex-wrap:wrap;}
-  .card-type-badge{
-    display:inline-block;font-size:10px;font-weight:700;
-    letter-spacing:0.8px;text-transform:uppercase;
-    padding:2px 8px;border-radius:10px;
-    background:var(--blue-light);color:var(--blue);
-  }
-  .card-type-badge.land    {background:var(--sage-light);color:var(--sage);}
-  .card-type-badge.business{background:#f3e8ff;color:#7c3aed;}
+.notes-box {
+  grid-column: 1 / -1; background: #fffdf0;
+  border: 1px solid #f0e8b0; border-radius: var(--radius-sm); padding: 10px 13px;
+}
+.notes-box-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #8a7000; margin-bottom: 5px; }
+.notes-text { font-size: 12.5px; color: #4b5563; line-height: 1.55; white-space: pre-wrap; }
 
-  .status-badge{
-    padding:5px 11px;border-radius:20px;font-size:11px;font-weight:700;
-    white-space:nowrap;flex-shrink:0;margin-left:10px;
-  }
-  .status-prospect {background:var(--blue-light);  color:var(--blue);}
-  .status-active   {background:var(--gold-light);   color:#7d6000;}
-  .status-offer    {background:var(--orange-light); color:var(--orange);}
-  .status-contract {background:var(--red-light);    color:var(--red);}
-  .status-diligence{background:var(--purple-light); color:var(--purple);}
-  .status-closing  {background:var(--green-light);  color:var(--green);}
-  .status-closed   {background:var(--sage-light);   color:var(--sage);}
-  .status-parked   {background:#fef3cd;              color:#7d6000;}
-  .status-backburner{background:var(--gray-light);   color:var(--gray);}
+.prop-details-box {
+  grid-column: 1 / -1; background: #f8faff;
+  border: 1px solid #d1ddf5; border-radius: var(--radius-sm); padding: 10px 13px;
+}
+.prop-details-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
+  color: var(--navy-mid); margin-bottom: 7px; display: flex; align-items: center; gap: 5px;
+}
+.prop-specs { display: flex; flex-wrap: wrap; gap: 6px; }
+.spec-chip {
+  background: white; border: 1px solid #d1ddf5; border-radius: 6px;
+  padding: 3px 9px; font-size: 12px; color: var(--dark); font-weight: 500; white-space: nowrap;
+}
+.spec-chip strong { color: var(--navy-mid); font-weight: 700; margin-right: 3px; }
 
-  .card-body{
-    padding:12px 16px 14px;
-    display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;
-  }
-  .card-field label{
-    font-size:10px;font-weight:700;letter-spacing:0.6px;
-    text-transform:uppercase;color:var(--gray);display:block;margin-bottom:2px;
-  }
-  .card-field .val{font-size:13px;font-weight:500;color:var(--dark);}
-  .card-field .val a{color:var(--blue);text-decoration:none;font-weight:600;}
-  .card-field.full{grid-column:1/-1;}
+.prop-link-btn, .potential-link-btn {
+  display: inline-flex; align-items: center;
+  background: var(--blue-pale); border: 1.5px solid var(--blue-light);
+  color: var(--blue) !important; border-radius: 8px; padding: 6px 14px;
+  font-size: 13px; font-weight: 700; text-decoration: none !important; transition: background 0.15s;
+  margin-bottom: 4px;
+}
+.prop-link-btn:hover   { background: var(--blue-light); }
+.potential-link-btn   { background: #f0fdf4; border-color: #bbf7d0; color: #15803d !important; }
+.potential-link-btn:hover { background: #dcfce7; }
+.website-link-btn {
+  display: inline-flex; align-items: center;
+  background: #f0fdf4; border: 1.5px solid #bbf7d0;
+  color: #15803d !important; border-radius: 8px; padding: 6px 14px;
+  font-size: 13px; font-weight: 700; text-decoration: none !important;
+}
 
-  .next-action-box{
-    grid-column:1/-1;
-    background:linear-gradient(135deg,#eff6ff,#dbeafe);
-    border:1px solid #bfdbfe;border-radius:var(--radius-sm);
-    padding:10px 13px;display:flex;align-items:flex-start;gap:10px;
-  }
-  .next-action-box .icon{font-size:16px;flex-shrink:0;margin-top:1px;}
-  .action-label{font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--blue);margin-bottom:2px;}
-  .action-text {font-size:13px;font-weight:500;color:var(--dark);}
-  .action-due  {font-size:11px;color:var(--gray);margin-top:2px;}
-  .action-due.overdue{color:var(--red);font-weight:700;}
+.followup-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #fff0e0; border: 1px solid #fcd9a0;
+  color: var(--orange); border-radius: 6px;
+  padding: 3px 8px; font-size: 11px; font-weight: 700;
+}
 
-  .notes-box{
-    grid-column:1/-1;background:#fffdf0;
-    border:1px solid #f0e8b0;border-radius:var(--radius-sm);padding:10px 13px;
-  }
-  .notes-box-label{
-    font-size:10px;font-weight:700;letter-spacing:0.8px;
-    text-transform:uppercase;color:#8a7000;margin-bottom:5px;
-  }
-  .notes-text{font-size:12.5px;color:#4b5563;line-height:1.55;white-space:pre-wrap;}
+.card-footer {
+  background: #f9fafb; border-top: 1px solid #f0f0f0;
+  padding: 9px 16px; display: flex; justify-content: space-between; align-items: center;
+}
+.last-contact { font-size: 11px; color: var(--gray); }
+.last-contact strong { color: var(--dark); }
+.card-actions { display: flex; gap: 8px; }
+.btn-edit    { background: var(--blue); color: white; border: none; border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.btn-archive { background: var(--gray-light); color: var(--gray); border: none; border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
 
-  .prop-details-box{
-    grid-column:1/-1;background:#f8faff;
-    border:1px solid #d1ddf5;border-radius:var(--radius-sm);padding:10px 13px;
-  }
-  .prop-details-label{
-    font-size:10px;font-weight:700;letter-spacing:0.8px;
-    text-transform:uppercase;color:var(--navy-mid);
-    margin-bottom:7px;display:flex;align-items:center;gap:5px;
-  }
-  .prop-specs{display:flex;flex-wrap:wrap;gap:6px;}
-  .spec-chip{
-    background:white;border:1px solid #d1ddf5;border-radius:6px;
-    padding:3px 9px;font-size:12px;color:var(--dark);font-weight:500;white-space:nowrap;
-  }
-  .spec-chip strong{color:var(--navy-mid);font-weight:700;margin-right:3px;}
+/* ── EMPTY STATE ── */
+.empty-state { text-align: center; padding: 50px 20px; color: var(--gray); }
+.empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+.empty-state p { font-size: 15px; margin-bottom: 6px; color: var(--dark); font-weight: 600; }
 
-  .prop-link-btn,.website-link-btn{
-    display:inline-flex;align-items:center;
-    background:var(--blue-pale);border:1.5px solid var(--blue-light);
-    color:var(--blue)!important;border-radius:8px;padding:6px 14px;
-    font-size:13px;font-weight:700;text-decoration:none!important;transition:background 0.15s;
-  }
-  .prop-link-btn:hover,.website-link-btn:hover{background:var(--blue-light);}
-  .website-link-btn{background:#f0fdf4;border-color:#bbf7d0;color:#15803d!important;}
-  .website-link-btn:hover{background:#dcfce7;}
+/* ── SAVE BAR ── */
+.save-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--navy); padding: 12px 16px;
+  display: flex; gap: 10px; z-index: 300; align-items: center;
+}
+.save-bar.hidden { display: none; }
+.btn-save {
+  background: var(--blue); color: white; border: none;
+  border-radius: 22px; padding: 10px 22px; font-size: 14px; font-weight: 700; cursor: pointer; flex: 1;
+}
+.save-bar-hint { font-size: 11px; color: rgba(255,255,255,0.5); flex: 2; line-height: 1.4; }
 
-  .card-footer{
-    background:#f9fafb;border-top:1px solid #f0f0f0;
-    padding:9px 16px;display:flex;justify-content:space-between;align-items:center;
-  }
-  .last-contact{font-size:11px;color:var(--gray);}
-  .last-contact strong{color:var(--dark);}
-  .card-actions{display:flex;gap:8px;}
-  .btn-edit   {background:var(--blue);color:white;border:none;border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;}
-  .btn-archive{background:var(--gray-light);color:var(--gray);border:none;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;}
+.show-archived-btn {
+  display: block; width: 100%; background: none; border: 1.5px dashed #cbd5e1;
+  border-radius: var(--radius-sm); padding: 12px;
+  font-size: 13px; color: var(--gray); cursor: pointer; margin-top: 16px; font-weight: 600;
+}
+.last-updated { text-align: center; font-size: 11px; color: var(--gray); margin-top: 20px; }
 
-  .empty-state{text-align:center;padding:50px 20px;color:var(--gray);}
-  .empty-state .icon{font-size:48px;margin-bottom:12px;}
-  .empty-state p{font-size:15px;margin-bottom:6px;color:var(--dark);font-weight:600;}
+/* ── FOLLOW-UP MODAL ── */
+#followUpModal {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  z-index: 600; display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+#followUpModal.hidden { display: none; }
+.followup-box {
+  background: white; border-radius: 20px; padding: 24px 22px 22px;
+  max-width: 420px; width: 100%; box-shadow: var(--shadow-lg); max-height: 85vh; overflow-y: auto;
+}
+.followup-title { font-size: 18px; font-weight: 800; color: var(--navy); margin-bottom: 4px; }
+.followup-sub   { font-size: 13px; color: var(--gray); margin-bottom: 18px; }
+.followup-item {
+  background: var(--blue-pale); border: 1px solid var(--blue-light);
+  border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;
+}
+.followup-item-name    { font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 2px; }
+.followup-item-days    { font-size: 12px; color: var(--red); font-weight: 600; }
+.followup-item-contact { font-size: 12px; color: var(--gray); margin-top: 2px; }
+.followup-item.no-contact { background: #fff8f0; border-color: #fcd9a0; }
+.followup-item.no-contact .followup-item-days { color: var(--orange); }
+.followup-btns { display: flex; gap: 10px; margin-top: 18px; }
+.btn-followup-dismiss { flex: 1; background: var(--gray-light); color: var(--dark); border: none; border-radius: 10px; padding: 11px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.btn-followup-go      { flex: 2; background: var(--blue); color: white; border: none; border-radius: 10px; padding: 11px; font-size: 14px; font-weight: 700; cursor: pointer; }
 
-  /* ── SAVE BAR ── */
-  .save-bar{
-    position:fixed;bottom:0;left:0;right:0;
-    background:var(--navy);padding:12px 16px;
-    display:flex;gap:10px;z-index:300;align-items:center;
-  }
-  .save-bar.hidden{display:none;}
-  .btn-save{
-    background:var(--blue);color:white;border:none;
-    border-radius:22px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;flex:1;
-  }
-  .save-bar-hint{font-size:11px;color:rgba(255,255,255,0.5);flex:2;line-height:1.4;}
+/* ── QR MODAL ── */
+.qr-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  z-index: 500; display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.qr-modal-overlay.hidden { display: none; }
+.qr-modal {
+  background: white; border-radius: 20px; padding: 28px 24px 24px;
+  max-width: 340px; width: 100%; text-align: center; box-shadow: var(--shadow-lg);
+}
+.qr-modal h3 { font-size: 17px; font-weight: 800; color: var(--navy); margin-bottom: 4px; }
+.qr-modal p  { font-size: 13px; color: var(--gray); margin-bottom: 20px; }
+#qrCanvas { border-radius: 12px; border: 1px solid #e5e7eb; }
+.qr-modal-btns { display: flex; gap: 10px; margin-top: 18px; }
+.btn-qr-close    { flex: 1; background: var(--gray-light); color: var(--dark); border: none; border-radius: 10px; padding: 11px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.btn-qr-download { flex: 2; background: var(--blue); color: white; border: none; border-radius: 10px; padding: 11px; font-size: 14px; font-weight: 700; cursor: pointer; }
 
-  .show-archived-btn{
-    display:block;width:100%;background:none;border:1.5px dashed #cbd5e1;
-    border-radius:var(--radius-sm);padding:12px;
-    font-size:13px;color:var(--gray);cursor:pointer;margin-top:16px;font-weight:600;
-  }
-  .last-updated{text-align:center;font-size:11px;color:var(--gray);margin-top:20px;}
+/* ── DEAL MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+  z-index: 400; display: flex; align-items: flex-end; justify-content: center;
+}
+.modal-overlay.hidden { display: none; }
+.modal {
+  background: white; border-radius: var(--radius) var(--radius) 0 0;
+  width: 100%; max-width: 640px; max-height: 92vh;
+  overflow-y: auto; padding: 20px 20px 40px; -webkit-overflow-scrolling: touch;
+}
+.modal-handle { width: 36px; height: 4px; background: #e5e7eb; border-radius: 2px; margin: 0 auto 18px; }
+.modal h2 { font-size: 18px; font-weight: 800; margin-bottom: 18px; color: var(--navy); }
+.form-section-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--navy-mid); margin: 18px 0 10px; padding-bottom: 6px;
+  border-bottom: 1.5px solid var(--blue-light);
+}
+.form-group { margin-bottom: 14px; }
+.form-group label {
+  display: block; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.6px; text-transform: uppercase; color: var(--gray); margin-bottom: 5px;
+}
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%; padding: 11px 14px; border: 1.5px solid #d1d5db; border-radius: var(--radius-sm);
+  font-size: 15px; font-family: inherit; color: var(--dark);
+  background: white; -webkit-appearance: none; transition: border-color 0.2s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none; border-color: var(--blue);
+}
+.form-group textarea { resize: vertical; min-height: 80px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-btns { display: flex; gap: 10px; margin-top: 22px; }
+.btn-cancel  { flex: 1; background: var(--gray-light); color: var(--dark); border: none; border-radius: 22px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; }
+.btn-primary { flex: 2; background: var(--blue); color: white; border: none; border-radius: 22px; padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; }
+.btn-delete  { flex: 1; background: var(--red-light); color: var(--red); border: none; border-radius: 22px; padding: 13px; font-size: 14px; font-weight: 600; cursor: pointer; }
 
-  /* ── QR MODAL ── */
-  .qr-modal-overlay{
-    position:fixed;inset:0;background:rgba(0,0,0,0.6);
-    z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;
-  }
-  .qr-modal-overlay.hidden{display:none;}
-  .qr-modal{
-    background:white;border-radius:20px;padding:28px 24px 24px;
-    max-width:340px;width:100%;text-align:center;box-shadow:var(--shadow-lg);
-  }
-  .qr-modal h3{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:4px;}
-  .qr-modal p{font-size:13px;color:var(--gray);margin-bottom:20px;}
-  #qrCanvas{border-radius:12px;border:1px solid #e5e7eb;}
-  .qr-modal-btns{display:flex;gap:10px;margin-top:18px;}
-  .btn-qr-close   {flex:1;background:var(--gray-light);color:var(--dark);border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;}
-  .btn-qr-download{flex:2;background:var(--blue);color:white;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;}
-
-  /* ── DEAL MODAL ── */
-  .modal-overlay{
-    position:fixed;inset:0;background:rgba(0,0,0,0.55);
-    z-index:400;display:flex;align-items:flex-end;justify-content:center;
-  }
-  .modal-overlay.hidden{display:none;}
-  .modal{
-    background:white;border-radius:var(--radius) var(--radius) 0 0;
-    width:100%;max-width:640px;max-height:92vh;
-    overflow-y:auto;padding:20px 20px 40px;-webkit-overflow-scrolling:touch;
-  }
-  .modal-handle{width:36px;height:4px;background:#e5e7eb;border-radius:2px;margin:0 auto 18px;}
-  .modal h2{font-size:18px;font-weight:800;margin-bottom:18px;color:var(--navy);}
-  .form-section-label{
-    font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
-    color:var(--navy-mid);margin:18px 0 10px;padding-bottom:6px;
-    border-bottom:1.5px solid var(--blue-light);
-  }
-  .form-group{margin-bottom:14px;}
-  .form-group label{
-    display:block;font-size:11px;font-weight:700;
-    letter-spacing:0.6px;text-transform:uppercase;color:var(--gray);margin-bottom:5px;
-  }
-  .form-group input,.form-group select,.form-group textarea{
-    width:100%;padding:11px 14px;border:1.5px solid #d1d5db;
-    border-radius:var(--radius-sm);font-size:15px;font-family:inherit;
-    color:var(--dark);background:white;-webkit-appearance:none;transition:border-color 0.2s;
-  }
-  .form-group input:focus,.form-group select:focus,.form-group textarea:focus{
-    outline:none;border-color:var(--blue);
-  }
-  .form-group textarea{resize:vertical;min-height:80px;}
-  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  .modal-btns{display:flex;gap:10px;margin-top:22px;}
-  .btn-cancel {flex:1;background:var(--gray-light);color:var(--dark);border:none;border-radius:22px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;}
-  .btn-primary{flex:2;background:var(--blue);color:white;border:none;border-radius:22px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;}
-  .btn-delete {flex:1;background:var(--red-light);color:var(--red);border:none;border-radius:22px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;}
-
-  /* ── PWA INSTALL ── */
-  #installBanner{
-    background:var(--navy-mid);color:white;padding:10px 16px;
-    display:none;align-items:center;justify-content:space-between;gap:10px;
-  }
-  #installBanner.show{display:flex;}
-  .install-text{font-size:13px;}
-  .btn-install{background:var(--blue);color:white;border:none;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;}
-  .btn-install-dismiss{background:none;border:none;color:rgba(255,255,255,0.5);font-size:20px;cursor:pointer;padding:0 4px;}
-
-
-  /* ── FOLLOW-UP BRIEFING MODAL ── */
-  #followUpModal {
-    position:fixed;inset:0;background:rgba(0,0,0,0.6);
-    z-index:600;display:flex;align-items:center;justify-content:center;padding:20px;
-  }
-  #followUpModal.hidden{display:none;}
-  .followup-box {
-    background:white;border-radius:20px;padding:24px 22px 22px;
-    max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);
-    max-height:85vh;overflow-y:auto;
-  }
-  .followup-header{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
-  .followup-title{font-size:18px;font-weight:800;color:var(--navy);}
-  .followup-sub{font-size:13px;color:var(--gray);margin-bottom:18px;}
-  .followup-item{
-    background:var(--blue-pale);border:1px solid var(--blue-light);
-    border-radius:10px;padding:12px 14px;margin-bottom:10px;
-  }
-  .followup-item-name{font-size:14px;font-weight:700;color:var(--dark);margin-bottom:2px;}
-  .followup-item-days{font-size:12px;color:var(--red);font-weight:600;}
-  .followup-item-contact{font-size:12px;color:var(--gray);margin-top:2px;}
-  .followup-item.no-contact{background:#fff8f0;border-color:#fcd9a0;}
-  .followup-item.no-contact .followup-item-days{color:var(--orange);}
-  .followup-btns{display:flex;gap:10px;margin-top:18px;}
-  .btn-followup-dismiss{flex:1;background:var(--gray-light);color:var(--dark);border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;}
-  .btn-followup-go{flex:2;background:var(--blue);color:white;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;}
-
-  /* Follow-up required badge on card */
-  .followup-badge{
-    display:inline-flex;align-items:center;gap:4px;
-    background:#fff0e0;border:1px solid #fcd9a0;
-    color:var(--orange);border-radius:6px;
-    padding:3px 8px;font-size:11px;font-weight:700;
-  }
-
-
-  /* ── SESSION TIMEOUT WARNING ── */
-  #sessionWarning{
-    position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
-    background:var(--navy);color:white;
-    padding:14px 20px;border-radius:14px;
-    box-shadow:var(--shadow-lg);z-index:800;
-    display:none;align-items:center;gap:14px;
-    font-size:13px;font-weight:600;white-space:nowrap;
-    border:1px solid rgba(255,255,255,0.2);
-  }
-  #sessionWarning.show{display:flex;}
-  .btn-session-extend{
-    background:var(--blue);border:none;color:white;
-    padding:7px 14px;border-radius:8px;
-    font-size:13px;font-weight:700;cursor:pointer;
-  }
-
-  @media(max-width:420px){
-    .form-row{grid-template-columns:1fr;}
-    .card-body{grid-template-columns:1fr;}
-    .next-action-box{grid-column:1;}
-  }
-  @media(min-width:600px){
-    .deals-grid{gap:16px;}
-    .card-body{grid-template-columns:1fr 1fr 1fr;}
-  }
+@media (max-width: 420px) {
+  .form-row { grid-template-columns: 1fr; }
+  .card-body { grid-template-columns: 1fr; }
+  .next-action-box { grid-column: 1; }
+}
+@media (min-width: 600px) {
+  .deals-grid { gap: 16px; }
+  .card-body { grid-template-columns: 1fr 1fr 1fr; }
+}
 </style>
 </head>
 <body>
 
-<!-- ════════════════════════════════════════════
-     SECURE LOGIN GATE
-     Biometric (Face ID / Touch ID) primary
-     Hashed passcode fallback
-     No sensitive deal data lives in this file.
-     All data is fetched live from Google Sheets.
-════════════════════════════════════════════ -->
+<!-- LOGIN -->
 <div id="loginGate">
   <div class="login-box">
     <div class="login-icon">🏢</div>
     <div class="login-title">LaVau &amp; Lucas Pipeline</div>
     <div class="login-sub">Private access — biometric or passcode required</div>
-
-    <!-- LOGIN: Biometric or passcode -->
     <div id="loginStep1">
-      <div class="login-step-label" id="step1Label">Verify your identity to continue</div>
-
-      <!-- Biometric button — shown when WebAuthn is available -->
+      <div class="login-step-label">Verify your identity to continue</div>
       <div id="biometricSection" style="display:none;">
         <button class="biometric-btn" id="biometricBtn" onclick="startBiometric()">
-          <span class="biometric-icon">🔐</span>
+          <span style="font-size:26px;">🔐</span>
           <span id="biometricBtnText">Use Face ID / Touch ID</span>
         </button>
         <div class="biometric-status" id="biometricStatus"></div>
         <div style="text-align:center;">
-          <span class="register-link" onclick="showRegisterPrompt()">
-            First time? Register your biometric →
-          </span>
+          <span class="register-link" onclick="showRegisterPrompt()">First time? Register your biometric →</span>
         </div>
         <div class="login-divider" style="margin-top:14px;">or use passcode instead</div>
       </div>
-
-      <!-- Passcode fallback — always available -->
       <input class="login-field" type="password" id="loginInput"
         placeholder="Enter passcode" autocomplete="off"
         onkeydown="if(event.key==='Enter')checkPasscode()">
       <button class="login-btn" onclick="checkPasscode()">Continue →</button>
       <div class="login-error" id="loginError">Incorrect passcode. Try again.</div>
     </div>
-
-
-
     <div class="login-footer">LaVau &amp; Lucas · Private CRM · 2026 · Face ID &amp; Passcode Protected</div>
   </div>
 </div>
 
-<!-- ── LOADING ── -->
+<!-- LOADING -->
 <div id="loadingScreen" class="hidden">
   <div class="loading-spinner"></div>
   <div class="loading-text">Loading Pipeline…</div>
   <div class="loading-sub">Fetching live data from Google Sheets</div>
 </div>
 
-<!-- ── PWA INSTALL ── -->
+<!-- SESSION WARNING -->
+<div id="sessionWarning">
+  <span>⏱ Session expiring in <strong id="sessionCountdown">2:00</strong></span>
+  <button class="btn-session-extend" onclick="extendSession()">Stay Logged In</button>
+</div>
+
+<!-- PWA INSTALL -->
 <div id="installBanner">
   <div class="install-text">📱 Install on your iPhone Home Screen</div>
   <button class="btn-install" id="installBtn">Install</button>
   <button class="btn-install-dismiss" onclick="dismissInstall()">✕</button>
 </div>
 
-
-<!-- ── SESSION TIMEOUT WARNING ── -->
-<div id="sessionWarning">
-  <span>⏱ Session expiring in <strong id="sessionCountdown">2:00</strong></span>
-  <button class="btn-session-extend" onclick="extendSession()">Stay Logged In</button>
-</div>
-
-<!-- ── SETUP BANNER ── -->
+<!-- SETUP BANNER -->
 <div id="setupBanner">
   ⚠️ <strong>Google Sheets not connected yet.</strong>
   Paste your Apps Script URL in the SHEETS_SCRIPT_URL variable inside this file.
@@ -569,14 +519,14 @@
       <div class="brand-icon">🏢</div>
       <div>
         <div class="header-title">LaVau &amp; Lucas Pipeline</div>
-        <div class="header-sub" id="headerSub">California, Hawaii &amp; Arizona · Commercial, Land &amp; Business</div>
+        <div class="header-sub">California, Hawaii &amp; Arizona · Commercial, Land &amp; Business</div>
       </div>
     </div>
     <div class="header-right">
-      <button class="refresh-btn" id="refreshBtn" onclick="loadFromSheets()" title="Refresh">↻</button>
-      <button class="qr-btn" onclick="openQR()">&#x25A6; QR</button>
-      <button class="add-deal-btn" onclick="openModal(null)">＋ Add Client</button>
-      <button class="admin-toggle hidden" id="adminToggle" onclick="toggleAdmin()">⚙ Current Clients</button>
+      <button class="hdr-btn refresh-btn" id="refreshBtn" onclick="loadFromSheets()" title="Refresh data">↻</button>
+      <button class="hdr-btn" onclick="openQR()">&#x25A6; QR</button>
+      <button class="hdr-btn-blue" onclick="openModal(null)">＋ Add Client</button>
+      <button class="hdr-btn hidden" id="adminToggle" onclick="toggleAdmin()">⚙ Current Clients</button>
     </div>
   </div>
   <div class="stats-bar" id="statsBar"></div>
@@ -586,7 +536,7 @@
 
 <div class="save-bar hidden" id="saveBar">
   <button class="btn-save" onclick="saveToSheets()">☁️ Save to Sheets</button>
-  <div class="save-bar-hint">Changes save directly to Google Sheets · Sean sees updates instantly</div>
+  <div class="save-bar-hint">Saves to Google Sheets · Sean gets notified instantly</div>
 </div>
 
 <main>
@@ -595,7 +545,23 @@
   <div class="last-updated" id="lastUpdated"></div>
 </main>
 
-<!-- ── QR MODAL ── -->
+<!-- FOLLOW-UP MODAL -->
+<div id="followUpModal" class="hidden">
+  <div class="followup-box">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+      <span style="font-size:28px;">📋</span>
+      <div class="followup-title">Follow-Up Briefing</div>
+    </div>
+    <div class="followup-sub" id="followUpSub"></div>
+    <div id="followUpList"></div>
+    <div class="followup-btns">
+      <button class="btn-followup-dismiss" onclick="dismissFollowUp()">Dismiss</button>
+      <button class="btn-followup-go" onclick="goToOverdue()">View Overdue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- QR MODAL -->
 <div class="qr-modal-overlay hidden" id="qrModalOverlay" onclick="if(event.target===this)closeQR()">
   <div class="qr-modal">
     <h3>📲 Client Intake QR Code</h3>
@@ -608,32 +574,14 @@
   </div>
 </div>
 
-
-<!-- ── FOLLOW-UP BRIEFING MODAL ── -->
-<div id="followUpModal" class="hidden">
-  <div class="followup-box">
-    <div class="followup-header">
-      <span style="font-size:28px">📋</span>
-      <div class="followup-title">Follow-Up Briefing</div>
-    </div>
-    <div class="followup-sub" id="followUpSub"></div>
-    <div id="followUpList"></div>
-    <div class="followup-btns">
-      <button class="btn-followup-dismiss" onclick="dismissFollowUp()">Dismiss</button>
-      <button class="btn-followup-go" onclick="goToOverdue()">View Overdue Deals →</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── DEAL MODAL ── -->
-<div class="modal-overlay hidden" id="modalOverlay" onclick="handleOverlayClick(event)">
+<!-- DEAL MODAL -->
+<div class="modal-overlay hidden" id="modalOverlay" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <div class="modal-handle"></div>
     <h2 id="modalTitle">New Deal</h2>
     <form id="dealForm" onsubmit="saveDeal(event)">
       <input type="hidden" id="dealId">
 
-      <!-- DEAL INFO -->
       <div class="form-section-label">📋 Deal Information</div>
       <div class="form-group">
         <label>Deal / Project Name *</label>
@@ -654,7 +602,7 @@
           <select id="fStatus" required>
             <option value="Prospect">🔵 Prospect</option>
             <option value="Active">🟡 Active Pursuit</option>
-            <option value="Offer">🟠 Offer / LOI Submitted</option>
+            <option value="Offer">🟠 Offer / LOI</option>
             <option value="Contract">🔴 Under Contract</option>
             <option value="Diligence">🟣 Due Diligence</option>
             <option value="Closing">🟢 Closing</option>
@@ -664,9 +612,6 @@
           </select>
         </div>
       </div>
-
-      <!-- BUSINESS INFO -->
-      <!-- LEAD SOURCE -->
       <div class="form-group">
         <label>Lead Source</label>
         <select id="fLeadSource">
@@ -707,7 +652,6 @@
         </div>
       </div>
 
-      <!-- POINT OF CONTACT -->
       <div class="form-section-label">👤 Point of Contact</div>
       <div class="form-row">
         <div class="form-group">
@@ -734,10 +678,9 @@
         <input type="date" id="fLastContact">
       </div>
 
-      <!-- PROPERTY DETAILS -->
       <div class="form-section-label">🏗 Property Details</div>
       <div class="form-group">
-        <textarea id="fPropDetails" placeholder="SF: 28,000 | Land: 1.5 AC | Zoning: LAMR2 | Ceiling: 20ft&#10;(Separate each spec with | — each becomes its own chip tag)"></textarea>
+        <textarea id="fPropDetails" placeholder="SF: 28,000 | Land: 1.5 AC | Zoning: LAMR2 | Ceiling: 20ft&#10;(Separate each spec with | — each becomes a chip tag)"></textarea>
       </div>
       <div class="form-group">
         <label>Property Profile Link</label>
@@ -748,7 +691,6 @@
         <textarea id="fPotentialProps" placeholder="Option 1 — 9200 Dearing Ave | https://loopnet.com/...&#10;Option 2 — 1234 Main St | https://costar.com/...&#10;(One per line: Label | URL)"></textarea>
       </div>
 
-      <!-- NEXT ACTION -->
       <div class="form-section-label">⚡ Next Action</div>
       <div class="form-group">
         <input type="text" id="fNextAction" placeholder="e.g. Send LOI, Schedule site walk…">
@@ -758,7 +700,6 @@
         <input type="date" id="fNextDue">
       </div>
 
-      <!-- NOTES -->
       <div class="form-section-label">📝 Notes</div>
       <div class="form-group">
         <textarea id="fNotes" placeholder="Key context, deal structure, contingencies, warnings…"></textarea>
@@ -773,372 +714,190 @@
 </div>
 
 <script>
-// ════════════════════════════════════════════════════════════════
-//  CONFIGURATION
-//  Only non-sensitive config lives here.
-//  ALL deal data lives in Google Sheets — never in this file.
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  CONFIGURATION — fill these in after Google Sheets setup
+// ══════════════════════════════════════════════════════════════
+const SHEETS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzD3yvIO6dfpFTulOi_01qyDBnEgRxHz6bqbJyapEfyw4leqzG_d3ZYq3kcjg3r21Ot/exec';  // ← paste your Apps Script URL here
 
-// Paste your Google Apps Script URL here after completing setup guide
-const SHEETS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzD3yvIO6dfpFTulOi_01qyDBnEgRxHz6bqbJyapEfyw4leqzG_d3ZYq3kcjg3r21Ot/exec';  // ← PASTE YOUR URL HERE
-
-// ════════════════════════════════════════════════════════════════
-//  TWO-STEP ACCESS CONTROL
-// ════════════════════════════════════════════════════════════════
-
+// ══════════════════════════════════════════════════════════════
+//  ACCESS 
+// ══════════════════════════════════════════════════════════════
 const PASSCODE_HASHES = {
   'efdf19b48308be395e33250da93599df49509472dae775259a24c789607831e5': 'admin',
   '1ad7a96f92f81928a946f4747311f39e5735eb8e58ca22f79d9fd6631c4b9365': 'viewer'
 };
 
-// Add Gmail addresses — only these can complete Step 2
-const AUTHORIZED_EMAILS = [
-  // 'frankalemanylucas@gmail.com',
-  // 'sean@lavau.com',
-];
+// ══════════════════════════════════════════════════════════════
+//  WEBAUTHN — BIOMETRIC (Face ID / Touch ID)
+// ══════════════════════════════════════════════════════════════
+const WA_CREDS_KEY = 'll_pipeline_creds';
+const WA_ROLES_KEY = 'll_pipeline_roles';
+const WA_RP_ID     = window.location.hostname || 'localhost';
+const WA_RP_NAME   = 'LaVau & Lucas Pipeline';
 
-const EMAIL_ROLES = {
-  // 'frankalemanylucas@gmail.com': 'admin',
-  // 'sean@lavau.com':  'viewer',
-};
-
-// Google OAuth Client ID — get free from console.cloud.google.com
-// Leave empty to use manual email check instead
-const GOOGLE_CLIENT_ID = '';  // ← paste Client ID here when ready
-
-let currentRole = null;
-
-// ── SHA-256 hashing utility ──
-async function hashInput(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-}
-
-// ════════════════════════════════════════════════════════════════
-//  WEBAUTHN — BIOMETRIC AUTHENTICATION
-//  Uses the device's secure chip (same as Apple Pay / Face ID)
-//  Credentials stored locally — never sent to any server
-// ════════════════════════════════════════════════════════════════
-
-// Storage keys
-const WA_CREDS_KEY  = 'll_pipeline_creds';   // stored credential IDs
-const WA_ROLES_KEY  = 'll_pipeline_roles';   // role per credential
-const WA_RP_ID      = window.location.hostname || 'localhost';
-const WA_RP_NAME    = 'LaVau & Lucas Pipeline';
-
-// Check if WebAuthn is supported on this device
 function webAuthnSupported() {
-  return window.PublicKeyCredential !== undefined &&
-    typeof window.PublicKeyCredential === 'function';
+  return typeof window.PublicKeyCredential !== 'undefined';
 }
-
-// Load stored credentials from localStorage
 function loadCredentials() {
-  try { return JSON.parse(localStorage.getItem(WA_CREDS_KEY) || '[]'); }
-  catch(e) { return []; }
+  try { return JSON.parse(localStorage.getItem(WA_CREDS_KEY) || '[]'); } catch(e) { return []; }
 }
-
-// Load stored roles
 function loadRoles() {
-  try { return JSON.parse(localStorage.getItem(WA_ROLES_KEY) || '{}'); }
-  catch(e) { return {}; }
+  try { return JSON.parse(localStorage.getItem(WA_ROLES_KEY) || '{}'); } catch(e) { return {}; }
 }
-
-// Check if any credentials are registered on this device
 function hasRegisteredCredential() {
   return loadCredentials().length > 0;
 }
-
-// Convert base64url string to Uint8Array
 function b64ToUint8(b64) {
-  const b64std = b64.replace(/-/g,'+').replace(/_/g,'/');
-  return Uint8Array.from(atob(b64std), c => c.charCodeAt(0));
+  var b64std = b64.replace(/-/g, '+').replace(/_/g, '/');
+  return Uint8Array.from(atob(b64std), function(c) { return c.charCodeAt(0); });
 }
-
-// Convert Uint8Array to base64url string
 function uint8ToB64(buf) {
-  return btoa(String.fromCharCode(...new Uint8Array(buf)))
-    .replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+  return btoa(String.fromCharCode.apply(null, new Uint8Array(buf)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
-// ── REGISTER biometric on this device ──
 async function registerBiometric(role) {
-  if (!webAuthnSupported()) {
-    showBiometricStatus('This device does not support biometric login.', 'error');
-    return false;
-  }
+  if (!webAuthnSupported()) { showBioStatus('Device does not support biometrics.', 'error'); return false; }
   try {
-    setBiometricBtn('Registering…', true);
-    showBiometricStatus('Follow the prompt on your device to register your biometric.', '');
-
-    const challenge = crypto.getRandomValues(new Uint8Array(32));
-    const userId    = crypto.getRandomValues(new Uint8Array(16));
-
-    const credential = await navigator.credentials.create({
+    setBioBtn('Registering…', true);
+    showBioStatus('Follow the prompt on your device…', '');
+    var challenge = crypto.getRandomValues(new Uint8Array(32));
+    var userId    = crypto.getRandomValues(new Uint8Array(16));
+    var credential = await navigator.credentials.create({
       publicKey: {
-        challenge,
+        challenge: challenge,
         rp: { id: WA_RP_ID, name: WA_RP_NAME },
         user: { id: userId, name: role === 'admin' ? 'Frank Lucas' : 'Sean LaVau', displayName: role === 'admin' ? 'Frank' : 'Sean' },
-        pubKeyCredParams: [
-          { type: 'public-key', alg: -7  },   // ES256
-          { type: 'public-key', alg: -257 },  // RS256
-        ],
-        authenticatorSelection: {
-          authenticatorAttachment: 'platform',  // device biometric only
-          userVerification: 'required',
-          residentKey: 'preferred',
-        },
+        pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+        authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'preferred' },
         timeout: 60000,
-        attestation: 'none',
+        attestation: 'none'
       }
     });
-
-    // Store credential ID and role
-    const credId  = uint8ToB64(credential.rawId);
-    const creds   = loadCredentials();
-    const roles   = loadRoles();
-    if (!creds.includes(credId)) creds.push(credId);
+    var credId = uint8ToB64(credential.rawId);
+    var creds  = loadCredentials();
+    var roles  = loadRoles();
+    if (creds.indexOf(credId) === -1) creds.push(credId);
     roles[credId] = role;
     localStorage.setItem(WA_CREDS_KEY, JSON.stringify(creds));
     localStorage.setItem(WA_ROLES_KEY, JSON.stringify(roles));
-
-    showBiometricStatus('✓ Biometric registered! Tap the button above to sign in next time.', 'success');
-    setBiometricBtn('Use Face ID / Touch ID', false);
+    showBioStatus('Biometric registered! Tap the button above to sign in.', 'success');
+    setBioBtn('Use Face ID / Touch ID', false);
     return true;
-
   } catch(err) {
-    const msg = err.name === 'NotAllowedError'
-      ? 'Biometric was cancelled. Try again.'
-      : 'Registration failed: ' + err.message;
-    showBiometricStatus(msg, 'error');
-    setBiometricBtn('Use Face ID / Touch ID', false);
+    showBioStatus(err.name === 'NotAllowedError' ? 'Cancelled. Try again.' : 'Registration failed: ' + err.message, 'error');
+    setBioBtn('Use Face ID / Touch ID', false);
     return false;
   }
 }
 
-// ── AUTHENTICATE with biometric ──
 async function startBiometric() {
-  if (!webAuthnSupported()) {
-    showBiometricStatus('Biometrics not supported — use passcode below.', 'error');
-    return;
-  }
-  if (!hasRegisteredCredential()) {
-    showRegisterPrompt();
-    return;
-  }
+  if (!webAuthnSupported()) { showBioStatus('Use passcode below.', 'error'); return; }
+  if (!hasRegisteredCredential()) { showRegisterPrompt(); return; }
   try {
-    setBiometricBtn('Scanning…', true);
-    showBiometricStatus('Place your finger or look at your device…', '');
-
-    const challenge   = crypto.getRandomValues(new Uint8Array(32));
-    const storedCreds = loadCredentials().map(id => ({
-      id: b64ToUint8(id), type: 'public-key'
-    }));
-
-    const assertion = await navigator.credentials.get({
-      publicKey: {
-        challenge,
-        allowCredentials: storedCreds,
-        userVerification: 'required',
-        timeout: 60000,
-      }
+    setBioBtn('Scanning…', true);
+    showBioStatus('Place your finger or look at your device…', '');
+    var challenge    = crypto.getRandomValues(new Uint8Array(32));
+    var storedCreds  = loadCredentials().map(function(id) { return { id: b64ToUint8(id), type: 'public-key' }; });
+    var assertion    = await navigator.credentials.get({
+      publicKey: { challenge: challenge, allowCredentials: storedCreds, userVerification: 'required', timeout: 60000 }
     });
-
-    // Match returned credential to stored role
-    const credId = uint8ToB64(assertion.rawId);
-    const roles  = loadRoles();
-    const role   = roles[credId];
-
+    var credId = uint8ToB64(assertion.rawId);
+    var role   = loadRoles()[credId];
     if (role) {
-      showBiometricStatus('✓ Identity verified!', 'success');
-      setBiometricBtn('Use Face ID / Touch ID', false);
+      showBioStatus('Identity verified!', 'success');
+      setBioBtn('Use Face ID / Touch ID', false);
       currentRole = role;
-      setTimeout(() => advanceToStep2(), 600);
+      setTimeout(function() { grantAccess(role); }, 600);
     } else {
-      showBiometricStatus('Credential not recognized. Use passcode below.', 'error');
-      setBiometricBtn('Use Face ID / Touch ID', false);
+      showBioStatus('Credential not recognized. Use passcode below.', 'error');
+      setBioBtn('Use Face ID / Touch ID', false);
     }
-
   } catch(err) {
-    const msg = err.name === 'NotAllowedError'
-      ? 'Biometric cancelled. Try again or use passcode below.'
-      : 'Biometric failed: ' + err.message;
-    showBiometricStatus(msg, 'error');
-    setBiometricBtn('Use Face ID / Touch ID', false);
+    showBioStatus(err.name === 'NotAllowedError' ? 'Cancelled. Try again or use passcode.' : 'Failed: ' + err.message, 'error');
+    setBioBtn('Use Face ID / Touch ID', false);
   }
 }
 
-// ── Show register prompt ──
 function showRegisterPrompt() {
-  // Need to know role before registering — ask for passcode first to determine role
-  const input = document.getElementById('loginInput').value.trim();
-  if (!input) {
-    showBiometricStatus('Enter your passcode below first, then register your biometric.', 'error');
-    document.getElementById('loginInput').focus();
-    return;
-  }
-  hashInput(input).then(hashed => {
-    const role = PASSCODE_HASHES[hashed];
-    if (!role) {
-      showBiometricStatus('Incorrect passcode. Cannot register biometric.', 'error');
-      return;
-    }
+  var input = document.getElementById('loginInput').value.trim();
+  if (!input) { showBioStatus('Enter your passcode below first, then register.', 'error'); document.getElementById('loginInput').focus(); return; }
+  hashInput(input).then(function(hashed) {
+    var role = PASSCODE_HASHES[hashed];
+    if (!role) { showBioStatus('Incorrect passcode. Cannot register biometric.', 'error'); return; }
     registerBiometric(role);
   });
 }
 
-// ── UI helpers ──
-function setBiometricBtn(text, disabled) {
-  const btn = document.getElementById('biometricBtn');
+function setBioBtn(text, disabled) {
   document.getElementById('biometricBtnText').textContent = text;
-  btn.disabled = disabled;
+  document.getElementById('biometricBtn').disabled = disabled;
 }
-
-function showBiometricStatus(msg, type) {
-  const el = document.getElementById('biometricStatus');
+function showBioStatus(msg, type) {
+  var el = document.getElementById('biometricStatus');
   el.textContent = msg;
   el.className = 'biometric-status show' + (type ? ' ' + type : '');
 }
 
-function advanceToStep2() {
-  // Email step removed — biometric/passcode is sufficient
-  grantAccess(currentRole);
-}
-
-// ── Initialize biometric section on page load ──
 function initBiometricUI() {
   if (!webAuthnSupported()) return;
-  const section = document.getElementById('biometricSection');
-  section.style.display = 'block';
-  if (hasRegisteredCredential()) {
-    document.getElementById('biometricBtnText').textContent = 'Use Face ID / Touch ID';
-  } else {
-    document.getElementById('biometricBtnText').textContent = 'Register Biometric Login';
-  }
+  document.getElementById('biometricSection').style.display = 'block';
+  document.getElementById('biometricBtnText').textContent = hasRegisteredCredential() ? 'Use Face ID / Touch ID' : 'Register Biometric Login';
 }
 
-// ── STEP 1: Passcode fallback ──
+// ── HASHING ──
+async function hashInput(str) {
+  var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+}
+
+// ── PASSCODE FALLBACK ──
 async function checkPasscode() {
-  const val = document.getElementById('loginInput').value.trim();
+  var val = document.getElementById('loginInput').value.trim();
   if (!val) return;
-  const hashed = await hashInput(val);
-  const role = PASSCODE_HASHES[hashed];
+  var hashed = await hashInput(val);
+  var role   = PASSCODE_HASHES[hashed];
   if (role) {
-    currentRole = role;
     grantAccess(role);
   } else {
-    const err = document.getElementById('loginError');
+    var err = document.getElementById('loginError');
     err.style.display = 'block';
     document.getElementById('loginInput').value = '';
     document.getElementById('loginInput').focus();
-    setTimeout(() => err.style.display = 'none', 3000);
+    setTimeout(function() { err.style.display = 'none'; }, 3000);
   }
 }
 
-// ── STEP 2a: Google OAuth ──
-function signInWithGoogle() {
-  if (GOOGLE_CLIENT_ID) {
-    const params = new URLSearchParams({
-      client_id: GOOGLE_CLIENT_ID,
-      redirect_uri: window.location.href.split('?')[0],
-      response_type: 'token',
-      scope: 'email profile',
-      state: 'login'
-    });
-    window.location.href = 'https://accounts.google.com/o/oauth2/auth?' + params;
-  } else {
-    document.getElementById('googleEmailInput').focus();
-    document.getElementById('googleEmailInput').placeholder = 'Enter your Gmail address to verify';
-  }
-}
-
-// Handle OAuth redirect token (if CLIENT_ID is configured)
-function handleOAuthRedirect() {
-  const hash = window.location.hash;
-  if (!hash.includes('access_token')) return;
-  const params = new URLSearchParams(hash.slice(1));
-  const token = params.get('access_token');
-  if (!token) return;
-  // Fetch user info from Google
-  fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-    headers: { Authorization: 'Bearer ' + token }
-  }).then(r => r.json()).then(info => {
-    const email = (info.email || '').toLowerCase();
-    verifyEmail(email);
-    // Clean URL
-    history.replaceState(null, '', window.location.pathname);
-  });
-}
-
-// ── STEP 2b: Manual email check ──
-function checkGoogleEmail() {
-  const email = document.getElementById('googleEmailInput').value.trim().toLowerCase();
-  verifyEmail(email);
-}
-
-function verifyEmail(email) {
-  // If AUTHORIZED_EMAILS list is empty (not yet configured), skip email check
-  // and grant access based on passcode role alone
-  if (AUTHORIZED_EMAILS.length === 0) {
-    grantAccess(currentRole);
-    return;
-  }
-  const normalizedList = AUTHORIZED_EMAILS.map(e => e.toLowerCase());
-  if (normalizedList.includes(email)) {
-    const role = EMAIL_ROLES[email] || currentRole;
-    grantAccess(role);
-  } else {
-    const err = document.getElementById('googleError');
-    err.style.display = 'block';
-    setTimeout(() => err.style.display = 'none', 3000);
-  }
-}
+// ── GRANT ACCESS ──
+var currentRole = null;
 
 function grantAccess(role) {
   currentRole = role;
-  sessionStart = Date.now();
   document.getElementById('loginGate').classList.add('hidden');
   if (role === 'admin') document.getElementById('adminToggle').classList.remove('hidden');
   startSessionTimer();
   loadFromSheets();
 }
 
-function backToStep1() {
-  document.getElementById('loginStep2').style.display = 'none';
-  document.getElementById('loginStep1').style.display = 'block';
-  document.getElementById('stepDot1').className = 'login-step active';
-  document.getElementById('stepDot1').textContent = '1';
-  document.getElementById('stepDot2').className = 'login-step';
-  document.getElementById('loginInput').value = '';
-  document.getElementById('loginInput').focus();
-}
-
-
-// ════════════════════════════════════════════════════════════════
-//  SESSION TIMEOUT — 30 minutes like Chase
-//  Warning shown at 28 minutes, auto-logout at 30 minutes
-//  Any tap or interaction resets the clock
-// ════════════════════════════════════════════════════════════════
-const SESSION_TIMEOUT = 30 * 60 * 1000;   // 30 minutes
-const SESSION_WARNING =  2 * 60 * 1000;   // warn 2 min before
-let sessionStart      = null;
-let sessionTimer      = null;
-let sessionCountdown  = null;
+// ══════════════════════════════════════════════════════════════
+//  SESSION TIMEOUT — 30 minutes, warns at 28 min
+// ══════════════════════════════════════════════════════════════
+var SESSION_TIMEOUT  = 30 * 60 * 1000;
+var SESSION_WARNING  =  2 * 60 * 1000;
+var sessionTimer     = null;
+var sessionCountdown = null;
 
 function startSessionTimer() {
   clearTimeout(sessionTimer);
   clearInterval(sessionCountdown);
-  sessionStart = Date.now();
-  // Reset activity on any user interaction
-  ['click','touchstart','keydown','scroll'].forEach(e =>
-    document.addEventListener(e, resetSessionTimer, {passive:true})
-  );
+  ['click', 'touchstart', 'keydown', 'scroll'].forEach(function(e) {
+    document.addEventListener(e, resetSessionTimer, { passive: true });
+  });
   scheduleSessionCheck();
 }
 
 function resetSessionTimer() {
-  if (!sessionStart) return;
-  sessionStart = Date.now();
+  if (!currentRole) return;
   document.getElementById('sessionWarning').classList.remove('show');
   clearInterval(sessionCountdown);
   scheduleSessionCheck();
@@ -1151,47 +910,39 @@ function scheduleSessionCheck() {
 
 function showSessionWarning() {
   document.getElementById('sessionWarning').classList.add('show');
-  let remaining = Math.floor(SESSION_WARNING / 1000);
-  const cd = document.getElementById('sessionCountdown');
+  var remaining = Math.floor(SESSION_WARNING / 1000);
+  var cd = document.getElementById('sessionCountdown');
   clearInterval(sessionCountdown);
-  sessionCountdown = setInterval(() => {
+  sessionCountdown = setInterval(function() {
     remaining--;
-    const m = Math.floor(remaining / 60);
-    const s = String(remaining % 60).padStart(2,'0');
+    var m = Math.floor(remaining / 60);
+    var s = String(remaining % 60).padStart(2, '0');
     cd.textContent = m + ':' + s;
-    if (remaining <= 0) {
-      clearInterval(sessionCountdown);
-      forceLogout();
-    }
+    if (remaining <= 0) { clearInterval(sessionCountdown); forceLogout(); }
   }, 1000);
 }
 
-function extendSession() {
-  resetSessionTimer();
-}
+function extendSession() { resetSessionTimer(); }
 
 function forceLogout() {
-  sessionStart = null;
+  currentRole = null;
   clearTimeout(sessionTimer);
   clearInterval(sessionCountdown);
+  DEALS = [];
+  isAdmin = false;
   document.getElementById('sessionWarning').classList.remove('show');
   document.getElementById('loginGate').classList.remove('hidden');
   document.getElementById('adminToggle').classList.add('hidden');
-  document.getElementById('loginStep1').style.display = 'block';
   document.getElementById('loginInput').value = '';
   document.getElementById('biometricStatus').className = 'biometric-status';
-  DEALS = [];
-  isAdmin = false;
-  currentRole = null;
-  // Re-init biometric UI for next login
+  document.getElementById('saveBar').classList.add('hidden');
   setTimeout(initBiometricUI, 200);
 }
 
-// ════════════════════════════════════════════════════════════════
-//  GOOGLE SHEETS INTEGRATION
-//  All deal data lives here — zero client data in this HTML file
-// ════════════════════════════════════════════════════════════════
-let DEALS = [];
+// ══════════════════════════════════════════════════════════════
+//  GOOGLE SHEETS — all deal data lives here, never in this file
+// ══════════════════════════════════════════════════════════════
+var DEALS = [];
 
 async function loadFromSheets() {
   if (!SHEETS_SCRIPT_URL) {
@@ -1202,119 +953,56 @@ async function loadFromSheets() {
   document.getElementById('refreshBtn').classList.add('spinning');
   document.getElementById('sheetsError').style.display = 'none';
   try {
-    const res = await fetch(SHEETS_SCRIPT_URL + '?action=getDeals', { cache: 'no-store' });
+    var res  = await fetch(SHEETS_SCRIPT_URL + '?action=getDeals', { cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
+    var data = await res.json();
     if (data.error) throw new Error(data.error);
     DEALS = data.deals || [];
-    document.getElementById('lastUpdated').textContent =
-      `Live from Google Sheets · Refreshed ${new Date().toLocaleTimeString()}`;
+    document.getElementById('lastUpdated').textContent = 'Live from Google Sheets · Refreshed ' + new Date().toLocaleTimeString();
   } catch(err) {
-    showSheetsError('Could not load data. Check connection or Apps Script URL. ' + err.message);
+    document.getElementById('sheetsError').innerHTML = '<strong>Sheets Error:</strong> ' + err.message;
+    document.getElementById('sheetsError').style.display = 'block';
   } finally {
     document.getElementById('loadingScreen').classList.add('hidden');
     document.getElementById('refreshBtn').classList.remove('spinning');
     render();
-    // Show follow-up briefing after first load
     setTimeout(showFollowUpBriefing, 600);
   }
 }
 
 async function saveToSheets() {
   if (!SHEETS_SCRIPT_URL) { alert('Google Sheets not connected yet.'); return; }
-  const btn = document.querySelector('.btn-save');
+  var btn = document.querySelector('.btn-save');
   btn.textContent = '⏳ Saving…'; btn.disabled = true;
   try {
-    const res = await fetch(SHEETS_SCRIPT_URL, {
+    var res  = await fetch(SHEETS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ action: 'saveDeals', deals: DEALS })
     });
-    const data = await res.json();
+    var data = await res.json();
     if (data.error) throw new Error(data.error);
     btn.textContent = '✅ Saved!';
-    setTimeout(() => { btn.textContent = '☁️ Save to Sheets'; btn.disabled = false; }, 2000);
-    document.getElementById('lastUpdated').textContent =
-      `Saved to Google Sheets · ${new Date().toLocaleTimeString()}`;
+    setTimeout(function() { btn.textContent = '☁️ Save to Sheets'; btn.disabled = false; }, 2000);
+    document.getElementById('lastUpdated').textContent = 'Saved to Google Sheets · ' + new Date().toLocaleTimeString();
   } catch(err) {
     btn.textContent = '❌ Failed'; btn.disabled = false;
-    showSheetsError('Save failed: ' + err.message);
-    setTimeout(() => btn.textContent = '☁️ Save to Sheets', 3000);
+    document.getElementById('sheetsError').innerHTML = '<strong>Save failed:</strong> ' + err.message;
+    document.getElementById('sheetsError').style.display = 'block';
+    setTimeout(function() { btn.textContent = '☁️ Save to Sheets'; }, 3000);
   }
 }
 
-function showSheetsError(msg) {
-  const el = document.getElementById('sheetsError');
-  el.innerHTML = `<strong>⚠️ Sheets Error</strong> ${msg}`;
-  el.style.display = 'block';
-}
+// ══════════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════════
+var isAdmin      = false;
+var activeFilter = 'All';
+var showArchived = false;
+var editingId    = null;
 
-
-// ════════════════════════════════════════════════════════════════
-//  FOLLOW-UP LOGIC
-//  Triggers when last contact is 7+ days ago (or never contacted)
-//  on active deals that are not Closed, Backburner, or Parked
-// ════════════════════════════════════════════════════════════════
-const FOLLOWUP_DAYS = 7; // change this number to adjust the threshold
-
-function needsFollowUp(d) {
-  if (['Closed','Backburner','Parked'].includes(d.status)) return false;
-  if (d.archived) return false;
-  if (!d.lastContact) return true; // never contacted = always needs follow up
-  return daysSince(d.lastContact) >= FOLLOWUP_DAYS;
-}
-
-function followUpDaysLabel(d) {
-  if (!d.lastContact) return 'No contact logged';
-  const days = daysSince(d.lastContact);
-  return days === 1 ? '1 day ago' : days + ' days ago';
-}
-
-function followUpNeeded() {
-  return DEALS.filter(d => needsFollowUp(d));
-}
-
-function showFollowUpBriefing() {
-  const deals = followUpNeeded();
-  if (!deals.length) return; // nothing to show — all good
-
-  const sub = document.getElementById('followUpSub');
-  const list = document.getElementById('followUpList');
-
-  sub.textContent = deals.length === 1
-    ? '1 deal needs your attention today.'
-    : deals.length + ' deals need your attention today.';
-
-  list.innerHTML = deals.map(d => {
-    const noContact = !d.lastContact;
-    return `<div class="followup-item ${noContact?'no-contact':''}">
-      <div class="followup-item-name">${esc(d.name)}</div>
-      <div class="followup-item-days">${noContact ? '⚠️ Never contacted' : '🕐 Last contact: ' + followUpDaysLabel(d)}</div>
-      ${d.client ? `<div class="followup-item-contact">👤 ${esc(d.client)}${d.contactRole?' · '+esc(d.contactRole):''}</div>` : ''}
-    </div>`;
-  }).join('');
-
-  document.getElementById('followUpModal').classList.remove('hidden');
-}
-
-function dismissFollowUp() {
-  document.getElementById('followUpModal').classList.add('hidden');
-}
-
-function goToOverdue() {
-  dismissFollowUp();
-  setFilter('Overdue');
-  // scroll to top of deals
-  document.getElementById('dealsContainer').scrollIntoView({behavior:'smooth'});
-}
-
-// ════════════════════════════════════════════════════════════════
-//  STATE & CONSTANTS
-// ════════════════════════════════════════════════════════════════
-let isAdmin = false, activeFilter = 'All', showArchived = false, editingId = null;
-
-const STATUS_ORDER  = ['Prospect','Active','Offer','Contract','Diligence','Closing','Closed','Parked','Backburner'];
-const STATUS_LABELS = {
+var STATUS_ORDER = ['Prospect','Active','Offer','Contract','Diligence','Closing','Closed','Parked','Backburner'];
+var STATUS_LABELS = {
   Prospect:'Prospect', Active:'Active Pursuit', Offer:'Offer/LOI',
   Contract:'Under Contract', Diligence:'Due Diligence',
   Closing:'Closing', Closed:'Closed', Parked:'Parked', Backburner:'Backburner'
@@ -1324,159 +1012,201 @@ const STATUS_LABELS = {
 function render() { renderStats(); renderFilters(); renderDeals(); }
 
 function renderStats() {
-  const active  = DEALS.filter(d => !d.archived && d.status !== 'Closed' && d.status !== 'Backburner');
-  const closing = DEALS.filter(d => !d.archived && ['Closing','Contract','Diligence'].includes(d.status));
-  const closed  = DEALS.filter(d => d.status === 'Closed');
-  const overdue = active.filter(d => d.nextDue && new Date(d.nextDue+'T23:59:59') < new Date());
-  document.getElementById('statsBar').innerHTML = [
-    `<div class="stat-pill">${active.length} <span>Active</span></div>`,
-    `<div class="stat-pill">${closing.length} <span>In Pipeline</span></div>`,
-    `<div class="stat-pill">${overdue.length} <span>Overdue</span></div>`,
-    `<div class="stat-pill">${closed.length} <span>Closed</span></div>`,
-    `<div class="stat-pill">${followUpNeeded().length} <span>Follow Up</span></div>`
-  ].join('');
+  var active  = DEALS.filter(function(d) { return !d.archived && d.status !== 'Closed' && d.status !== 'Backburner'; });
+  var closing = DEALS.filter(function(d) { return !d.archived && ['Closing','Contract','Diligence'].indexOf(d.status) > -1; });
+  var closed  = DEALS.filter(function(d) { return d.status === 'Closed'; });
+  var overdue = active.filter(function(d) { return d.nextDue && new Date(d.nextDue + 'T23:59:59') < new Date(); });
+  document.getElementById('statsBar').innerHTML =
+    '<div class="stat-pill">' + active.length + ' <span>Active</span></div>' +
+    '<div class="stat-pill">' + closing.length + ' <span>In Pipeline</span></div>' +
+    '<div class="stat-pill">' + overdue.length + ' <span>Overdue</span></div>' +
+    '<div class="stat-pill">' + closed.length + ' <span>Closed</span></div>' +
+    '<div class="stat-pill">' + followUpNeeded().length + ' <span>Follow Up</span></div>';
 }
 
 function renderFilters() {
-  const filters = ['All','Commercial','Land','Business','Overdue','Prospect','Active','Offer','Contract','Closing'];
-  const labels  = { Offer:'Offer/LOI', Contract:'Under Contract' };
-  document.getElementById('filterBar').innerHTML = filters.map(f =>
-    `<button class="filter-btn ${activeFilter===f?'active':''}" onclick="setFilter('${f}')">${labels[f]||f}</button>`
-  ).join('');
+  var filters = ['All','Commercial','Land','Business','Overdue','Prospect','Active','Offer','Contract','Closing'];
+  var labels  = { Offer: 'Offer/LOI', Contract: 'Under Contract' };
+  document.getElementById('filterBar').innerHTML = filters.map(function(f) {
+    return '<button class="filter-btn ' + (activeFilter === f ? 'active' : '') + '" onclick="setFilter(\'' + f + '\')">' + (labels[f] || f) + '</button>';
+  }).join('');
 }
 function setFilter(f) { activeFilter = f; renderFilters(); renderDeals(); }
 
 function getFilteredDeals() {
-  let deals = DEALS.filter(d => !d.archived);
-  if (activeFilter === 'All') deals = deals.filter(d => d.status!=='Closed'&&d.status!=='Backburner');
-  else if (['Commercial','Land','Business'].includes(activeFilter))
-    deals = deals.filter(d => d.type===activeFilter&&d.status!=='Closed'&&d.status!=='Backburner');
-  else if (activeFilter==='Overdue')
-    deals = deals.filter(d => d.nextDue&&new Date(d.nextDue+'T23:59:59')<new Date()&&d.status!=='Closed'&&d.status!=='Backburner');
-  else deals = deals.filter(d => d.status===activeFilter);
-
-  const now = new Date();
-  const isOD = d => d.nextDue&&new Date(d.nextDue+'T23:59:59')<now&&d.status!=='Closed'&&d.status!=='Backburner';
-  return deals.sort((a,b)=>{
-    const ao=isOD(a)?0:1, bo=isOD(b)?0:1;
-    if(ao!==bo) return ao-bo;
-    const si=STATUS_ORDER.indexOf(a.status)-STATUS_ORDER.indexOf(b.status);
-    if(si!==0) return si;
-    if(a.nextDue&&b.nextDue) return a.nextDue.localeCompare(b.nextDue);
+  var deals = DEALS.filter(function(d) { return !d.archived; });
+  if (activeFilter === 'All') {
+    deals = deals.filter(function(d) { return d.status !== 'Closed' && d.status !== 'Backburner'; });
+  } else if (['Commercial','Land','Business'].indexOf(activeFilter) > -1) {
+    deals = deals.filter(function(d) { return d.type === activeFilter && d.status !== 'Closed' && d.status !== 'Backburner'; });
+  } else if (activeFilter === 'Overdue') {
+    deals = deals.filter(function(d) { return d.nextDue && new Date(d.nextDue + 'T23:59:59') < new Date() && d.status !== 'Closed' && d.status !== 'Backburner'; });
+  } else {
+    deals = deals.filter(function(d) { return d.status === activeFilter; });
+  }
+  var now = new Date();
+  function isOD(d) { return d.nextDue && new Date(d.nextDue + 'T23:59:59') < now && d.status !== 'Closed' && d.status !== 'Backburner'; }
+  return deals.sort(function(a, b) {
+    var ao = isOD(a) ? 0 : 1, bo = isOD(b) ? 0 : 1;
+    if (ao !== bo) return ao - bo;
+    var si = STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status);
+    if (si !== 0) return si;
+    if (a.nextDue && b.nextDue) return a.nextDue.localeCompare(b.nextDue);
     return 0;
   });
 }
 
 function renderDeals() {
-  const container = document.getElementById('dealsContainer');
-  const deals = getFilteredDeals();
+  var container = document.getElementById('dealsContainer');
+  var deals     = getFilteredDeals();
   if (!deals.length) {
-    container.innerHTML = `<div class="empty-state"><div class="icon">🏙️</div><p>${SHEETS_SCRIPT_URL?'No deals match this filter':'Google Sheets not connected yet'}</p></div>`;
+    container.innerHTML = '<div class="empty-state"><div class="icon">🏙️</div><p>' + (SHEETS_SCRIPT_URL ? 'No deals match this filter' : 'Google Sheets not connected yet') + '</p></div>';
     renderArchivedToggle(container); return;
   }
-  const sections = {};
-  deals.forEach(d => { (sections[d.type||'Other']=sections[d.type||'Other']||[]).push(d); });
-  const icons = { Commercial:'🏢', Land:'🌵', Business:'💼', Other:'📁' };
-  let html = '';
-  for (const [type, td] of Object.entries(sections)) {
-    if (Object.keys(sections).length > 1)
-      html += `<div class="section-label">${icons[type]||'📁'} ${type}</div>`;
-    html += `<div class="deals-grid">${td.map(buildCard).join('')}</div>`;
-  }
+  var sections = {};
+  deals.forEach(function(d) {
+    var key = d.type || 'Other';
+    if (!sections[key]) sections[key] = [];
+    sections[key].push(d);
+  });
+  var icons = { Commercial: '🏢', Land: '🌵', Business: '💼', Other: '📁' };
+  var html  = '';
+  var keys  = Object.keys(sections);
+  keys.forEach(function(type) {
+    if (keys.length > 1) html += '<div class="section-label">' + (icons[type] || '📁') + ' ' + type + '</div>';
+    html += '<div class="deals-grid">' + sections[type].map(buildCard).join('') + '</div>';
+  });
   container.innerHTML = html;
   renderArchivedToggle(container);
 }
 
 function renderArchivedToggle(container) {
-  const closed = DEALS.filter(d => d.status==='Closed'||d.status==='Backburner'||d.archived);
+  var closed = DEALS.filter(function(d) { return d.status === 'Closed' || d.status === 'Backburner' || d.archived; });
   if (!closed.length) return;
-  const btn = document.createElement('button');
-  btn.className = 'show-archived-btn';
-  btn.textContent = showArchived?`▲ Hide Closed / Inactive (${closed.length})`:`▼ Show Closed / Inactive (${closed.length})`;
-  btn.onclick = () => { showArchived=!showArchived; renderDeals(); };
+  var btn = document.createElement('button');
+  btn.className   = 'show-archived-btn';
+  btn.textContent = showArchived ? ('▲ Hide Closed / Inactive (' + closed.length + ')') : ('▼ Show Closed / Inactive (' + closed.length + ')');
+  btn.onclick     = function() { showArchived = !showArchived; renderDeals(); };
   container.appendChild(btn);
   if (showArchived) {
-    const div = document.createElement('div');
-    div.innerHTML = `<div class="section-label" style="margin-top:20px">✅ Closed / Inactive</div><div class="deals-grid">${closed.map(buildCard).join('')}</div>`;
+    var div = document.createElement('div');
+    div.innerHTML = '<div class="section-label" style="margin-top:20px">✅ Closed / Inactive</div><div class="deals-grid">' + closed.map(buildCard).join('') + '</div>';
     container.appendChild(div);
   }
 }
 
 function buildCard(d) {
-  const overdue = d.nextDue&&new Date(d.nextDue+'T23:59:59')<new Date()&&d.status!=='Closed'&&d.status!=='Backburner';
-  const daysAgo = d.lastContact ? daysSince(d.lastContact) : null;
-  const priority = ['Contract','Closing','Diligence'].includes(d.status)?'high':['Offer','Active'].includes(d.status)?'mid':'low';
-  return `
-  <div class="deal-card priority-${priority}">
-    <div class="card-top">
-      <div>
-        <div class="card-name">${esc(d.name)}</div>
-        ${d.bizName?`<div class="card-bizname">🏢 ${esc(d.bizName)}</div>`:''}
-        ${d.address?`<div class="card-address">📍 ${esc(d.address)}</div>`:''}
-        <div class="card-badges">
-          <span class="card-type-badge ${d.type==='Land'?'land':d.type==='Business'?'business':''}">${d.type||'Deal'}</span>
-        </div>
-      </div>
-      <span class="status-badge status-${(d.status||'prospect').toLowerCase()}">${STATUS_LABELS[d.status]||d.status}</span>
-    </div>
-    <div class="card-body">
-      ${d.client?`<div class="card-field"><label>Point of Contact</label><div class="val">${esc(d.client)}${d.contactRole?` <span style="color:var(--gray);font-size:11px">· ${esc(d.contactRole)}</span>`:''}</div></div>`:''}
-      ${d.phone?`<div class="card-field"><label>Phone</label><div class="val"><a href="tel:${esc(d.phone)}">${esc(d.phone)}</a> <a href="sms:${esc(d.phone)}" style="font-size:11px;color:var(--sage)">💬</a></div></div>`:''}
-      ${d.email?`<div class="card-field"><label>Email</label><div class="val"><a href="mailto:${esc(d.email)}">${esc(d.email)}</a></div></div>`:''}
-      ${d.askPrice?`<div class="card-field"><label>Asking Price</label><div class="val">${esc(d.askPrice)}</div></div>`:''}
-      ${d.offerPrice?`<div class="card-field"><label>Offer / Contract</label><div class="val" style="color:var(--blue);font-weight:700">${esc(d.offerPrice)}</div></div>`:''}
-      ${d.bizWebsite?`<div class="card-field full"><label>Business Website</label><div class="val"><a href="${esc(d.bizWebsite)}" target="_blank" class="website-link-btn">🌐 ${esc(d.bizWebsite.replace(/^https?:\/\//,''))} →</a></div></div>`:''}
-      ${needsFollowUp(d)?`<div class="card-field full"><div class="followup-badge">🔔 Follow-Up Required · ${followUpDaysLabel(d)}</div></div>`:''}
-      ${d.nextAction?`<div class="next-action-box"><div class="icon">⚡</div><div><div class="action-label">Next Action</div><div class="action-text">${esc(d.nextAction)}</div>${d.nextDue?`<div class="action-due ${overdue?'overdue':''}">${overdue?'⚠️ Overdue · ':''}Due ${formatDate(d.nextDue)}</div>`:''}</div></div>`:''}
-      ${d.propertyDetails?buildPropDetails(d.propertyDetails):''}
-      ${d.propertyLink?`<div class="card-field full"><label>Property Profile</label><div class="val"><a href="${esc(d.propertyLink)}" target="_blank" class="prop-link-btn">🔗 View Listing →</a></div></div>`:''}
-      ${d.potentialProps?buildPotentialProps(d.potentialProps):''}
-      ${d.notes?`<div class="notes-box"><div class="notes-box-label">📝 Notes</div><div class="notes-text">${esc(d.notes)}</div></div>`:''}
-    </div>
-    <div class="card-footer">
-      <div class="last-contact">${daysAgo!==null?`Last contact: <strong>${daysAgo===0?'Today':daysAgo===1?'Yesterday':daysAgo+' days ago'}</strong> · ${formatDate(d.lastContact)}`:'<span style="color:#bbb">No contact logged</span>'}</div>
-      buildCardActions(d)
-    </div>
-  </div>`;
+  var overdue = d.nextDue && new Date(d.nextDue + 'T23:59:59') < new Date() && d.status !== 'Closed' && d.status !== 'Backburner';
+  var daysAgo = d.lastContact ? daysSince(d.lastContact) : null;
+  var priority = ['Contract','Closing','Diligence'].indexOf(d.status) > -1 ? 'high' : ['Offer','Active'].indexOf(d.status) > -1 ? 'mid' : 'low';
+  var typeClass = d.type === 'Land' ? 'land' : d.type === 'Business' ? 'business' : '';
+  var statusClass = 'status-' + (d.status || 'prospect').toLowerCase();
+  var lastContactHtml = daysAgo !== null
+    ? 'Last contact: <strong>' + (daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : daysAgo + ' days ago') + '</strong> · ' + formatDate(d.lastContact)
+    : '<span style="color:#bbb">No contact logged</span>';
+
+  return '<div class="deal-card priority-' + priority + '">' +
+    '<div class="card-top"><div>' +
+      '<div class="card-name">' + esc(d.name) + '</div>' +
+      (d.bizName ? '<div class="card-bizname">🏢 ' + esc(d.bizName) + '</div>' : '') +
+      (d.address  ? '<div class="card-address">📍 ' + esc(d.address)  + '</div>' : '') +
+      '<div class="card-badges">' +
+        '<span class="card-type-badge ' + typeClass + '">' + (d.type || 'Deal') + '</span>' +
+        (d.leadSource ? '<span class="lead-source-badge">' + esc(d.leadSource) + '</span>' : '') +
+      '</div>' +
+    '</div>' +
+    '<span class="status-badge ' + statusClass + '">' + (STATUS_LABELS[d.status] || d.status) + '</span>' +
+    '</div>' +
+    '<div class="card-body">' +
+      (d.client   ? '<div class="card-field"><label>Point of Contact</label><div class="val">' + esc(d.client) + (d.contactRole ? ' <span style="color:var(--gray);font-size:11px">· ' + esc(d.contactRole) + '</span>' : '') + '</div></div>' : '') +
+      (d.phone    ? '<div class="card-field"><label>Phone</label><div class="val"><a href="tel:' + esc(d.phone) + '">' + esc(d.phone) + '</a> <a href="sms:' + esc(d.phone) + '" style="font-size:11px;color:var(--sage)">💬</a></div></div>' : '') +
+      (d.email    ? '<div class="card-field"><label>Email</label><div class="val"><a href="mailto:' + esc(d.email) + '">' + esc(d.email) + '</a></div></div>' : '') +
+      (d.askPrice ? '<div class="card-field"><label>Asking Price</label><div class="val">' + esc(d.askPrice) + '</div></div>' : '') +
+      (d.offerPrice ? '<div class="card-field"><label>Offer / Contract</label><div class="val" style="color:var(--blue);font-weight:700">' + esc(d.offerPrice) + '</div></div>' : '') +
+      (d.bizWebsite ? '<div class="card-field full"><label>Business Website</label><div class="val"><a href="' + esc(d.bizWebsite) + '" target="_blank" class="website-link-btn">🌐 ' + esc(d.bizWebsite.replace(/^https?:\/\//, '')) + ' →</a></div></div>' : '') +
+      (needsFollowUp(d) ? '<div class="card-field full"><div class="followup-badge">🔔 Follow-Up Required · ' + followUpDaysLabel(d) + '</div></div>' : '') +
+      (d.nextAction ? '<div class="next-action-box"><div class="icon">⚡</div><div><div class="action-label">Next Action</div><div class="action-text">' + esc(d.nextAction) + '</div>' + (d.nextDue ? '<div class="action-due ' + (overdue ? 'overdue' : '') + '">' + (overdue ? '⚠️ Overdue · ' : '') + 'Due ' + formatDate(d.nextDue) + '</div>' : '') + '</div></div>' : '') +
+      buildPropDetails(d.propertyDetails) +
+      (d.propertyLink ? '<div class="card-field full"><label>Property Profile</label><div class="val"><a href="' + esc(d.propertyLink) + '" target="_blank" class="prop-link-btn">🔗 View Listing →</a></div></div>' : '') +
+      buildPotentialProps(d.potentialProps) +
+      (d.notes ? '<div class="notes-box"><div class="notes-box-label">📝 Notes</div><div class="notes-text">' + esc(d.notes) + '</div></div>' : '') +
+    '</div>' +
+    '<div class="card-footer">' +
+      '<div class="last-contact">' + lastContactHtml + '</div>' +
+      buildCardActions(d) +
+    '</div>' +
+    '</div>';
 }
 
 function buildPropDetails(raw) {
-  if (!raw||!raw.trim()) return '';
-  const chips = raw.split(/\s*[\|\n]\s*/).map(s=>s.trim()).filter(Boolean).map(p=>{
-    const ci=p.indexOf(':');
-    if(ci>0) return `<span class="spec-chip"><strong>${esc(p.slice(0,ci).trim())}:</strong>${esc(p.slice(ci+1).trim())}</span>`;
-    return `<span class="spec-chip">${esc(p)}</span>`;
+  if (!raw || !raw.trim()) return '';
+  var chips = raw.split(/\s*[\|\n]\s*/).map(function(s) { return s.trim(); }).filter(Boolean).map(function(p) {
+    var ci = p.indexOf(':');
+    if (ci > 0) return '<span class="spec-chip"><strong>' + esc(p.slice(0, ci).trim()) + ':</strong>' + esc(p.slice(ci + 1).trim()) + '</span>';
+    return '<span class="spec-chip">' + esc(p) + '</span>';
   }).join('');
-  return `<div class="prop-details-box"><div class="prop-details-label">🏗 Property Details</div><div class="prop-specs">${chips}</div></div>`;
+  return '<div class="prop-details-box"><div class="prop-details-label">🏗 Property Details</div><div class="prop-specs">' + chips + '</div></div>';
 }
 
 function buildPotentialProps(raw) {
-  if (!raw||!raw.trim()) return '';
-  const links = raw.split('\n').map(s=>s.trim()).filter(Boolean).map(line => {
-    const pipeIdx = line.lastIndexOf('|');
+  if (!raw || !raw.trim()) return '';
+  var links = raw.split('\n').map(function(s) { return s.trim(); }).filter(Boolean).map(function(line) {
+    var pipeIdx = line.lastIndexOf('|');
     if (pipeIdx > 0) {
-      const label = line.slice(0,pipeIdx).trim();
-      const url   = line.slice(pipeIdx+1).trim();
-      return `<div style="margin-bottom:6px"><a href="${esc(url)}" target="_blank" class="prop-link-btn" style="background:#f0fdf4;border-color:#bbf7d0;color:#15803d">🏠 ${esc(label)} →</a></div>`;
+      var label = line.slice(0, pipeIdx).trim();
+      var url   = line.slice(pipeIdx + 1).trim();
+      return '<div style="margin-bottom:6px"><a href="' + esc(url) + '" target="_blank" class="potential-link-btn">🏠 ' + esc(label) + ' →</a></div>';
     }
-    return `<div style="margin-bottom:6px"><span style="font-size:13px;color:var(--gray)">${esc(line)}</span></div>`;
+    return '<div style="margin-bottom:4px;font-size:13px;color:var(--gray)">' + esc(line) + '</div>';
   }).join('');
-  return `<div class="card-field full"><label>Potential Properties for Client</label><div class="val">${links}</div></div>`;
+  return '<div class="card-field full"><label>Potential Properties</label><div class="val">' + links + '</div></div>';
 }
 
 function buildCardActions(d) {
-  const editBtn = '<button class="btn-edit" onclick="openModal(\"' + d.id + '\")">Edit</button>';
-  const archiveBtn = isAdmin
-    ? '<button class="btn-archive" onclick="toggleArchive(\"' + d.id + '\")">' + (d.archived ? 'Restore' : 'Archive') + '</button>'
-    : '';
+  var editBtn    = '<button class="btn-edit" onclick="openModal(\'' + d.id + '\')">Edit</button>';
+  var archiveBtn = isAdmin ? '<button class="btn-archive" onclick="toggleArchive(\'' + d.id + '\')">' + (d.archived ? 'Restore' : 'Archive') + '</button>' : '';
   return '<div class="card-actions">' + editBtn + archiveBtn + '</div>';
 }
+
+// ── FOLLOW-UP ──
+var FOLLOWUP_DAYS = 7;
+
+function needsFollowUp(d) {
+  if (['Closed','Backburner','Parked'].indexOf(d.status) > -1) return false;
+  if (d.archived) return false;
+  if (!d.lastContact) return true;
+  return daysSince(d.lastContact) >= FOLLOWUP_DAYS;
+}
+function followUpDaysLabel(d) {
+  if (!d.lastContact) return 'No contact logged';
+  var days = daysSince(d.lastContact);
+  return days === 1 ? '1 day ago' : days + ' days ago';
+}
+function followUpNeeded() {
+  return DEALS.filter(function(d) { return needsFollowUp(d); });
+}
+function showFollowUpBriefing() {
+  var deals = followUpNeeded();
+  if (!deals.length) return;
+  document.getElementById('followUpSub').textContent = deals.length === 1 ? '1 deal needs your attention today.' : deals.length + ' deals need your attention today.';
+  document.getElementById('followUpList').innerHTML = deals.map(function(d) {
+    var noContact = !d.lastContact;
+    return '<div class="followup-item ' + (noContact ? 'no-contact' : '') + '">' +
+      '<div class="followup-item-name">' + esc(d.name) + '</div>' +
+      '<div class="followup-item-days">' + (noContact ? '⚠️ Never contacted' : '🕐 Last contact: ' + followUpDaysLabel(d)) + '</div>' +
+      (d.client ? '<div class="followup-item-contact">👤 ' + esc(d.client) + (d.contactRole ? ' · ' + esc(d.contactRole) : '') + '</div>' : '') +
+      '</div>';
+  }).join('');
+  document.getElementById('followUpModal').classList.remove('hidden');
+}
+function dismissFollowUp() { document.getElementById('followUpModal').classList.add('hidden'); }
+function goToOverdue() { dismissFollowUp(); setFilter('Overdue'); }
 
 // ── ADMIN ──
 function toggleAdmin() {
   isAdmin = !isAdmin;
-  const btn = document.getElementById('adminToggle');
-  btn.textContent = isAdmin?'✕ Exit':'⚙ Current Clients';
+  var btn = document.getElementById('adminToggle');
+  btn.textContent = isAdmin ? '✕ Exit' : '⚙ Current Clients';
   btn.classList.toggle('active', isAdmin);
   document.getElementById('saveBar').classList.toggle('hidden', !isAdmin);
   renderDeals();
@@ -1486,158 +1216,165 @@ function toggleAdmin() {
 function openModal(id) {
   editingId = id;
   document.getElementById('dealForm').reset();
-  const btns = document.getElementById('modalBtns');
+  var btns = document.getElementById('modalBtns');
   if (id) {
-    const d = DEALS.find(x=>x.id===id);
-    document.getElementById('modalTitle').textContent = 'Edit Deal';
-    document.getElementById('dealId').value        = d.id;
-    document.getElementById('fName').value         = d.name||'';
-    document.getElementById('fType').value         = d.type||'';
-    document.getElementById('fStatus').value       = d.status||'Prospect';
-    document.getElementById('fBizName').value      = d.bizName||'';
-    document.getElementById('fBizWebsite').value   = d.bizWebsite||'';
-    document.getElementById('fAddress').value      = d.address||'';
-    document.getElementById('fAskPrice').value     = d.askPrice||'';
-    document.getElementById('fOfferPrice').value   = d.offerPrice||'';
-    document.getElementById('fClient').value       = d.client||'';
-    document.getElementById('fContactRole').value  = d.contactRole||'';
-    document.getElementById('fLeadSource').value   = d.leadSource||'';
-    document.getElementById('fPhone').value        = d.phone||'';
-    document.getElementById('fEmail').value        = d.email||'';
-    document.getElementById('fLastContact').value  = d.lastContact||'';
-    document.getElementById('fPropDetails').value  = d.propertyDetails||'';
-    document.getElementById('fPropertyLink').value   = d.propertyLink||'';
-    document.getElementById('fPotentialProps').value  = d.potentialProps||'';
-    document.getElementById('fNextAction').value   = d.nextAction||'';
-    document.getElementById('fNextDue').value      = d.nextDue||'';
-    document.getElementById('fNotes').value        = d.notes||'';
-    btns.innerHTML = `${isAdmin?`<button type="button" class="btn-delete" onclick="deleteDeal('${id}')">Delete</button>`:''}<button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button><button type="submit" class="btn-primary">Save</button>`;
+    var d = DEALS.filter(function(x) { return x.id === id; })[0];
+    document.getElementById('modalTitle').textContent      = 'Edit Deal';
+    document.getElementById('dealId').value               = d.id;
+    document.getElementById('fName').value                = d.name         || '';
+    document.getElementById('fType').value                = d.type         || '';
+    document.getElementById('fStatus').value              = d.status       || 'Prospect';
+    document.getElementById('fLeadSource').value          = d.leadSource   || '';
+    document.getElementById('fBizName').value             = d.bizName      || '';
+    document.getElementById('fBizWebsite').value          = d.bizWebsite   || '';
+    document.getElementById('fAddress').value             = d.address      || '';
+    document.getElementById('fAskPrice').value            = d.askPrice     || '';
+    document.getElementById('fOfferPrice').value          = d.offerPrice   || '';
+    document.getElementById('fClient').value              = d.client       || '';
+    document.getElementById('fContactRole').value         = d.contactRole  || '';
+    document.getElementById('fPhone').value               = d.phone        || '';
+    document.getElementById('fEmail').value               = d.email        || '';
+    document.getElementById('fLastContact').value         = d.lastContact  || '';
+    document.getElementById('fPropDetails').value         = d.propertyDetails || '';
+    document.getElementById('fPropertyLink').value        = d.propertyLink || '';
+    document.getElementById('fPotentialProps').value      = d.potentialProps  || '';
+    document.getElementById('fNextAction').value          = d.nextAction   || '';
+    document.getElementById('fNextDue').value             = d.nextDue      || '';
+    document.getElementById('fNotes').value               = d.notes        || '';
+    var deleteBtn = isAdmin ? '<button type="button" class="btn-delete" onclick="deleteDeal(\'' + id + '\')">Delete</button>' : '';
+    btns.innerHTML = deleteBtn + '<button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button><button type="submit" class="btn-primary">Save</button>';
   } else {
     document.getElementById('modalTitle').textContent = 'New Deal';
     document.getElementById('dealId').value = '';
-    btns.innerHTML = `<button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button><button type="submit" class="btn-primary">Add Deal</button>`;
+    btns.innerHTML = '<button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button><button type="submit" class="btn-primary">Add Deal</button>';
   }
   document.getElementById('modalOverlay').classList.remove('hidden');
 }
-function closeModal() { document.getElementById('modalOverlay').classList.add('hidden'); editingId=null; }
-function handleOverlayClick(e) { if(e.target===document.getElementById('modalOverlay')) closeModal(); }
+function closeModal() { document.getElementById('modalOverlay').classList.add('hidden'); editingId = null; }
 
 function saveDeal(e) {
   e.preventDefault();
-  const id = document.getElementById('dealId').value||('deal-'+Date.now());
-  const existing = DEALS.find(d=>d.id===id);
-  const dealData = {
-    id, archived:existing?.archived||false, created:existing?.created||todayISO(),
-    name:           document.getElementById('fName').value.trim(),
-    type:           document.getElementById('fType').value,
-    status:         document.getElementById('fStatus').value,
-    bizName:        document.getElementById('fBizName').value.trim(),
-    bizWebsite:     document.getElementById('fBizWebsite').value.trim(),
-    address:        document.getElementById('fAddress').value.trim(),
-    askPrice:       document.getElementById('fAskPrice').value.trim(),
-    offerPrice:     document.getElementById('fOfferPrice').value.trim(),
-    client:         document.getElementById('fClient').value.trim(),
-    contactRole:    document.getElementById('fContactRole').value.trim(),
-    leadSource:     document.getElementById('fLeadSource').value,
-    phone:          document.getElementById('fPhone').value.trim(),
-    email:          document.getElementById('fEmail').value.trim(),
-    lastContact:    document.getElementById('fLastContact').value,
-    propertyDetails:document.getElementById('fPropDetails').value.trim(),
+  var id       = document.getElementById('dealId').value || ('deal-' + Date.now());
+  var existing = DEALS.filter(function(d) { return d.id === id; })[0];
+  var dealData = {
+    id:              id,
+    archived:        existing ? existing.archived : false,
+    created:         existing ? existing.created  : todayISO(),
+    name:            document.getElementById('fName').value.trim(),
+    type:            document.getElementById('fType').value,
+    status:          document.getElementById('fStatus').value,
+    leadSource:      document.getElementById('fLeadSource').value,
+    bizName:         document.getElementById('fBizName').value.trim(),
+    bizWebsite:      document.getElementById('fBizWebsite').value.trim(),
+    address:         document.getElementById('fAddress').value.trim(),
+    askPrice:        document.getElementById('fAskPrice').value.trim(),
+    offerPrice:      document.getElementById('fOfferPrice').value.trim(),
+    client:          document.getElementById('fClient').value.trim(),
+    contactRole:     document.getElementById('fContactRole').value.trim(),
+    phone:           document.getElementById('fPhone').value.trim(),
+    email:           document.getElementById('fEmail').value.trim(),
+    lastContact:     document.getElementById('fLastContact').value,
+    propertyDetails: document.getElementById('fPropDetails').value.trim(),
     propertyLink:    document.getElementById('fPropertyLink').value.trim(),
     potentialProps:  document.getElementById('fPotentialProps').value.trim(),
-    nextAction:     document.getElementById('fNextAction').value.trim(),
-    nextDue:        document.getElementById('fNextDue').value,
-    notes:          document.getElementById('fNotes').value.trim(),
+    nextAction:      document.getElementById('fNextAction').value.trim(),
+    nextDue:         document.getElementById('fNextDue').value,
+    notes:           document.getElementById('fNotes').value.trim()
   };
-  const idx = DEALS.findIndex(d=>d.id===id);
-  if(idx>=0) DEALS[idx]=dealData; else DEALS.push(dealData);
+  var idx = -1;
+  DEALS.forEach(function(d, i) { if (d.id === id) idx = i; });
+  if (idx >= 0) DEALS[idx] = dealData; else DEALS.push(dealData);
   closeModal(); render();
 }
 function deleteDeal(id) {
-  if(!confirm('Delete this deal permanently?')) return;
-  DEALS = DEALS.filter(d=>d.id!==id);
+  if (!confirm('Delete this deal permanently?')) return;
+  DEALS = DEALS.filter(function(d) { return d.id !== id; });
   closeModal(); render();
 }
 function toggleArchive(id) {
-  const d=DEALS.find(x=>x.id===id); if(d) d.archived=!d.archived; render();
+  var d = DEALS.filter(function(x) { return x.id === id; })[0];
+  if (d) d.archived = !d.archived;
+  render();
 }
 
 // ── QR CODE ──
-function openQR(){ document.getElementById('qrModalOverlay').classList.remove('hidden'); drawQR(); }
-function closeQR(){ document.getElementById('qrModalOverlay').classList.add('hidden'); }
-function downloadQR(){
-  const a=document.createElement('a');
-  a.download='LaVau-Lucas-QR.png';
-  a.href=document.getElementById('qrCanvas').toDataURL('image/png');
+function openQR()  { document.getElementById('qrModalOverlay').classList.remove('hidden'); drawQR(); }
+function closeQR() { document.getElementById('qrModalOverlay').classList.add('hidden'); }
+function downloadQR() {
+  var a = document.createElement('a');
+  a.download = 'LaVau-Lucas-QR.png';
+  a.href = document.getElementById('qrCanvas').toDataURL('image/png');
   a.click();
 }
-function drawQR(){
-  const canvas=document.getElementById('qrCanvas'),ctx=canvas.getContext('2d'),size=240;
-  canvas.width=size; canvas.height=size;
-  ctx.fillStyle='#0f2850'; ctx.fillRect(0,0,size,size);
-  ctx.fillStyle='#ffffff'; ctx.beginPath(); roundRect(ctx,16,16,size-32,size-32,10); ctx.fill();
-  ctx.fillStyle='#0f2850'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
-  ctx.fillText('📲 CLIENT INTAKE',size/2,56);
-  ctx.font='9px sans-serif'; ctx.fillStyle='#6b7280';
-  ctx.fillText('Scan via Intake Page',size/2,72);
-  ctx.fillStyle='#0f2850'; drawQRPattern(ctx,size);
-  ctx.font='bold 10px sans-serif'; ctx.fillStyle='#0f2850';
-  ctx.fillText('LaVau & Lucas Pipeline',size/2,size-26);
-  ctx.font='9px sans-serif'; ctx.fillStyle='#6b7280';
-  ctx.fillText('lavau-lucas-pipeline',size/2,size-14);
+function drawQR() {
+  var canvas = document.getElementById('qrCanvas'), ctx = canvas.getContext('2d'), size = 240;
+  canvas.width = size; canvas.height = size;
+  ctx.fillStyle = '#0f2850'; ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); rrect(ctx, 16, 16, size - 32, size - 32, 10); ctx.fill();
+  ctx.fillStyle = '#0f2850'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('📲 CLIENT INTAKE', size / 2, 56);
+  ctx.font = '9px sans-serif'; ctx.fillStyle = '#6b7280';
+  ctx.fillText('Scan via Intake Page', size / 2, 72);
+  ctx.fillStyle = '#0f2850'; drawQRPattern(ctx, size);
+  ctx.font = 'bold 10px sans-serif'; ctx.fillStyle = '#0f2850';
+  ctx.fillText('LaVau & Lucas Pipeline', size / 2, size - 26);
+  ctx.font = '9px sans-serif'; ctx.fillStyle = '#6b7280';
+  ctx.fillText('lavau-lucas-pipeline', size / 2, size - 14);
 }
-function drawQRPattern(ctx,size){
-  const m=21,cs=Math.floor((size-80)/m),ox=Math.floor((size-m*cs)/2),oy=84;
-  let seed=42;
-  const rand=()=>{seed=(seed*1664525+1013904223)&0xffffffff;return(seed>>>0)/0xffffffff;};
-  for(let r=0;r<m;r++) for(let c=0;c<m;c++){
-    const inC=(r<7&&c<7)||(r<7&&c>=m-7)||(r>=m-7&&c<7);
-    let f=false;
-    if(inC){if((r===0||r===6)&&c<=6)f=true;else if((c===0||c===6)&&r<=6)f=true;else if(r>=2&&r<=4&&c>=2&&c<=4)f=true;}
-    else f=rand()>0.5;
-    if(f) ctx.fillRect(ox+c*cs,oy+r*cs,cs-1,cs-1);
+function drawQRPattern(ctx, size) {
+  var m = 21, cs = Math.floor((size - 80) / m), ox = Math.floor((size - m * cs) / 2), oy = 84;
+  var seed = 42;
+  function rand() { seed = (seed * 1664525 + 1013904223) & 0xffffffff; return (seed >>> 0) / 0xffffffff; }
+  for (var r = 0; r < m; r++) {
+    for (var c = 0; c < m; c++) {
+      var inC = (r < 7 && c < 7) || (r < 7 && c >= m - 7) || (r >= m - 7 && c < 7);
+      var f = inC
+        ? ((r === 0 || r === 6) && c <= 6) || ((c === 0 || c === 6) && r <= 6) || (r >= 2 && r <= 4 && c >= 2 && c <= 4)
+        : rand() > 0.5;
+      if (f) ctx.fillRect(ox + c * cs, oy + r * cs, cs - 1, cs - 1);
+    }
   }
 }
-function roundRect(ctx,x,y,w,h,r){
-  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
-  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+function rrect(ctx, x, y, w, h, r) {
+  ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
 }
 
 // ── PWA INSTALL ──
-let deferredInstall=null;
-window.addEventListener('beforeinstallprompt',e=>{
-  e.preventDefault(); deferredInstall=e;
+var deferredInstall = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault(); deferredInstall = e;
   document.getElementById('installBanner').classList.add('show');
 });
-document.getElementById('installBtn').addEventListener('click',async()=>{
-  if(!deferredInstall) return;
+document.getElementById('installBtn').addEventListener('click', function() {
+  if (!deferredInstall) return;
   deferredInstall.prompt();
-  const{outcome}=await deferredInstall.userChoice;
-  if(outcome==='accepted') dismissInstall();
-  deferredInstall=null;
+  deferredInstall.userChoice.then(function(r) { if (r.outcome === 'accepted') dismissInstall(); deferredInstall = null; });
 });
-function dismissInstall(){ document.getElementById('installBanner').classList.remove('show'); }
-
-// ── Initialize on page load ──
-window.addEventListener('load', () => {
-  handleOAuthRedirect();
-  initBiometricUI();
-});
+function dismissInstall() { document.getElementById('installBanner').classList.remove('show'); }
 
 // ── HELPERS ──
-function esc(s){ return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):''; }
-function formatDate(iso){
-  if(!iso) return '';
-  const[y,m,d]=iso.split('-');
-  return `${'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ')[+m-1]} ${+d}, ${y}`;
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-function daysSince(iso){
-  if(!iso) return null;
-  return Math.floor((new Date()-new Date(iso+'T12:00:00'))/86400000);
+function formatDate(iso) {
+  if (!iso) return '';
+  var parts = iso.split('-');
+  var months = 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ');
+  return months[parseInt(parts[1]) - 1] + ' ' + parseInt(parts[2]) + ', ' + parts[0];
 }
-function todayISO(){ return new Date().toISOString().split('T')[0]; }
+function daysSince(iso) {
+  if (!iso) return null;
+  return Math.floor((new Date() - new Date(iso + 'T12:00:00')) / 86400000);
+}
+function todayISO() { return new Date().toISOString().split('T')[0]; }
+
+// ── INIT ──
+window.addEventListener('load', function() { initBiometricUI(); });
 </script>
 </body>
 </html>
