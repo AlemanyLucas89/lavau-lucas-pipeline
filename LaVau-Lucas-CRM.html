@@ -794,7 +794,7 @@ const PASSCODE_HASHES = {
 // Add Gmail addresses — only these can complete Step 2
 const AUTHORIZED_EMAILS = [
   // 'frankalemanylucas@gmail.com',
-  // 'sean@lavu.com',
+  // 'sean@lavau.com',
 ];
 
 const EMAIL_ROLES = {
@@ -1435,7 +1435,7 @@ function buildCard(d) {
     </div>
     <div class="card-footer">
       <div class="last-contact">${daysAgo!==null?`Last contact: <strong>${daysAgo===0?'Today':daysAgo===1?'Yesterday':daysAgo+' days ago'}</strong> · ${formatDate(d.lastContact)}`:'<span style="color:#bbb">No contact logged</span>'}</div>
-      `<div class="card-actions"><button class="btn-edit" onclick="openModal('${d.id}')">Edit</button>${isAdmin?`<button class="btn-archive" onclick="toggleArchive('${d.id}')">${d.archived?'Restore':'Archive'}</button>`:''}</div>`
+      buildCardActions(d)
     </div>
   </div>`;
 }
@@ -1462,6 +1462,14 @@ function buildPotentialProps(raw) {
     return `<div style="margin-bottom:6px"><span style="font-size:13px;color:var(--gray)">${esc(line)}</span></div>`;
   }).join('');
   return `<div class="card-field full"><label>Potential Properties for Client</label><div class="val">${links}</div></div>`;
+}
+
+function buildCardActions(d) {
+  const editBtn = '<button class="btn-edit" onclick="openModal(\"' + d.id + '\")">Edit</button>';
+  const archiveBtn = isAdmin
+    ? '<button class="btn-archive" onclick="toggleArchive(\"' + d.id + '\")">' + (d.archived ? 'Restore' : 'Archive') + '</button>'
+    : '';
+  return '<div class="card-actions">' + editBtn + archiveBtn + '</div>';
 }
 
 // ── ADMIN ──
