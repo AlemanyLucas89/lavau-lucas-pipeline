@@ -459,6 +459,24 @@
     padding:3px 8px;font-size:11px;font-weight:700;
   }
 
+
+  /* ── SESSION TIMEOUT WARNING ── */
+  #sessionWarning{
+    position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+    background:var(--navy);color:white;
+    padding:14px 20px;border-radius:14px;
+    box-shadow:var(--shadow-lg);z-index:800;
+    display:none;align-items:center;gap:14px;
+    font-size:13px;font-weight:600;white-space:nowrap;
+    border:1px solid rgba(255,255,255,0.2);
+  }
+  #sessionWarning.show{display:flex;}
+  .btn-session-extend{
+    background:var(--blue);border:none;color:white;
+    padding:7px 14px;border-radius:8px;
+    font-size:13px;font-weight:700;cursor:pointer;
+  }
+
   @media(max-width:420px){
     .form-row{grid-template-columns:1fr;}
     .card-body{grid-template-columns:1fr;}
@@ -473,9 +491,9 @@
 <body>
 
 <!-- ════════════════════════════════════════════
-     TWO-STEP LOGIN GATE
-     Step 1: Passcode (hashed, never stored plain)
-     Step 2: Google account verification
+     SECURE LOGIN GATE
+     Biometric (Face ID / Touch ID) primary
+     Hashed passcode fallback
      No sensitive deal data lives in this file.
      All data is fetched live from Google Sheets.
 ════════════════════════════════════════════ -->
@@ -483,18 +501,11 @@
   <div class="login-box">
     <div class="login-icon">🏢</div>
     <div class="login-title">LaVau &amp; Lucas Pipeline</div>
-    <div class="login-sub">Private access — two-step verification required</div>
+    <div class="login-sub">Private access — biometric or passcode required</div>
 
-    <!-- Step progress indicators -->
-    <div class="login-steps">
-      <div class="login-step active" id="stepDot1">1</div>
-      <div style="flex:1;height:2px;background:#e5e7eb;align-self:center;"></div>
-      <div class="login-step" id="stepDot2">2</div>
-    </div>
-
-    <!-- STEP 1: Biometric or passcode fallback -->
+    <!-- LOGIN: Biometric or passcode -->
     <div id="loginStep1">
-      <div class="login-step-label" id="step1Label">Step 1 of 2 — Verify your identity</div>
+      <div class="login-step-label" id="step1Label">Verify your identity to continue</div>
 
       <!-- Biometric button — shown when WebAuthn is available -->
       <div id="biometricSection" style="display:none;">
@@ -519,31 +530,9 @@
       <div class="login-error" id="loginError">Incorrect passcode. Try again.</div>
     </div>
 
-    <!-- STEP 2: Google verification -->
-    <div id="loginStep2" style="display:none;">
-      <div class="login-step-label">Step 2 of 2 — Verify with Google</div>
-      <p style="font-size:13px;color:#6b7280;margin-bottom:16px;">
-        Sign in with an authorized Google account to complete access.
-      </p>
-      <button class="google-btn" onclick="signInWithGoogle()">
-        <svg class="google-logo" viewBox="0 0 24 24">
-          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-        </svg>
-        Continue with Google
-      </button>
-      <div class="login-divider">or enter Google email manually</div>
-      <input class="login-field" type="email" id="googleEmailInput"
-        placeholder="your@gmail.com" autocomplete="email"
-        onkeydown="if(event.key==='Enter')checkGoogleEmail()">
-      <button class="login-btn" onclick="checkGoogleEmail()">Verify &amp; Enter →</button>
-      <div class="login-error" id="googleError">This Google account is not authorized.</div>
-      <button class="login-back" onclick="backToStep1()">← Back</button>
-    </div>
 
-    <div class="login-footer">LaVau &amp; Lucas · Private CRM · 2026 · Biometric Two-Step Protected</div>
+
+    <div class="login-footer">LaVau &amp; Lucas · Private CRM · 2026 · Face ID &amp; Passcode Protected</div>
   </div>
 </div>
 
@@ -559,6 +548,13 @@
   <div class="install-text">📱 Install on your iPhone Home Screen</div>
   <button class="btn-install" id="installBtn">Install</button>
   <button class="btn-install-dismiss" onclick="dismissInstall()">✕</button>
+</div>
+
+
+<!-- ── SESSION TIMEOUT WARNING ── -->
+<div id="sessionWarning">
+  <span>⏱ Session expiring in <strong id="sessionCountdown">2:00</strong></span>
+  <button class="btn-session-extend" onclick="extendSession()">Stay Logged In</button>
 </div>
 
 <!-- ── SETUP BANNER ── -->
@@ -580,7 +576,7 @@
       <button class="refresh-btn" id="refreshBtn" onclick="loadFromSheets()" title="Refresh">↻</button>
       <button class="qr-btn" onclick="openQR()">&#x25A6; QR</button>
       <button class="add-deal-btn" onclick="openModal(null)">＋ Add Client</button>
-      <button class="admin-toggle hidden" id="adminToggle" onclick="toggleAdmin()">⚙ Admin</button>
+      <button class="admin-toggle hidden" id="adminToggle" onclick="toggleAdmin()">⚙ Current Clients</button>
     </div>
   </div>
   <div class="stats-bar" id="statsBar"></div>
@@ -747,6 +743,10 @@
         <label>Property Profile Link</label>
         <input type="url" id="fPropertyLink" placeholder="https://www.loopnet.com/listing/...">
       </div>
+      <div class="form-group">
+        <label>Potential Properties for Client</label>
+        <textarea id="fPotentialProps" placeholder="Option 1 — 9200 Dearing Ave | https://loopnet.com/...&#10;Option 2 — 1234 Main St | https://costar.com/...&#10;(One per line: Label | URL)"></textarea>
+      </div>
 
       <!-- NEXT ACTION -->
       <div class="form-section-label">⚡ Next Action</div>
@@ -784,13 +784,6 @@ const SHEETS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzD3yvIO6dfpF
 
 // ════════════════════════════════════════════════════════════════
 //  TWO-STEP ACCESS CONTROL
-//
-//  Step 1 — WebAuthn biometric (Face ID / Touch ID)
-//           Falls back to hashed passcode on unregistered devices
-//
-//  Step 2 — Google email verification
-//           Full OAuth when CLIENT_ID is configured
-//           Falls back to email list check
 // ════════════════════════════════════════════════════════════════
 
 const PASSCODE_HASHES = {
@@ -801,7 +794,7 @@ const PASSCODE_HASHES = {
 // Add Gmail addresses — only these can complete Step 2
 const AUTHORIZED_EMAILS = [
   // 'frankalemanylucas@gmail.com',
-  // 'sean@lavau.com',
+  // 'sean@lavu.com',
 ];
 
 const EMAIL_ROLES = {
@@ -1008,11 +1001,8 @@ function showBiometricStatus(msg, type) {
 }
 
 function advanceToStep2() {
-  document.getElementById('loginStep1').style.display = 'none';
-  document.getElementById('loginStep2').style.display = 'block';
-  document.getElementById('stepDot1').className = 'login-step done';
-  document.getElementById('stepDot1').textContent = '✓';
-  document.getElementById('stepDot2').className = 'login-step active';
+  // Email step removed — biometric/passcode is sufficient
+  grantAccess(currentRole);
 }
 
 // ── Initialize biometric section on page load ──
@@ -1035,7 +1025,7 @@ async function checkPasscode() {
   const role = PASSCODE_HASHES[hashed];
   if (role) {
     currentRole = role;
-    advanceToStep2();
+    grantAccess(role);
   } else {
     const err = document.getElementById('loginError');
     err.style.display = 'block';
@@ -1106,8 +1096,10 @@ function verifyEmail(email) {
 
 function grantAccess(role) {
   currentRole = role;
+  sessionStart = Date.now();
   document.getElementById('loginGate').classList.add('hidden');
   if (role === 'admin') document.getElementById('adminToggle').classList.remove('hidden');
+  startSessionTimer();
   loadFromSheets();
 }
 
@@ -1119,6 +1111,80 @@ function backToStep1() {
   document.getElementById('stepDot2').className = 'login-step';
   document.getElementById('loginInput').value = '';
   document.getElementById('loginInput').focus();
+}
+
+
+// ════════════════════════════════════════════════════════════════
+//  SESSION TIMEOUT — 30 minutes like Chase
+//  Warning shown at 28 minutes, auto-logout at 30 minutes
+//  Any tap or interaction resets the clock
+// ════════════════════════════════════════════════════════════════
+const SESSION_TIMEOUT = 30 * 60 * 1000;   // 30 minutes
+const SESSION_WARNING =  2 * 60 * 1000;   // warn 2 min before
+let sessionStart      = null;
+let sessionTimer      = null;
+let sessionCountdown  = null;
+
+function startSessionTimer() {
+  clearTimeout(sessionTimer);
+  clearInterval(sessionCountdown);
+  sessionStart = Date.now();
+  // Reset activity on any user interaction
+  ['click','touchstart','keydown','scroll'].forEach(e =>
+    document.addEventListener(e, resetSessionTimer, {passive:true})
+  );
+  scheduleSessionCheck();
+}
+
+function resetSessionTimer() {
+  if (!sessionStart) return;
+  sessionStart = Date.now();
+  document.getElementById('sessionWarning').classList.remove('show');
+  clearInterval(sessionCountdown);
+  scheduleSessionCheck();
+}
+
+function scheduleSessionCheck() {
+  clearTimeout(sessionTimer);
+  sessionTimer = setTimeout(showSessionWarning, SESSION_TIMEOUT - SESSION_WARNING);
+}
+
+function showSessionWarning() {
+  document.getElementById('sessionWarning').classList.add('show');
+  let remaining = Math.floor(SESSION_WARNING / 1000);
+  const cd = document.getElementById('sessionCountdown');
+  clearInterval(sessionCountdown);
+  sessionCountdown = setInterval(() => {
+    remaining--;
+    const m = Math.floor(remaining / 60);
+    const s = String(remaining % 60).padStart(2,'0');
+    cd.textContent = m + ':' + s;
+    if (remaining <= 0) {
+      clearInterval(sessionCountdown);
+      forceLogout();
+    }
+  }, 1000);
+}
+
+function extendSession() {
+  resetSessionTimer();
+}
+
+function forceLogout() {
+  sessionStart = null;
+  clearTimeout(sessionTimer);
+  clearInterval(sessionCountdown);
+  document.getElementById('sessionWarning').classList.remove('show');
+  document.getElementById('loginGate').classList.remove('hidden');
+  document.getElementById('adminToggle').classList.add('hidden');
+  document.getElementById('loginStep1').style.display = 'block';
+  document.getElementById('loginInput').value = '';
+  document.getElementById('biometricStatus').className = 'biometric-status';
+  DEALS = [];
+  isAdmin = false;
+  currentRole = null;
+  // Re-init biometric UI for next login
+  setTimeout(initBiometricUI, 200);
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1364,11 +1430,12 @@ function buildCard(d) {
       ${d.nextAction?`<div class="next-action-box"><div class="icon">⚡</div><div><div class="action-label">Next Action</div><div class="action-text">${esc(d.nextAction)}</div>${d.nextDue?`<div class="action-due ${overdue?'overdue':''}">${overdue?'⚠️ Overdue · ':''}Due ${formatDate(d.nextDue)}</div>`:''}</div></div>`:''}
       ${d.propertyDetails?buildPropDetails(d.propertyDetails):''}
       ${d.propertyLink?`<div class="card-field full"><label>Property Profile</label><div class="val"><a href="${esc(d.propertyLink)}" target="_blank" class="prop-link-btn">🔗 View Listing →</a></div></div>`:''}
+      ${d.potentialProps?buildPotentialProps(d.potentialProps):''}
       ${d.notes?`<div class="notes-box"><div class="notes-box-label">📝 Notes</div><div class="notes-text">${esc(d.notes)}</div></div>`:''}
     </div>
     <div class="card-footer">
       <div class="last-contact">${daysAgo!==null?`Last contact: <strong>${daysAgo===0?'Today':daysAgo===1?'Yesterday':daysAgo+' days ago'}</strong> · ${formatDate(d.lastContact)}`:'<span style="color:#bbb">No contact logged</span>'}</div>
-      ${isAdmin?`<div class="card-actions"><button class="btn-edit" onclick="openModal('${d.id}')">Edit</button><button class="btn-archive" onclick="toggleArchive('${d.id}')">${d.archived?'Restore':'Archive'}</button></div>`:''}
+      `<div class="card-actions"><button class="btn-edit" onclick="openModal('${d.id}')">Edit</button>${isAdmin?`<button class="btn-archive" onclick="toggleArchive('${d.id}')">${d.archived?'Restore':'Archive'}</button>`:''}</div>`
     </div>
   </div>`;
 }
@@ -1383,11 +1450,25 @@ function buildPropDetails(raw) {
   return `<div class="prop-details-box"><div class="prop-details-label">🏗 Property Details</div><div class="prop-specs">${chips}</div></div>`;
 }
 
+function buildPotentialProps(raw) {
+  if (!raw||!raw.trim()) return '';
+  const links = raw.split('\n').map(s=>s.trim()).filter(Boolean).map(line => {
+    const pipeIdx = line.lastIndexOf('|');
+    if (pipeIdx > 0) {
+      const label = line.slice(0,pipeIdx).trim();
+      const url   = line.slice(pipeIdx+1).trim();
+      return `<div style="margin-bottom:6px"><a href="${esc(url)}" target="_blank" class="prop-link-btn" style="background:#f0fdf4;border-color:#bbf7d0;color:#15803d">🏠 ${esc(label)} →</a></div>`;
+    }
+    return `<div style="margin-bottom:6px"><span style="font-size:13px;color:var(--gray)">${esc(line)}</span></div>`;
+  }).join('');
+  return `<div class="card-field full"><label>Potential Properties for Client</label><div class="val">${links}</div></div>`;
+}
+
 // ── ADMIN ──
 function toggleAdmin() {
   isAdmin = !isAdmin;
   const btn = document.getElementById('adminToggle');
-  btn.textContent = isAdmin?'✕ Exit Admin':'⚙ Admin';
+  btn.textContent = isAdmin?'✕ Exit':'⚙ Current Clients';
   btn.classList.toggle('active', isAdmin);
   document.getElementById('saveBar').classList.toggle('hidden', !isAdmin);
   renderDeals();
@@ -1417,11 +1498,12 @@ function openModal(id) {
     document.getElementById('fEmail').value        = d.email||'';
     document.getElementById('fLastContact').value  = d.lastContact||'';
     document.getElementById('fPropDetails').value  = d.propertyDetails||'';
-    document.getElementById('fPropertyLink').value = d.propertyLink||'';
+    document.getElementById('fPropertyLink').value   = d.propertyLink||'';
+    document.getElementById('fPotentialProps').value  = d.potentialProps||'';
     document.getElementById('fNextAction').value   = d.nextAction||'';
     document.getElementById('fNextDue').value      = d.nextDue||'';
     document.getElementById('fNotes').value        = d.notes||'';
-    btns.innerHTML = `<button type="button" class="btn-delete" onclick="deleteDeal('${id}')">Delete</button><button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button><button type="submit" class="btn-primary">Save</button>`;
+    btns.innerHTML = `${isAdmin?`<button type="button" class="btn-delete" onclick="deleteDeal('${id}')">Delete</button>`:''}<button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button><button type="submit" class="btn-primary">Save</button>`;
   } else {
     document.getElementById('modalTitle').textContent = 'New Deal';
     document.getElementById('dealId').value = '';
@@ -1453,7 +1535,8 @@ function saveDeal(e) {
     email:          document.getElementById('fEmail').value.trim(),
     lastContact:    document.getElementById('fLastContact').value,
     propertyDetails:document.getElementById('fPropDetails').value.trim(),
-    propertyLink:   document.getElementById('fPropertyLink').value.trim(),
+    propertyLink:    document.getElementById('fPropertyLink').value.trim(),
+    potentialProps:  document.getElementById('fPotentialProps').value.trim(),
     nextAction:     document.getElementById('fNextAction').value.trim(),
     nextDue:        document.getElementById('fNextDue').value,
     notes:          document.getElementById('fNotes').value.trim(),
